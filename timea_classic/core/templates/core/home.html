@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timea-classic</title>
+    <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Timea-classic</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/">Products</a></li>
+            <li><a href="/">Cart</a></li>
+            <li><a href="/">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div>
+        <h2>Welcome to Timea-classic</h2>
+        <p>Timea-classic is a shop that sells classic products.</p>
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <footer>
+        <p>&copy; 2022 Timea-classic. All rights reserved.</p>
+    </footer>
+    
+    {% comment %} <script src="{% static 'js/script.js' %}"></script> {% endcomment %}
+</body>
+</html>
