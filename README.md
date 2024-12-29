@@ -1,5 +1,4 @@
 # Timea Classic
-# Timea Classic
 
 **Timea Classic** is a Django-based e-commerce platform designed for a baby shop. It provides a seamless shopping experience with features like product search, user authentication, product variants, and a fully functional shopping cart.
 
