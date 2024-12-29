@@ -1,0 +1,205 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-container form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-container form input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+        }
+
+        .form-container form button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-container form button:hover {
+            background-color: #45a049;
+        }
+
+        .form-container p {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-container a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-container a:hover {
+            color: #3e8e41;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-container h2 {
+                font-size: 20px;
+            }
+
+            .form-container form input {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .form-container form button {
+                font-size: 14px;
+            }
+
+            .form-container p {
+                font-size: 12px;
+            }
+        }
+
+        /* Error Messages */
+        ul.messages {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            background-color: #f44336;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        ul.messages li {
+            padding: 10px;
+            margin-bottom: 5px;
+        }
+
+        /* Alert Messages */
+       .alert-success {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .alert-danger {
+            background-color: #f44336;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .error {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="form-container">
+        <h2>Create Your Account</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="error">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>
+            Already have an account? <a href="{% url 'login' %}">Login here</a><br>
+            Forgot your password? <a href="{% url 'password_reset' %}">Reset it here</a>
+        </p>
+    </div>
+</body>
+</html>

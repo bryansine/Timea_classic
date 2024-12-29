@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <title>Order Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .order-details {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-details h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .order-items ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .order-items li {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .order-summary p,
+        .order-status p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .order-actions {
+            margin-top: 20px;
+        }
+
+        .order-actions .btn {
+            padding: 10px 15px;
+            text-decoration: none;
+            color: white;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .order-actions .btn-primary {
+            background-color: #007bff;
+        }
+
+        .order-actions .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .order-actions .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="order-details">
+        <h2>Order #{{ order.id }} - Status: {{ order.status }}</h2>
+        
+        <div class="order-items">
+            <h3>Items in Your Order:</h3>
+            <ul>
+                {% for item in order.items.all %}
+                    <li>
+                        <strong>{{ item.product.name }}</strong> - 
+                        Quantity: {{ item.quantity }} x Ksh {{ item.price }} 
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% comment %} <div class="order-summary">
+            <h3>Order Summary</h3>
+            <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
+        </div> {% endcomment %}
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+            <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
+            <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
+            <p><strong>Phone Number:</strong> {{ order.phone_number }}</p>
+            <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
+        </div>
+        
+
+        <div class="order-status">
+            <p><strong>Status:</strong> {{ order.status }}</p>
+        </div>
+
+        <div class="order-actions">
+            <a href="{% url 'orders:order_list' %}" class="btn btn-primary">Back to Orders</a>
+            <a href="{% url 'cart:view' %}" class="btn btn-secondary">View Cart</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #apps
     'core',
+    'products',
+    'cart',
+    'orders',    
 ]
 
 
@@ -59,7 +62,7 @@ ROOT_URLCONF = 'timea_classic.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,20 +78,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'timea_classic.wsgi.application'
 
 
-# Static files 
-STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # 'static' folder at the project root
-    os.path.join(BASE_DIR, 'core/static'),  # 'core/static' folder for the Core app
-    os.path.join(BASE_DIR, 'products/static'),  # 'products/static' folder for the Products app
-]
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-#media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -135,9 +125,35 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+
+# Static files 
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # 'static' folder at the project root
+    os.path.join(BASE_DIR, 'core/static'),  # 'core/static' folder for the Core app
+    os.path.join(BASE_DIR, 'products/static'),  # 'products/static' folder for the Products app
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+#media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
+
+# logging directories
+LOGIN_URL = '/login/'  
+LOGOUT_URL = '/logout/' 
+LOGIN_REDIRECT_URL = '/products/'
+# LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'core:home'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# SESSION_COOKIE_AGE = 3600  # 1 hour (time in seconds)
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Order</title>
+</head>
+<body>
+    <form method="post" action="{% url 'orders:create_order' %}">
+        {% csrf_token %}
+        <h2>Shipping Details</h2>
+        <label for="shipping_address">Address:</label>
+        <textarea name="shipping_address" required></textarea><br>
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" name="phone_number" required><br>
+        
+        <button type="submit">Place Order</button>
+    </form>
+</body>
+</html>

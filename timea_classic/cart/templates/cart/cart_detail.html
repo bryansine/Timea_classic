@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <title>Cart Details</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Your Cart</h1>
+    </header>
+    <main>
+        <!-- cart_detail.html -->
+<table>
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart.items.all %}
+        <tr>
+            <td>{{ item.item_name }}</td>
+            <td>
+                <form method="post" action="{% url 'cart:update_cart_item' item.id %}">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+            <td>Ksh {{ item.total_price }}</td>
+            <td>
+                <a href="{% url 'cart:remove' item.id %}" class="btn btn-remove">Remove</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

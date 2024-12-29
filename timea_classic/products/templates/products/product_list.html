@@ -1,0 +1,333 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - Timea-classic</title>
+    <link rel="stylesheet" href="{% static 'core/css/mystyle.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    
+</head>
+<body>
+    <style >            
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        nav ul li.logout {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        nav ul li.logout p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        nav ul li.logout a {
+            margin-left: 5px; 
+            color: #d9534f;
+            text-decoration: none;
+        }
+
+        nav ul li.logout a:hover {
+            color: red;
+        }
+
+        nav ul li p {
+            margin-right: 5px;
+            color: white;
+        }
+
+     /*.product-item styles */
+        .product-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 20px; 
+            justify-items: center; 
+            padding: 20px;
+        }
+        
+        .product-item {
+            text-align: center;
+            background-color: #f9f9f9; 
+            border: 1px solid #ddd; 
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            width: 100%;
+            max-width: 220px; 
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .product-item:hover {
+            background-color: #ececec;
+            cursor: pointer;
+            transform: translateY(-5px); /* Subtle lift effect */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-item img {
+            width: 100%; 
+            height: 150px; 
+            object-fit: cover; 
+            border-radius: 5px; 
+            margin-bottom: 10px;
+            background-color: #f0f0f0;
+            display: block;
+        }
+        
+        /* Target <a> tag to remove underline */
+        .product-item a {
+            text-decoration: none; 
+            color: inherit; 
+            display: block;
+            transition: color 0.3s ease; 
+        }
+        
+        .product-item a:hover {
+            color: #ff6347; 
+        }
+        
+        /* Product Name */
+        .product-item h3 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        /* Price */
+        .product-item p:first-of-type {
+            font-size: 1rem;
+            color: #2a9d8f; 
+            font-weight: bold;
+        }
+        
+        /* Stock Quantity */
+        .product-item p:last-of-type {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+    
+            /* category-listing styles */
+        .categories-buttons {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .categories-buttons h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #4b6584;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .categories-list {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+
+            padding: 8px 15px; 
+            font-size: 0.9rem; 
+            background: linear-gradient(135deg, #a8d8ea, #f8a5c2);
+            color: darkslategrey;
+            text-decoration: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3); 
+            transform: skewX(-45deg);
+            transition: left 0.3s ease;
+        }
+        
+        .category-btn:hover::before {
+            left: 100%; 
+        }
+        
+        .category-btn:hover {
+            transform: scale(1.05); 
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #feca57, #ff9ff3); 
+        }
+        
+        .category-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+
+        /* Search Bar Styles */
+        .nav-search {
+            text-align: center;
+            margin: 2rem auto;
+            padding: 10px;
+            max-width: 400px;
+            background-color: #f7e1e7; 
+            border-radius: 25px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Input Field Styling */
+        .nav-search input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            font-size: 1rem;
+            border: 2px solid #f2c1d1; 
+            border-radius: 15px;
+            outline: none;
+            color: #333;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        /* Focus Effect for Input */
+        .nav-search input[type="text"]:focus {
+            border-color: #f08080;
+            box-shadow: 0 0 5px rgba(240, 128, 128, 0.6);
+        }
+
+        /* Button Styling */
+        .search-btn {
+            background-color: #f0a1c1;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        /* Button Hover Effect */
+        .search-btn:hover {
+            background-color: #f0789e;
+            transform: scale(1.05); 
+        }
+
+        /* Responsive Design: Adjust search bar size on smaller screens */
+        @media (max-width: 768px) {
+            .nav-search {
+                max-width: 90%;
+            }
+            .nav-search input[type="text"] {
+                width: 70%;
+            }
+        }
+
+    </style>
+    <header>
+        <h1>Timea-classic</h1>
+        <a href="/">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200">
+        </a>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="{% url 'cart:view' %}">View Cart</a></li>
+            <li><a href="/">Contact</a></li>
+            <li class="logout">
+                <p>Hello,  {{ user.username }} <a href="/">Logout</a></p>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="categories-buttons">
+        <h2>Categories</h2>
+        <div class="categories-list">
+            <a href="{% url 'products:list' %}" class="category-btn">All</a>
+            {% for category in categories %}
+                <a href="?category={{ category.id }}" class="category-btn">{{ category.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <div class="nav-search" style="background-image: url('{% static 'core/images/backg1.webp' %}'); background-size: cover; background-position: center; ">
+        <form method="get" action="{% url 'products:search' %}">
+            <input type="text" name="q" placeholder="Search for products..." value="{{ request.GET.q|default:'' }}">
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+    </div>
+
+    <div class="product-list">
+        <h2>All Products</h2>
+        {% if category %}
+            <h3>Category: {{ category.name }}</h3>
+        {% endif %}
+
+        <div class="product-items">
+            {% if products %}
+                {% for product in products %}
+                    <div class="product-item">
+                        <a href="{% url 'products:detail' product.id %}">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                            <h3>{{ product.name }}</h3>
+                            <p>Ksh {{ product.price }}</p>
+                            <p>Remaining Pieces: {{ product.stock_quantity }}</p>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No products found in this category.</p>
+            {% endif %}
+        </div>
+    </div>  
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        <ul>
+            {% if products.has_previous %}
+                <li><a href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">First</a></li>
+                <li><a href="?page={{ products.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Previous</a></li>
+            {% endif %}
+
+            <li>Page {{ products.number }} of {{ products.paginator.num_pages }}</li>
+
+            {% if products.has_next %}
+                <li><a href="?page={{ products.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Next</a></li>
+                <li><a href="?page={{ products.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Last</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Back to Home Button -->
+    <div>
+        <a href="{% url 'home' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+    
+
+    <footer>
+        <p>&copy; 2024 Timea-classic. All rights reserved.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,279 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - Timea-classic</title>
+    <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <style>
+                /* Body styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* logout class Styles */ 
+        nav ul li.logout {
+            margin-left: auto;
+            display: flex;
+
+            transition: background-color 0.3s ease;
+            background-color: transparent;
+            color:darkslategray;
+            cursor: pointer;
+            
+        }
+        
+
+        .product-detail-container {
+            display: flex;
+            gap: 30px;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .product-main, .product-variants {
+            flex: 1;
+        }
+
+        .product-main img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        h3, h2 {
+            font-size: 1.8em;
+        }
+
+        /* Product Main Section (Left) */
+        .product-main {
+            padding: 20px;
+        }
+
+        .product-main p {
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+
+        /* Add to Cart Button Styles */
+        .btn-add-to-cart {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            width: 100%;
+            max-width: 400px; 
+            box-sizing: border-box;
+            margin-top: 20px;
+        }
+
+        .btn-add-to-cart label {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .btn-add-to-cart input[type="number"] {
+            padding: 8px;
+            width: 80px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .btn-add-to-cart button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-add-to-cart button:hover {
+            background-color: #218838;
+        }
+
+        /* Product Variants Section (Right) */
+        .class
+        .product-variants {
+            padding: 20px;
+        }
+
+        .variant-items {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .variant-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .variant-item img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .variant-item p {
+            margin: 5px 0;
+        }
+
+        /* Stock Information */
+        .in-stock {
+            color: green;
+        }
+
+        .out-of-stock {
+            color: red;
+        }
+
+        /* Back Button Styling */
+        .back-button button {
+            padding: 10px 20px;
+            background-color: burlywood;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .back-button button:hover {
+            background-color: #f0ad4e;
+        }
+
+        /* Responsive Design for Small Screens */
+        @media (max-width: 768px) {
+            .product-detail-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .product-main, .product-variants {
+                flex: 1;
+                width: 100%;
+            }
+
+            .btn-add-to-cart {
+                max-width: 100%;
+            }
+
+            .variant-items {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn-add-to-cart input[type="number"] {
+                width: 100%;
+            }
+
+            .btn-add-to-cart button {
+                width: 100%;
+            }
+
+            .back-button button {
+                width: 100%;
+            }
+        }
+
+
+    </style>
+
+    <header>
+        <h1>Timea-classic</h1>
+        <a href="/">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200">
+        </a>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/">Cart</a></li>
+            <li><a href="/">Contact</a></li>
+            <li class="logout">
+                <p>Hello, {{ user.username }} <a href="/">Logout</a></p>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="product-detail-container">
+        <!-- Left Side: Main Product Details -->
+        <div class="product-main">
+            <h2>{{ product.name }}</h2>
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+             <form action="{% url 'cart:add' product.id %}" method="post" class="btn-add-to-cart">
+                {% csrf_token %}
+                <label for="quantity">Quantity:</label>
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}">
+                <button type="submit">Add to Cart</button>
+            </form>
+            <br/>     
+            <p><strong>Price:</strong> Ksh {{ product.price }}</p>
+            <p><strong>Description:</strong> {{ product.description }}</p>
+            <p><strong>Category:</strong> {{ product.category }}</p>
+        </div>
+        
+
+ 
+        <div class="product-variants">
+            <h3>Available Colors</h3>
+            <div class="variant-items">
+                {% for variant in variants %}
+                    <div class="variant-item">
+                        <img src="{{ variant.image.url }}" alt="{{ variant.color_name }}" class="variant-image">
+                        <p>{{ variant.color_name }}</p>
+                        {% if variant.is_in_stock %}
+                        <p class="in-stock">Stock: {{ variant.stock_quantity }}</p>
+                        <p><strong>Price:</strong> Ksh {{ variant.price }}</p>
+                        {% comment %} <a href="{% url 'cart:add_variant' product.id variant.id %}" class="btn-add-to-cart">Add to Cart</a> {% endcomment %}
+                        <form action="{% url 'cart:add_variant' product.id variant.id %}" method="post" class="btn-add-to-cart">
+                            {% csrf_token %}
+                            <label for="quantity">Quantity:</label>
+                            <input type="number" name="quantity" value="1" min="1" max="{{ variant.stock_quantity }}">
+                            <button type="submit" style="background-color:#28a745">Add to Cart</button>
+                        </form>  
+                                 
+                        {% else %}
+                        <p class="out-of-stock" style="color: red;">Out of Stock</p>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p>No variants available for this product.</p>
+                {% endfor %}
+            </div>
+
+
+            <div>
+                <a href="{% url 'products:list' %}" class="back-button">
+                    <button style="color: black; background-color: burlywood;">
+                        <i class="fas fa-arrow-left"></i> Back to Products
+                    </button>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Timea-classic. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

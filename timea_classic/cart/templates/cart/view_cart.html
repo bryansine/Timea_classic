@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <title>Your Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .btn {
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-remove {
+            background-color: #dc3545;
+        }
+        .btn-remove:hover {
+            background-color: #a71d2a;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Your Cart</h2>
+    </header>
+
+    <nav style="display: flex;background-color:#0056b3; align-items: right; ">
+        <ul>
+            <button><a href="{% url 'profile' %}">Profile</a></button>
+        </ul>
+    </nav>
+    
+
+    <main>
+        {% if cart.items.all %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Update</th>
+                    <th>Action</th>
+                    <th>checkout</th>
+                    <th>order</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.items.all %}
+                <tr>
+                    <td>
+                        {% if item.product %}
+                            {{ item.product.name }}
+                        {% elif item.variant %}
+                            {{ item.variant.product.name }} - {{ item.variant.color_name }}
+                        {% else %}
+                            Unknown Product
+                        {% endif %}
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td>Ksh {{ item.total_price }}</td>
+                    <td>
+                        <form method="post" action="{% url 'cart:update_cart_item' item.id %}">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                            <button type="submit">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{% url 'cart:remove' item.id %}" class="btn btn-remove">Remove</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'cart:view' %}" class="btn">Checkout</a>
+                    </td>
+                    <td>
+                        <a href="cart:view" class="btn">Order Now</a>
+                    </td>
+
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+            
+        </table>
+        {% else %}
+        <p class="empty-cart">Your cart is empty.</p>
+        {% endif %}
+    </main>
+    <footer class="footer">
+        <a href="{% url 'products:list' %}" class="btn">Continue Shopping</a>
+    </footer>
+</body>
+</html>

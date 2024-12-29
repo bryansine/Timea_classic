@@ -2,36 +2,612 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Timea-classic</title>
+    <meta name="description" content="Timea - Explore our product categories and featured items.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timea</title>
     <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
 </head>
 <body>
-    <header>
+    <style>
+
+     /* body styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Main styles */
+        main {
+            flex: 1;
+        }
+
+        /* explore button styles */
+        button.hero-btn {
+            background-color: cornflowerblue;
+            color: white;
+            padding: 5px 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        button.hero-btn:hover {
+            background-color: royalblue;
+            transform: scale(1.05);
+        }
+        
+        button.hero-btn:active {
+            background-color: navy;
+            transform: scale(0.95);
+        }
+
+            /* auth styles*/
+        .auth form {
+            margin: 0;
+            display: ruby;
+        }
+        
+        button.auth-btn {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 25px;
+            font-size: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        button.auth-btn:hover {
+            background-color: #4a90e2;
+            transform: translateY(-3px);
+        }
+        
+        button.auth-btn:active {
+            background-color: #212529;
+            transform: translateY(1px);
+        }      
+
+
+        /* Product Items - Grid Layout for categories */
+        .product-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 20px;
+            justify-items: center;
+            padding: 20px;
+        }
+
+        /* Individual Product Item */
+        .product-item {
+            text-align: center;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 220px;
+            margin-bottom: 20px;
+        }
+
+        /* Hover Effects for Product Item */
+        .product-item:hover {
+            background-color: #ddd;
+            cursor: pointer;
+        }
+
+        /* Product Title */
+        .product-item h3 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        /* Product Image */
+        .product-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Product Description */
+        .product-item p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        
+        /* Grid for Products */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            justify-items: center;
+            padding: 0 1rem;
+        }
+
+        /* Product Card Styles */
+        .product-card {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        /* Hover Effect for Product Card */
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Product Image in Card */
+        .product-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        /* Product Title in Card */
+        .product-card h3 {
+            font-size: 1.2rem;
+            color: #343a40;
+            margin: 1rem 0 0.5rem;
+        }
+
+        /* Product Price */
+        .product-card p {
+            font-size: 1.1rem;
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        /* View Details Button */
+        .btn-view-details {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-view-details:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive Styles for Smaller Screens */
+        @media (max-width: 768px) {
+            .product-items {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+            
+      /* Featured Section Styles */
+        .featured-section {
+            text-align: center;
+            padding: 2rem 1rem;
+            background-color: #f9f9f9;
+        }
+
+        .featured-section h2 {
+            font-size: 2rem;
+            color: #343a40;
+            margin-bottom: 0.5rem;
+        }
+
+        .featured-section p {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+        }
+
+        /* Responsive Styles for Smaller Screens */
+        @media (max-width: 768px) {
+            .product-items {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        
+        /* Product Item Styles */
+        .in-stock {
+            color: green;
+            font-weight: bold;
+        }
+        
+        .out-of-stock {
+            font-weight: bold;
+            opacity: 1.9;
+            color: red;
+        }
+
+        /* Search Bar Styles */
+        .nav-search {
+            text-align: center;
+            margin: 2rem auto;
+            padding: 10px;
+            max-width: 400px;
+            background-color: #f7e1e7; 
+            border-radius: 25px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Input Field Styling */
+        .nav-search input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            font-size: 1rem;
+            border: 2px solid #f2c1d1; 
+            border-radius: 15px;
+            outline: none;
+            color: #333;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        /* Focus Effect for Input */
+        .nav-search input[type="text"]:focus {
+            border-color: #f08080;
+            box-shadow: 0 0 5px rgba(240, 128, 128, 0.6);
+        }
+
+        /* Button Styling */
+        .search-btn {
+            background-color: #f0a1c1;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        /* Button Hover Effect */
+        .search-btn:hover {
+            background-color: #f0789e;
+            transform: scale(1.05); 
+        }
+
+        /* Responsive Design: Adjust search bar size on smaller screens */
+        @media (max-width: 768px) {
+            .nav-search {
+                max-width: 90%;
+            }
+            .nav-search input[type="text"] {
+                width: 70%;
+            }
+        }
+
+        /* Footer styling */
+        .main-footer {
+            background-color: whitesmoke;
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap; 
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap; 
+            width: 100%;
+            height: auto; 
+            background-color: aliceblue;
+            color: black;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .footer-container div {
+            flex: 1; 
+            margin-right: 20px;
+        }
+]
+        .footer-container div:last-child {
+            margin-right: 0;
+        }
+
+
+        .copyright {
+            text-align: center; 
+            width: 100%; 
+            margin-top: 20px; 
+        }
+
+        .social-media a {
+            margin-right: 10px;
+            text-decoration: none;
+        }
+
+        .newsletter-form input[type="email"] {
+            padding: 8px;
+            width: calc(100% - 100px);
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .newsletter-form button {
+            padding: 8px 16px;
+            background-color: cornflowerblue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .newsletter-form button:hover {
+            background-color: darkblue;
+        }
+
+
+
+        /* category_listing styles */
+        .categories-buttons {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .categories-buttons h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #4b6584;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .categories-list {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 8px 15px; 
+            font-size: 0.9rem; 
+            background: linear-gradient(135deg, #a8d8ea, #f8a5c2);
+            color: darkslategrey;
+            text-decoration: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3); 
+            transform: skewX(-45deg);
+            transition: left 0.3s ease;
+        }
+        
+        .category-btn:hover::before {
+            left: 100%; 
+        }
+        
+        .category-btn:hover {
+            transform: scale(1.05); 
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #feca57, #ff9ff3); 
+        }
+        
+        .category-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* last-footer styles */
+        .last-footer {
+            background-color: #ffe4e1;
+            color: black;
+            text-align: center;
+            padding: 10px;
+            height: 20px;
+        }
+
+        /* About styles*/
+        .about {
+            color: white;
+
+        }
+
+        .about form {
+            margin: 0;
+            display: grid;
+            background-color: black;
+        }
+        
+        button.about-btn {
+            background-color: black;
+            color: white;
+            padding: 10px 25px;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+    </style>
+
+    <header class="main-header">
         <h1>Timea-classic</h1>
+        <a href="/" class="logo-link">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" class="logo-img">
+        </a>
+
+        <div class="header-info">
+            <div class="support-desk">
+                <p>Support Desk: <strong style="color: cornflowerblue;">+254 713 42 38 85</strong></p>
+            </div>
+            <div class="delivery">
+                <p>Delivery: <strong style="color: cornflowerblue;">Next Day Countrywide</strong></p>
+            </div>
+        </div>
+
+        <section class="about">
+            <form action="{% url 'about' %}" method="get">
+                <button type="submit" class="auth-btn">About Us</button>
+            </form>
+        </section>
+
+        <section class="auth">
+            <form action="{% url 'register' %}" method="get">
+                <button type="submit" class="auth-btn">Sign up</button>
+            </form>
+            <form action="{% url 'login' %}" method="get">
+                <button type="submit" class="auth-btn">Sign in</button>
+            </form>
+        </section>
     </header>
-    
+
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/">Products</a></li>
-            <li><a href="/">Cart</a></li>
+            <li><a href="{% url 'products:list' %}">Products</a></li>
+            <li><a href="{% url "cart:view" %}">Cart</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href="/">Contact</a></li>
         </ul>
     </nav>
 
-    <div>
-        <h2>Welcome to Timea-classic</h2>
-        <p>Timea-classic is a shop that sells classic products.</p>
-    
-    <main>
+    <!-- Hero Section -->
+    <section class="hero" style="background-image: url('{% static 'core/images/hollowknight.jpeg' %}'); background-size: cover; background-position: center;">
+        <div class="hero-content" style="color: white;">
+            <h1>Discover Categories</h1>
+            <p>Explore our adorable and comfortable collection of baby clothing. Shop now!</p>
+            <div class="categories-buttons">
+                <h2>Categories</h2>
+                <div class="categories-list">
+                    <a href="{% url 'products:list' %}" class="category-btn">All</a>
+                    {% for category in categories %}
+                        <a href="{% url 'products:list' %}?category={{ category.id }}" class="category-btn" >
+                            {{ category.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="nav-search" style="background-image: url('{% static 'core/images/backg1.webp' %}'); background-size: cover; background-position: center; ">
+        <form method="get" action="{% url 'products:search' %}">
+            <input type="text" name="q" placeholder="Search for products..." value="{{ request.GET.q|default:'' }}">
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+    </div>
+
+    <main> 
         {% block content %}
+        <div class="home-sections">
+            {% for category in categories %}
+            <section class="category-section">
+                <h2>{{ category.name }}</h2>
+                <p>{{ category.description }}</p>
+                <div class="product-items">
+                    {% for product in category.products.all %}
+                    <div class="product-item">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        <h3>{{ product.name }}</h3>
+                        <p>Ksh.{{ product.price }}</p>
+                        {% if product.is_in_stock %}
+                            <p class="in-stock">In Stock</p>
+                        {% else %}
+                            <p class="out-of-stock">Out of Stock</p>
+                        {% endif %}
+                        <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                    </div>
+                    {% empty %}
+                        <p>No products available in this category.</p>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endfor %}
+        </div>
         {% endblock %}
     </main>
-    
-    <footer>
-        <p>&copy; 2022 Timea-classic. All rights reserved.</p>
+
+    <section class="main-footer">
+        <div class="footer-container">
+            <div>
+                <h3>  About Us</h3>
+                <p>Learn more about our mission and vision.</p>
+                <a href="{% url 'about' %}"><button>Read More</button></a>
+            </div>
+
+            <div class="delivery-info">
+                <h3>Delivery Info</h3>
+                <p>Next Day Countrywide - <strong style="color: cornflowerblue;">Ksh. 50.00</strong></p>
+                <p>Standard Delivery - <strong style="color: cornflowerblue;">Ksh. 100.00</strong></p>
+            </div>
+
+            <div class="payment-methods">
+                <h3>Payment Methods</h3>
+                <a href="/"><img src="{% static 'products/images/payment.png' %}" alt="Payment methods" class="payment-img" height="50px" loading="lazy"></a>
+            </div>
+
+            <div class="newsletter-form">
+                <h3>Subscribe to our newsletter</h3>
+                <form action="/subscribe/" method="post">
+                    {% csrf_token %}
+                    <input type="email" name="email" placeholder="Enter your email address" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+
+            <div>
+                <h3>Contact</h3>
+                <p>Email: support@timea.com</p>
+                <p>Phone: +713423885</p>
+            </div>
+
+            <div class="social-media">
+                <h3>Follow us:</h3>
+                <a href="https://www.facebook.com/"><img src="{% static 'core/images/facebook.png' %}" alt="Facebook" height="30"></a>
+                <a href="https://www.x.com/"><img src="{% static 'core/images/twitter.png' %}" alt="Twitter" height="30"></a>
+                <a href="https://www.instagram.com/"><img src="{% static 'core/images/instagram.jpeg' %}" alt="Instagram" height="30"></a>
+                <a href="https://www.tiktok.com/"><img src="{% static 'core/images/tiktok.png' %}" alt="tiktok" height="30"></a>
+            </div>
+
+            <div class="copyright">
+                <p>Designed and built by: <a href="https://www.linkedin.com/in/bryan-sine-53432b1b1/">SINE</a></p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="last-footer">
+        <div>
+            <p>&copy; 2024 Timea-classic. All rights reserved.</p>
+        </div>
     </footer>
-    
-    {% comment %} <script src="{% static 'js/script.js' %}"></script> {% endcomment %}
 </body>
 </html>
