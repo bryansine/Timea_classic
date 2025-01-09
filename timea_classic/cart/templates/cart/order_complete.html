@@ -15,7 +15,10 @@
     <main>
         <p>Thank you for your order! Your cart has been cleared.</p>
         <a href="{% url '' %}" class="button">Return to Homepage</a>
-        <a href= "{% url ''%}" class=
+        <a href= "{% url ''%}" class= "button">View Orders</a>
+        <a href="{% url 'cart:view' %}" class="button">View Cart</a>
+        <a href="{% url 'accounts:logout' %}" class="button">Logout</a>
+        <a href="{% url 'products:product_list' %}" class="button">Continue Shopping</a>
     </main>
 </body>
 </html>

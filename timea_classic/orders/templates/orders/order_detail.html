@@ -83,10 +83,6 @@
             </ul>
         </div>
 
-        {% comment %} <div class="order-summary">
-            <h3>Order Summary</h3>
-            <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
-        </div> {% endcomment %}
         <div class="order-summary">
             <h3>Order Summary</h3>
             <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
@@ -94,15 +90,24 @@
             <p><strong>Phone Number:</strong> {{ order.phone_number }}</p>
             <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
         </div>
-        
 
         <div class="order-status">
             <p><strong>Status:</strong> {{ order.status }}</p>
         </div>
 
+        {# Payment status check #}
+        {% if order.payment_status == 'Pending' %}
+            <div class="order-actions">
+                <a href="{% url 'orders:initiate_payment' order.id %}" class="btn btn-primary">Place Order & Pay</a>
+
+            </div>
+        {% else %}
+            <p><strong>Payment Status:</strong> Paid</p>
+        {% endif %}
+
         <div class="order-actions">
-            <a href="{% url 'orders:order_list' %}" class="btn btn-primary">Back to Orders</a>
-            <a href="{% url 'cart:view' %}" class="btn btn-secondary">View Cart</a>
+            <a href="{% url 'cart:view' %}" class="btn btn-primary">Back to cart</a>
+
         </div>
     </div>
 </body>

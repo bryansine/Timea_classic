@@ -106,7 +106,7 @@
                         <a href="{% url 'cart:remove' item.id %}" class="btn btn-remove">Remove</a>
                     </td>
                     <td>
-                        <a href="{% url 'cart:view' %}" class="btn">Checkout</a>
+                        <a href="{% url 'orders:create_order_from_cart' %}" class="btn">Checkout</a>
                     </td>
                     <td>
                         <a href="cart:view" class="btn">Order Now</a>

@@ -17,7 +17,6 @@ from .models import UserProfile
 def about(request):
     return render(request, 'core/about.html')
 
-@login_required
 def home(request):
     categories = Category.objects.all()
     category_id = request.GET.get('category')

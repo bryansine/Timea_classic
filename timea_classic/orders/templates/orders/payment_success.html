@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+</head>
+<body>
+    <h1>Payment Successful!</h1>
+    <p>Thank you for your payment.</p>
+    <p><strong>Order ID:</strong> {{ order.id }}</p>
+    <p><strong>Status:</strong> {{ order.payment_status }}</p>
+    <a href="{% url 'cart:view' %}" class="btn btn-primary">Back to cart</a>
+</body>
+</html>
+
+{% comment %} this logic will be implemented once im done with the mpesa gateway intergation {% endcomment %}

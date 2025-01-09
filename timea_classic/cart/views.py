@@ -74,4 +74,3 @@ def remove_from_cart(request, item_id):
     if cart_item.cart.user == request.user:
         cart_item.delete()
     return redirect('cart:view')
-
