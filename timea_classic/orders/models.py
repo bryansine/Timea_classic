@@ -32,19 +32,39 @@ class Order(models.Model):
         return sum(item.total_price for item in self.items.all())
 
 
+# class OrderItem(models.Model):
+#     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+#     # product = models.ForeignKey(Product, on_delete=models.CASCADE)
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+#     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
+#     quantity = models.PositiveIntegerField()
+#     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+#     def __str__(self):
+#         return f"{self.product.name} - {self.quantity} pcs"
+
+#     @property
+#     def total_price(self):
+#         return self.price * self.quantity
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    # product = models.ForeignKey(Product, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"{self.product.name} - {self.quantity} pcs"
+        if self.product:
+            return f"{self.product.name} - {self.quantity} pcs"
+        elif self.variant:
+            return f"{self.variant.product.name} ({self.variant.color_name}) - {self.quantity} pcs"
+        else:
+            return f"Unknown Item - {self.quantity} pcs"
 
     @property
     def total_price(self):
         return self.price * self.quantity
+
     
 
