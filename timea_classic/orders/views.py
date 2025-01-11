@@ -6,6 +6,8 @@ from django.http import HttpResponse
 from django.db import transaction
 
 
+
+
 @login_required
 def create_order(request):
     cart = request.user.cart  # Ensure this is correct for your app
@@ -36,12 +38,15 @@ def create_order(request):
 
             # Add selected items from cart to the order
             for item in cart.items.filter(id__in=selected_cart_item_ids):
+                price = item.product.price if item.product else item.variant.price
+                name = item.product.name if item.product else f"{item.variant.product.name} - {item.variant.color_name}"
+
                 OrderItem.objects.create(
                     order=order,
                     product=item.product,
                     variant=item.variant,
                     quantity=item.quantity,
-                    price=item.product.price if item.product else item.variant.price
+                    price=price
                 )
                 cart_items_to_remove.append(item.id)
 

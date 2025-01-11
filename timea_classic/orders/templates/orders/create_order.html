@@ -1,7 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="description" content="Timea - Explore our product categories and featured items.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Order</title>
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
 </head>
 <body>
     <style>
@@ -10,16 +14,17 @@
             margin: 20px;
             padding: 10px;
         }
-    
+
         form {
             width: 300px;
+            margin: auto;
         }
-    
+
         label {
             display: block;
             margin-bottom: 5px;
         }
-    
+
         input {
             width: 100%;
             padding: 8px;
@@ -27,7 +32,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-    
+
         button {
             padding: 10px 15px;
             background-color: #28a745;
@@ -36,12 +41,42 @@
             border-radius: 5px;
             cursor: pointer;
         }
-    
+
         button:hover {
             background-color: #218838;
         }
+
+        h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .cart-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cart-item label {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .cart-item .item-info {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .cart-item input[type="checkbox"] {
+            margin-top: 3px;
+        }
     </style>
-    
+
     <form method="POST" action="{% url 'orders:create_order' %}">
         {% csrf_token %}
         <h3>Shipping Information</h3>
@@ -51,20 +86,29 @@
         <label for="phone_number">Phone Number:</label>
         <input type="text" id="phone_number" name="phone_number" required>
         <br>
-        
+
         <h3>Cart Items</h3>
         {% for item in cart.items.all %}
-            <div>
-                <input type="checkbox" id="cart_item_{{ item.id }}" name="cart_items" value="{{ item.id }}">
-                <label for="cart_item_{{ item.id }}">
-                    {{ item.product.name }} - {{ item.quantity }} x {{ item.product.price }}
-                </label>
+            <div class="cart-item">
+                <div class="item-info">
+                    <label for="cart_item_{{ item.id }}">
+                        {% if item.product %}
+                            {{ item.product.name }} - {{ item.quantity }} x Ksh {{ item.product.price }}
+                        {% elif item.variant %}
+                            {{ item.variant.product.name }} - {{ item.variant.color_name }} - {{ item.quantity }} x Ksh {{ item.variant.price }}
+                        {% else %}
+                            Unknown Item
+                        {% endif %}
+                    </label>
+                </div>
+                <div>
+                    <input type="checkbox" id="cart_item_{{ item.id }}" name="cart_items" value="{{ item.id }}">
+                </div>
             </div>
         {% endfor %}
-        
+
         <button type="submit">Place Order</button>
     </form>
-    
-    
+
 </body>
 </html>
