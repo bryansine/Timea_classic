@@ -53,7 +53,6 @@ def create_order(request):
             # Remove only the ordered items from the cart
             CartItem.objects.filter(id__in=cart_items_to_remove).delete()
 
-        # Redirect to order detail page
         return redirect('orders:order_detail', order_id=order.id)
 
     # Render the order creation form for GET requests

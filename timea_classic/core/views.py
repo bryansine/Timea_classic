@@ -68,7 +68,6 @@ def logout(request):
 
 @login_required
 def profile_view(request):
-    # Import UserProfileForm only when it's needed in the function scope
     from .forms import UserProfileForm
 
     user_form = UserForm(instance=request.user)
