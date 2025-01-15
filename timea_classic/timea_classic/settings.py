@@ -32,7 +32,8 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
 # Add the CSRF_TRUSTED_ORIGINS setting
 CSRF_TRUSTED_ORIGINS = [
-    'https://localhost:8000',
+    # 'https://localhost:8000',
+    'http://127.0.0.1:8000',
     # Add other trusted origins if needed
 ]
 
@@ -90,17 +91,17 @@ WSGI_APPLICATION = 'timea_classic.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': config('DB_PASSWORD'), 
-        'HOST': 'monorail.proxy.rlwy.net', # Host from DATABASE_PUBLIC_URL
-        'PORT': '58984',  # Port from DATABASE_PUBLIC_URL
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
     }
 }
-
 
 
 # Password validation
