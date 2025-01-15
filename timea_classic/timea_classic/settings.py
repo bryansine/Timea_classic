@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,10 +25,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*r35()t7g!dr)(hc=2rq+08+!nde!1v(qb-^ezsx&gz!3z#mb('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
+
+# Add the CSRF_TRUSTED_ORIGINS setting
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:8000',
+    # Add other trusted origins if needed
+]
 
 # Application definition
 
@@ -85,10 +92,15 @@ WSGI_APPLICATION = 'timea_classic.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': config('DB_PASSWORD'), 
+        'HOST': 'monorail.proxy.rlwy.net', # Host from DATABASE_PUBLIC_URL
+        'PORT': '58984',  # Port from DATABASE_PUBLIC_URL
     }
 }
+
 
 
 # Password validation
@@ -157,3 +169,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # SESSION_COOKIE_AGE = 3600  # 1 hour (time in seconds)
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+
+
+# Security Settings in production 
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# X_FRAME_OPTIONS = 'DENY'
+# SECURE_BROWSER_XSS_FILTER = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_SSL_REDIRECT = True  
