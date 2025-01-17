@@ -27,13 +27,15 @@ SECRET_KEY = 'django-insecure-*r35()t7g!dr)(hc=2rq+08+!nde!1v(qb-^ezsx&gz!3z#mb(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+
 
 
 # Add the CSRF_TRUSTED_ORIGINS setting
 CSRF_TRUSTED_ORIGINS = [
     # 'https://localhost:8000',
     'http://127.0.0.1:8000',
+    'https://localhost:8000'
     # Add other trusted origins if needed
 ]
 
@@ -92,14 +94,22 @@ WSGI_APPLICATION = 'timea_classic.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
+# Initialize the Config object
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('DB_NAME'),
+#         'USER': config('DB_USER'),
+#         'PASSWORD': config('DB_PASSWORD'),
+#         'HOST': config('DB_HOST'),
+#         'PORT': config('DB_PORT', default='5432'),
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3', 
     }
 }
 
