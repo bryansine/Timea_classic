@@ -93,6 +93,7 @@ WSGI_APPLICATION = 'timea_classic.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# config = config()
 
 # Initialize the Config object
 # DATABASES = {
