@@ -41,17 +41,17 @@ def product_list(request):
     return render(request, 'products/product_list.html', context)
 
 
-def product_list(request):
-    categories = Category.objects.all()
-    category_id = request.GET.get('category')
-    products = Product.objects.filter(category_id=category_id) if category_id else Product.objects.all()
+# def product_list(request):
+#     categories = Category.objects.all()
+#     category_id = request.GET.get('category')
+#     products = Product.objects.filter(category_id=category_id) if category_id else Product.objects.all()
 
-    context = {
-        'categories': categories,
-        'products': products,
-        'selected_category': category_id,
-    }
-    return render(request, 'products/product_list.html', context)
+#     context = {
+#         'categories': categories,
+#         'products': products,
+#         'selected_category': category_id,
+#     }
+#     return render(request, 'products/product_list.html', context)
 
 
 
