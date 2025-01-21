@@ -8,16 +8,13 @@
     <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-</head>
-<body>
     <style>
-                /* Body styles */
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
         }
 
-        /* logout class Styles */ 
+         /* logout class Styles */ 
         nav ul li.logout {
             margin-left: auto;
             display: flex;
@@ -28,8 +25,8 @@
             cursor: pointer;
             
         }
-        
 
+        /* Product Detail Layout */
         .product-detail-container {
             display: flex;
             gap: 30px;
@@ -50,7 +47,6 @@
             font-size: 1.8em;
         }
 
-        /* Product Main Section (Left) */
         .product-main {
             padding: 20px;
         }
@@ -60,7 +56,6 @@
             margin: 10px 0;
         }
 
-        /* Add to Cart Button Styles */
         .btn-add-to-cart {
             display: flex;
             align-items: center;
@@ -102,8 +97,6 @@
             background-color: #218838;
         }
 
-        /* Product Variants Section (Right) */
-        .class
         .product-variants {
             padding: 20px;
         }
@@ -125,13 +118,13 @@
             width: 100px;
             height: auto;
             margin-bottom: 10px;
+            cursor: pointer;
         }
 
         .variant-item p {
             margin: 5px 0;
         }
 
-        /* Stock Information */
         .in-stock {
             color: green;
         }
@@ -140,7 +133,6 @@
             color: red;
         }
 
-        /* Back Button Styling */
         .back-button button {
             padding: 10px 20px;
             background-color: burlywood;
@@ -156,7 +148,6 @@
             background-color: #f0ad4e;
         }
 
-        /* Responsive Design for Small Screens */
         @media (max-width: 768px) {
             .product-detail-container {
                 flex-direction: column;
@@ -191,9 +182,47 @@
             }
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
 
     </style>
-
+</head>
+<body>
     <header>
         <h1>Timea-classic</h1>
         <a href="/">
@@ -218,7 +247,7 @@
         <div class="product-main">
             <h2>{{ product.name }}</h2>
             <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
-             <form action="{% url 'cart:add' product.id %}" method="post" class="btn-add-to-cart">
+            <form action="{% url 'cart:add' product.id %}" method="post" class="btn-add-to-cart">
                 {% csrf_token %}
                 <label for="quantity">Quantity:</label>
                 <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}">
@@ -229,27 +258,23 @@
             <p><strong>Description:</strong> {{ product.description }}</p>
             <p><strong>Category:</strong> {{ product.category }}</p>
         </div>
-        
 
- 
         <div class="product-variants">
             <h3>Available Colors</h3>
             <div class="variant-items">
                 {% for variant in variants %}
                     <div class="variant-item">
-                        <img src="{{ variant.image.url }}" alt="{{ variant.color_name }}" class="variant-image">
+                        <img src="{{ variant.image.url }}" alt="{{ variant.color_name }}" class="variant-image" onclick="openModal('{{ variant.image.url }}')">
                         <p>{{ variant.color_name }}</p>
                         {% if variant.is_in_stock %}
                         <p class="in-stock">Stock: {{ variant.stock_quantity }}</p>
                         <p><strong>Price:</strong> Ksh {{ variant.price }}</p>
-                        {% comment %} <a href="{% url 'cart:add_variant' product.id variant.id %}" class="btn-add-to-cart">Add to Cart</a> {% endcomment %}
                         <form action="{% url 'cart:add_variant' product.id variant.id %}" method="post" class="btn-add-to-cart">
                             {% csrf_token %}
                             <label for="quantity">Quantity:</label>
                             <input type="number" name="quantity" value="1" min="1" max="{{ variant.stock_quantity }}">
                             <button type="submit" style="background-color:#28a745">Add to Cart</button>
                         </form>  
-                                 
                         {% else %}
                         <p class="out-of-stock" style="color: red;">Out of Stock</p>
                         {% endif %}
@@ -258,8 +283,6 @@
                     <p>No variants available for this product.</p>
                 {% endfor %}
             </div>
-
-
             <div>
                 <a href="{% url 'products:list' %}" class="back-button">
                     <button style="color: black; background-color: burlywood;">
@@ -267,13 +290,40 @@
                     </button>
                 </a>
             </div>
-
         </div>
     </div>
+
+    <!-- Modal for Image Enlargement -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+
 
     <footer>
         <p>&copy; 2024 Timea-classic. All rights reserved.</p>
     </footer>
 
+    <script>
+        function openModal(imageUrl) {
+            var modal = document.getElementById('myModal');
+            var modalImage = document.getElementById('modalImage');
+            modal.style.display = "block";
+            modalImage.src = imageUrl;
+    
+            // Close modal when clicked outside the image
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            }
+        }
+    
+        function closeModal() {
+            var modal = document.getElementById('myModal');
+            modal.style.display = "none";
+        }
+    </script>   
 </body>
 </html>
