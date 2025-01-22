@@ -229,6 +229,29 @@
             transform: scale(1.05); 
         }
 
+        /* alert-circle styles*/
+        .alert-circle {
+            display:inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            color: white;
+            font-weight: bold;
+            border-radius: 50%;
+            font-size: 14px;
+            margin-left: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            opacity: 0.6;
+        }
+    
+        .units-left {
+            color: red;
+            opacity: 0.7;
+            font-weight: bold;
+        }
+
         /* Responsive Design: Adjust search bar size on smaller screens */
         @media (max-width: 768px) {
             .nav-search {
@@ -291,7 +314,11 @@
                             <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
                             <h3>{{ product.name }}</h3>
                             <p>Ksh {{ product.price }}</p>
-                            <p>Remaining Pieces: {{ product.stock_quantity }}</p>
+                            {% comment %} <p> {{ product.stock_quantity }} units left</p> {% endcomment %}
+                            <p>
+                                <span class="alert-circle">!</span> <span class="units-left"><span class="units-left"> {{ product.stock_quantity }} units left</span>
+                                
+                            </p>
                         </a>
                     </div>
                 {% endfor %}
