@@ -1,4 +1,4 @@
 # Ignore virtual environment folder
 myvenv/
 
-.env
+.envmyvenv/
