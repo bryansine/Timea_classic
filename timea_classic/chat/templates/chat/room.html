@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+</head>
+<body>
+    <h1>Room: {{ room_name }}</h1>
+    <div id="chatMessages" style="border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px;">
+        <!-- Chat messages will appear here -->
+    </div>
+    <input id="chatInput" type="text" placeholder="Type a message..." style="width: 100%; padding: 10px;">
+
+    <script>
+        const roomName = "{{ room_name|escapejs }}";
+
+        {% comment %} const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+        ); {% endcomment %}
+
+        {% comment %} const chatSocket = new WebSocket('ws://localhost:8000/ws/chat/testroom/') {% endcomment %}
+        const chatSocket = new WebSocket('ws://localhost:8001/ws/chat/testroom/');
+
+
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const messageNode = document.createElement('div');
+            messageNode.textContent = data.message;
+            document.querySelector('#chatMessages').appendChild(messageNode);
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim() !== '') {
+                chatSocket.send(JSON.stringify({
+                    'message': this.value.trim()
+                }));
+                this.value = '';
+            }
+        });
+    </script>
+</body>
+</html>

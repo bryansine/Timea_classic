@@ -527,6 +527,8 @@
         </form>
     </div>
 
+    
+
     <main> 
         {% block content %}
         <div class="home-sections">
@@ -556,6 +558,7 @@
         </div>
         {% endblock %}
     </main>
+    
 
     <section class="main-footer">
         <div class="footer-container">
@@ -610,5 +613,56 @@
             <p>&copy; 2024 Timea-classic. All rights reserved.</p>
         </div>
     </footer>
+    
+    <!-- Floating Chat Button -->
+    <button id="chatButton" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        💬 Chat with us
+    </button>
+    <div id="chatBox" style="display: none; position: fixed; bottom: 60px; right: 20px; width: 300px; height: 400px; background: white; border: 1px solid #ccc; padding: 10px;">
+        <div id="chatMessages" style="height: 350px; overflow-y: auto; border-bottom: 1px solid #ccc;"></div>
+        <input id="chatInput" type="text" style="width: 100%;" placeholder="Type your message...">
+    </div>
+    
+    <!-- Chat Button Toggle Script -->
+    <script>
+        const chatButton = document.getElementById('chatButton');
+        const chatBox = document.getElementById('chatBox');
+    
+        chatButton.addEventListener('click', () => {
+            chatBox.style.display = chatBox.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+    
+    <!-- WebSocket Communication Script for Timea-classic -->
+    <script>
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/'
+        );
+    
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+    
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const message = data.message;
+            const messageNode = document.createElement('div');
+            messageNode.textContent = message;
+            chatMessages.appendChild(messageNode);
+        };
+    
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+    
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                chatSocket.send(JSON.stringify({
+                    'message': chatInput.value
+                }));
+                chatInput.value = '';
+            }
+        });
+    </script>    
+
 </body>
 </html>

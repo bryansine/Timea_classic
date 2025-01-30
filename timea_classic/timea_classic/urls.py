@@ -10,9 +10,10 @@ urlpatterns = [
     #apps urls
     path('', include('core.urls')),
     path('products/', include('products.urls')),
-    path('cart/', include('cart.urls')),    
+    path('cart/', include('cart.urls')),
+    path('chat/', include('chat.urls')),  
     # path('checkout/', include('checkout.urls')),
     path('orders/', include('orders.urls')),
-    # path('api/', include('api.urls')),
-    # path('api/products/', include('api.products.urls')),    
+    # path('accounts/', include('accounts.urls')), #might remove this line if there is an issue with routing
+    
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
