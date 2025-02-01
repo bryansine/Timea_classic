@@ -14,6 +14,7 @@ urlpatterns = [
     path('chat/', include('chat.urls')),  
     # path('checkout/', include('checkout.urls')),
     path('orders/', include('orders.urls')),
+    
     # path('accounts/', include('accounts.urls')), #might remove this line if there is an issue with routing
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
