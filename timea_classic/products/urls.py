@@ -9,6 +9,7 @@ urlpatterns = [
     path('category/<int:category_id>/', views.product_by_category, name='category'),
     path('search/', views.product_search, name='search'),
     
+    
     # Corrected URL patterns for adding variants to cart
     path('cart/add_variant/<int:product_id>/<int:variant_id>/', views.add_variant_to_cart, name='add_variant'),
 ]
