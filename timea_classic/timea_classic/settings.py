@@ -55,7 +55,9 @@ INSTALLED_APPS = [
     'products',
     'cart',
     'orders',  
-    'chat'  
+    'chat',
+    'daraja',
+    'django_daraja',
 ]
 
 
@@ -204,3 +206,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # SECURE_BROWSER_XSS_FILTER = True
 # SECURE_CONTENT_TYPE_NOSNIFF = True
 # SECURE_SSL_REDIRECT = True  
+
+
+# M-Pesa Configurations
+MPESA_ENVIRONMENT = config('MPESA_ENVIRONMENT', default='sandbox')
+MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY')
+MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET')
+MPESA_SHORTCODE = config('MPESA_SHORTCODE')
+MPESA_PASSKEY = config('MPESA_PASSKEY')
+MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL')
+
+#daraja-config
+
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# MPESA_ENVIRONMENT = 'sandbox'
+# MPESA_CONSUMER_KEY = 'wrKzDu38pyQ5xgN4eftvFGZ04Z1aAvlphWMT2G88nfcyZxtK'
+# MPESA_CONSUMER_SECRET = 'xxTOmsb6MD7Z3GUlEUioAbvg15ZeBQ6kEmuj3AKrloMKHnnRGvHVl78Ba5VF3UZE'
+# MPESA_SHORTCODE = '174379'
+# MPESA_EXPRESS_SHORTCODE = '174379'
+# MPESA_SHORTCODE_TYPE = 'paybill'
+# MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+# MPESA_INITIATOR_USERNAME = 'testapi'
+# MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom999!*!'
+# MPESA_CALLBACK_URL = 'https://mydomain.com/path'

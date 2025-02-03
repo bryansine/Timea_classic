@@ -68,56 +68,9 @@
     </style>
 </head>
 <body>
-    {% comment %} <div class="order-details">
-        <h2>Order #{{ order.id }} - Status: {{ order.status }}</h2>
-        
-        <div class="order-items">
-            <h3>Items in Your Order:</h3>
-            <ul>
-                {% for item in order.items.all %}
-                    <li>
-                        {% if item.product %}
-                            <strong>{{ item.product.name }}</strong> - 
-                            Quantity: {{ item.quantity }} x Ksh {{ item.product.price }}
-                        {% elif item.variant %}
-                            <strong>{{ item.variant.product.name }} - {{ item.variant.color_name }}</strong> - 
-                            Quantity: {{ item.quantity }} x Ksh {{ item.variant.price }}
-                        {% else %}
-                            Unknown Item
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="order-summary">
-            <h3>Order Summary</h3>
-            <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
-            <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
-            <p><strong>Phone Number:</strong> {{ order.phone_number }}</p>
-            <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
-        </div>
-
-        <div class="order-status">
-            <p><strong>Status:</strong> {{ order.status }}</p>
-        </div>
-
-        {# Payment status check #}
-        {% if order.payment_status == 'Pending' %}
-            <div class="order-actions">
-                <a href="{% url 'orders:initiate_payment' order.id %}" class="btn btn-primary">Place Order & Pay</a>
-            </div>
-        {% else %}
-            <p><strong>Payment Status:</strong> Paid</p>
-        {% endif %}
-
-        <div class="order-actions">
-            <a href="{% url 'cart:view' %}" class="btn btn-primary">Back to cart</a>
-        </div>
-    </div> {% endcomment %}
     <div class="order-details">
         <h2>Order #{{ order.id }} - Status: {{ order.status }}</h2>
-        
+
         <div class="order-items">
             <h3>Items in Your Order:</h3>
             <ul>
@@ -155,7 +108,7 @@
         {% else %}
             <p><strong>Payment Status:</strong> Paid</p>
         {% endif %}
-
+        
         <div class="order-actions">
             <a href="{% url 'cart:view' %}" class="btn btn-primary">Back to cart</a>
         </div>

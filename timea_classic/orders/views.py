@@ -2,10 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Order, OrderItem
 from django.contrib.auth.decorators import login_required
 from cart.models import Cart, CartItem
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db import transaction
-
-
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 @login_required
@@ -60,9 +60,16 @@ def create_order(request):
 
 
 
+
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # If payment status is Pending, show the "Place Order & Pay" button
+    if order.payment_status == 'Pending':
+        # Logic to initiate M-Pesa payment if clicked
+        return redirect('orders:initiate_payment', order_id=order.id)
+
     context = {'order': order}
     return render(request, 'orders/order_detail.html', context)
 
@@ -75,22 +82,100 @@ def create_order_from_cart(request):
     return render(request, 'orders/create_order.html', {'cart': cart})
 
 
-@login_required
+import base64
+import requests
+from django.conf import settings
+from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponse
+from .models import Order
+
+# M-Pesa credentials from settings
+MPESA_LIPA_NA_MPESA_SHORTCODE = settings.MPESA_SHORTCODE
+MPESA_LIPA_NA_MPESA_PASSKEY = settings.MPESA_PASSKEY
+MPESA_LIPA_NA_MPESA_CONSUMER_KEY = settings.MPESA_CONSUMER_KEY
+MPESA_LIPA_NA_MPESA_CONSUMER_SECRET = settings.MPESA_CONSUMER_SECRET
+
+def get_mpesa_access_token():
+    """
+    Function to get M-Pesa access token from Safaricom
+    """
+    api_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    
+    # Combine Consumer Key and Secret in the required format for Basic Authentication
+    credentials = f'{MPESA_LIPA_NA_MPESA_CONSUMER_KEY}:{MPESA_LIPA_NA_MPESA_CONSUMER_SECRET}'
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode('utf-8')
+    }
+    
+    response = requests.get(api_url, headers=headers)
+    
+    if response.status_code == 200:
+        json_response = response.json()
+        return json_response.get('access_token')
+    else:
+        return None
+
 def initiate_payment(request, order_id):
-    # Fetch the order
+    """
+    Function to initiate M-Pesa payment via STK Push
+    """
+    # Get the order object based on the order_id
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    if order.payment_status == "Paid":
-        # If the payment is already complete
-        return HttpResponse("Payment has already been completed for this order.")
+    # Ensure payment status is Pending
+    if order.payment_status != 'Pending':
+        return HttpResponse("Payment has already been made.")
 
-    # Process payment (for now, we're simulating this step)
-    # Example: Call a payment API or redirect to a payment gateway
-    order.payment_status = "Pending"  # Update the payment status
-    order.save()
+    # Get the access token for authorization
+    access_token = get_mpesa_access_token()
+    if not access_token:
+        return HttpResponse("Failed to retrieve access token from M-Pesa. Please try again later.")
+    
+    # M-Pesa STK Push request headers
+    headers = {
+        "Authorization": "Bearer " + access_token,
+        "Content-Type": "application/json"
+    }
+    
+    # Prepare the STK Push payload
+    payload = {
+        "BusinessShortcode": MPESA_LIPA_NA_MPESA_SHORTCODE,
+        "LipaNaMpesaOnlineShortcode": MPESA_LIPA_NA_MPESA_SHORTCODE,
+        "LipaNaMpesaOnlineShortcodePasskey": MPESA_LIPA_NA_MPESA_PASSKEY,
+        "PhoneNumber": order.phone_number,  # From the order's phone number
+        "Amount": order.total_price,  # Amount to pay
+        "AccountReference": str(order.id),  # The order id
+        "TransactionDesc": f"Payment for Order {order.id}"
+    }
+    
+    # URL for initiating the STK Push request
+    url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+    
+    # Send the STK Push request to Safaricom's API
+    response = requests.post(url, json=payload, headers=headers)
 
-    # Redirect to a payment confirmation or success page
-    return redirect('orders:payment_success', order_id=order.id)
+    # Handle the response
+    if response.status_code == 200:
+        return redirect('orders:mpesa_callback', order_id=order.id)
+    else:
+        return HttpResponse(f"Payment initiation failed: {response.text}")
+
+
+
+def stk_push_payment(order):
+    """Function to initiate M-Pesa STK Push"""
+    phone_number = order.phone_number
+    amount = order.total_price  # Or any amount you want to charge
+
+    url = "http://127.0.0.1:8000/daraja/stk_push/"  # Your local or deployed endpoint
+    data = {
+        "phone_number": phone_number,
+        "amount": amount
+    }
+    
+    response = requests.post(url, data=data)
+
+    return response.json()
 
 
 @login_required
@@ -106,3 +191,56 @@ def payment_success(request, order_id):
     order.save()
 
     return render(request, 'orders/payment_success.html', {'order': order})
+
+
+
+
+
+@csrf_exempt
+def mpesa_callback(request):
+    # Safaricom returns the response in JSON format
+    data = json.loads(request.body)
+
+    # Extract the OrderID from the callback data
+    order_id = data.get("OrderID")
+    
+    # Ensure the order exists and belongs to the user
+    order = get_object_or_404(Order, id=order_id)
+
+    # Check the result code returned by Safaricom
+    if data.get("ResultCode") == "0":
+        # Successful payment
+        order.payment_status = "Paid"
+        order.save()
+
+        # Redirect to the payment success page
+        return redirect('orders:payment_success', order_id=order.id)
+    else:
+        # Payment failure
+        order.payment_status = "Failed"
+        order.save()
+
+        # Return failure message
+        return HttpResponse("Payment Failed", status=400)
+
+
+
+
+def get_mpesa_access_token():
+    api_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    
+    # Ensure that these keys are defined in settings.py
+    lipa_key = settings.MPESA_CONSUMER_SECRET 
+    lipa_secret = settings.MPESA_CONSUMER_KEY
+
+    # Use the settings values to create the Authorization header
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(f'{lipa_key}:{lipa_secret}'.encode()).decode('utf-8')
+    }
+
+    # Send the request to get the access token
+    response = requests.get(api_url, headers=headers)
+    json_response = response.json()
+
+    # Return the access token from the response
+    return json_response.get('access_token')  
