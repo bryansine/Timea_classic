@@ -103,17 +103,30 @@ def get_mpesa_access_token():
     
     # Combine Consumer Key and Secret in the required format for Basic Authentication
     credentials = f'{MPESA_LIPA_NA_MPESA_CONSUMER_KEY}:{MPESA_LIPA_NA_MPESA_CONSUMER_SECRET}'
+    # headers = {
+    #     'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode('utf-8')
+    # }
+    
     headers = {
-        'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode('utf-8')
-    }
+    'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode()
+}
     
     response = requests.get(api_url, headers=headers)
     
+    print("Status Code:", response.status_code)
+    print("Response Text:", response.text)  # This will show if the response is empty or contains an error
+
     if response.status_code == 200:
-        json_response = response.json()
-        return json_response.get('access_token')
+        try:
+            json_response = response.json()
+            return json_response.get('access_token')
+        except requests.exceptions.JSONDecodeError as e:
+            print("JSON Decode Error:", str(e))
+            return None  # Handle gracefully instead of breaking
     else:
+        print("Failed to get token. Response:", response.text)
         return None
+
 
 def initiate_payment(request, order_id):
     """
@@ -137,16 +150,35 @@ def initiate_payment(request, order_id):
         "Content-Type": "application/json"
     }
     
-    # Prepare the STK Push payload
+    # # Prepare the STK Push payload
+    # payload = {
+    #     "BusinessShortcode": MPESA_LIPA_NA_MPESA_SHORTCODE,
+    #     "LipaNaMpesaOnlineShortcode": MPESA_LIPA_NA_MPESA_SHORTCODE,
+    #     "LipaNaMpesaOnlineShortcodePasskey": MPESA_LIPA_NA_MPESA_PASSKEY,
+    #     "PhoneNumber": order.phone_number,  # From the order's phone number
+    #     "Amount": float(order.total_price),  # Convert Decimal to float
+    #     "AccountReference": str(order.id),  # The order id
+    #     "TransactionDesc": f"Payment for Order {order.id}"
+    # }
     payload = {
-        "BusinessShortcode": MPESA_LIPA_NA_MPESA_SHORTCODE,
-        "LipaNaMpesaOnlineShortcode": MPESA_LIPA_NA_MPESA_SHORTCODE,
-        "LipaNaMpesaOnlineShortcodePasskey": MPESA_LIPA_NA_MPESA_PASSKEY,
-        "PhoneNumber": order.phone_number,  # From the order's phone number
-        "Amount": order.total_price,  # Amount to pay
-        "AccountReference": str(order.id),  # The order id
-        "TransactionDesc": f"Payment for Order {order.id}"
-    }
+    "BusinessShortcode": int(MPESA_SHORTCODE),  # Ensure it's an integer
+    "LipaNaMpesaOnlineShortcode": int(MPESA_SHORTCODE),  
+    "LipaNaMpesaOnlineShortcodePasskey": MPESA_PASSKEY,
+    "PhoneNumber": str(order.phone_number),  # Ensure it's a string
+    "Amount": float(order.total_price),  # Convert Decimal to float
+    "AccountReference": str(order.id),
+    "TransactionDesc": f"Payment for Order {order.id}"
+}
+    
+    payload = {
+    "BusinessShortcode": int(MPESA_SHORTCODE),
+    "PhoneNumber": str(order.phone_number),
+    "Amount": float(order.total_price),
+    "AccountReference": str(order.id),
+    "TransactionDesc": f"Payment for Order {order.id}"
+}
+
+    
     
     # URL for initiating the STK Push request
     url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
@@ -222,25 +254,3 @@ def mpesa_callback(request):
 
         # Return failure message
         return HttpResponse("Payment Failed", status=400)
-
-
-
-
-def get_mpesa_access_token():
-    api_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-    
-    # Ensure that these keys are defined in settings.py
-    lipa_key = settings.MPESA_CONSUMER_SECRET 
-    lipa_secret = settings.MPESA_CONSUMER_KEY
-
-    # Use the settings values to create the Authorization header
-    headers = {
-        'Authorization': 'Basic ' + base64.b64encode(f'{lipa_key}:{lipa_secret}'.encode()).decode('utf-8')
-    }
-
-    # Send the request to get the access token
-    response = requests.get(api_url, headers=headers)
-    json_response = response.json()
-
-    # Return the access token from the response
-    return json_response.get('access_token')  
