@@ -150,33 +150,18 @@ def initiate_payment(request, order_id):
         "Content-Type": "application/json"
     }
     
-    # # Prepare the STK Push payload
-    # payload = {
-    #     "BusinessShortcode": MPESA_LIPA_NA_MPESA_SHORTCODE,
-    #     "LipaNaMpesaOnlineShortcode": MPESA_LIPA_NA_MPESA_SHORTCODE,
-    #     "LipaNaMpesaOnlineShortcodePasskey": MPESA_LIPA_NA_MPESA_PASSKEY,
-    #     "PhoneNumber": order.phone_number,  # From the order's phone number
-    #     "Amount": float(order.total_price),  # Convert Decimal to float
-    #     "AccountReference": str(order.id),  # The order id
-    #     "TransactionDesc": f"Payment for Order {order.id}"
-    # }
+
     payload = {
-    "BusinessShortcode": int(MPESA_SHORTCODE),  # Ensure it's an integer
-    "LipaNaMpesaOnlineShortcode": int(MPESA_SHORTCODE),  
-    "LipaNaMpesaOnlineShortcodePasskey": MPESA_PASSKEY,
+    "BusinessShortcode": settings.MPESA_SHORTCODE,  
+    "LipaNaMpesaOnlineShortcode": settings.MPESA_SHORTCODE,  
+    "LipaNaMpesaOnlineShortcodePasskey": settings.MPESA_PASSKEY,
     "PhoneNumber": str(order.phone_number),  # Ensure it's a string
     "Amount": float(order.total_price),  # Convert Decimal to float
     "AccountReference": str(order.id),
     "TransactionDesc": f"Payment for Order {order.id}"
 }
-    
-    payload = {
-    "BusinessShortcode": int(MPESA_SHORTCODE),
-    "PhoneNumber": str(order.phone_number),
-    "Amount": float(order.total_price),
-    "AccountReference": str(order.id),
-    "TransactionDesc": f"Payment for Order {order.id}"
-}
+
+
 
     
     

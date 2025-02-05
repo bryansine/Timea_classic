@@ -13,7 +13,7 @@ def mpesa_token_view(request):
 @csrf_exempt
 def stk_push(request):
     if request.method == "POST":
-        phone_number = request.POST.get("phone_number")  # Get user phone number
+        phone_number = request.POST.get("phone_number")  # Get user phone numbfer
         amount = request.POST.get("amount")  # Get amount to pay
 
         # Use your credentials from the sandbox
