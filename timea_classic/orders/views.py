@@ -85,47 +85,81 @@ def create_order_from_cart(request):
 import base64
 import requests
 from django.conf import settings
-from django.shortcuts import redirect, get_object_or_404
-from django.http import HttpResponse
-from .models import Order
-
-# M-Pesa credentials from settings
-MPESA_LIPA_NA_MPESA_SHORTCODE = settings.MPESA_SHORTCODE
-MPESA_LIPA_NA_MPESA_PASSKEY = settings.MPESA_PASSKEY
-MPESA_LIPA_NA_MPESA_CONSUMER_KEY = settings.MPESA_CONSUMER_KEY
-MPESA_LIPA_NA_MPESA_CONSUMER_SECRET = settings.MPESA_CONSUMER_SECRET
 
 def get_mpesa_access_token():
     """
     Function to get M-Pesa access token from Safaricom
     """
     api_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-    
-    # Combine Consumer Key and Secret in the required format for Basic Authentication
-    credentials = f'{MPESA_LIPA_NA_MPESA_CONSUMER_KEY}:{MPESA_LIPA_NA_MPESA_CONSUMER_SECRET}'
-    # headers = {
-    #     'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode('utf-8')
-    # }
-    
+
+    # Encode consumer key and secret for Basic Authentication
+    credentials = f"{settings.MPESA_CONSUMER_KEY}:{settings.MPESA_CONSUMER_SECRET}"
     headers = {
-    'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode()
-}
-    
+        'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode()
+    }
+
     response = requests.get(api_url, headers=headers)
-    
+
     print("Status Code:", response.status_code)
-    print("Response Text:", response.text)  # This will show if the response is empty or contains an error
+    print("Response Text:", response.text)  # Debugging output
 
     if response.status_code == 200:
         try:
-            json_response = response.json()
-            return json_response.get('access_token')
+            return response.json().get('access_token')
         except requests.exceptions.JSONDecodeError as e:
             print("JSON Decode Error:", str(e))
-            return None  # Handle gracefully instead of breaking
+            return None  # Handle gracefully
     else:
         print("Failed to get token. Response:", response.text)
         return None
+
+
+
+
+# import base64
+# import requests
+# from django.conf import settings
+# from django.shortcuts import redirect, get_object_or_404
+# from django.http import HttpResponse
+# from .models import Order
+
+# # M-Pesa credentials from settings
+# MPESA_LIPA_NA_MPESA_SHORTCODE = settings.MPESA_SHORTCODE
+# MPESA_LIPA_NA_MPESA_PASSKEY = settings.MPESA_PASSKEY
+# MPESA_LIPA_NA_MPESA_CONSUMER_KEY = settings.MPESA_CONSUMER_KEY
+# MPESA_LIPA_NA_MPESA_CONSUMER_SECRET = settings.MPESA_CONSUMER_SECRET
+
+# def get_mpesa_access_token():
+#     """
+#     Function to get M-Pesa access token from Safaricom
+#     """
+#     api_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    
+#     # Combine Consumer Key and Secret in the required format for Basic Authentication
+#     credentials = f'{MPESA_LIPA_NA_MPESA_CONSUMER_KEY}:{MPESA_LIPA_NA_MPESA_CONSUMER_SECRET}'
+#     # headers = {
+#     #     'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode('utf-8')
+#     # }
+    
+#     headers = {
+#     'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode()
+# }
+    
+#     response = requests.get(api_url, headers=headers)
+    
+#     print("Status Code:", response.status_code)
+#     print("Response Text:", response.text)  # This will show if the response is empty or contains an error
+
+#     if response.status_code == 200:
+#         try:
+#             json_response = response.json()
+#             return json_response.get('access_token')
+#         except requests.exceptions.JSONDecodeError as e:
+#             print("JSON Decode Error:", str(e))
+#             return None  # Handle gracefully instead of breaking
+#     else:
+#         print("Failed to get token. Response:", response.text)
+#         return None
 
 
 def initiate_payment(request, order_id):
@@ -167,6 +201,7 @@ def initiate_payment(request, order_id):
     
     # URL for initiating the STK Push request
     url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+    
     
     # Send the STK Push request to Safaricom's API
     response = requests.post(url, json=payload, headers=headers)
