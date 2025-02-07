@@ -120,16 +120,16 @@ DATABASES = {
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),  # Default to 5432 if DB_PORT is not set
+        'PORT': config('DB_PORT'),  
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3', 
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3', 
+    }
+}
 
 
 # Password validation
@@ -217,24 +217,11 @@ MPESA_PASSKEY = config('MPESA_PASSKEY')
 MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL')
 # MPESA_SHORTCODE = int(config('MPESA_SHORTCODE'))
 MPESA_SHORTCODE = "174379"
+
+
 # C2B API URLs
 MPESA_CONFIRMATION_URL = config("MPESA_CONFIRMATION_URL")
 MPESA_VALIDATION_URL = config("MPESA_VALIDATION_URL")
 
 # STK Push Callback
 MPESA_CALLBACK_URL = config("MPESA_CALLBACK_URL")
-
-
-
-#daraja-config
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# MPESA_ENVIRONMENT = 'sandbox'
-# MPESA_CONSUMER_KEY = 'wrKzDu38pyQ5xgN4eftvFGZ04Z1aAvlphWMT2G88nfcyZxtK'
-# MPESA_CONSUMER_SECRET = 'xxTOmsb6MD7Z3GUlEUioAbvg15ZeBQ6kEmuj3AKrloMKHnnRGvHVl78Ba5VF3UZE'
-# MPESA_SHORTCODE = '174379'
-# MPESA_EXPRESS_SHORTCODE = '174379'
-# MPESA_SHORTCODE_TYPE = 'paybill'
-# MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
-# MPESA_INITIATOR_USERNAME = 'testapi'
-# MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom999!*!'
-# MPESA_CALLBACK_URL = 'https://mydomain.com/path'

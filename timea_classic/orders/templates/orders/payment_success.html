@@ -1,4 +1,4 @@
-{% load static %}
+{% comment %} {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,5 +13,62 @@
     <p><strong>Order ID:</strong> {{ order.id }}</p>
     <p><strong>Status:</strong> {{ order.payment_status }}</p>
     <a href="{% url 'cart:view' %}" class="btn btn-primary">Back to cart</a>
+</body>
+</html> {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h2 {
+            color: green;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            text-decoration: none;
+            color: white;
+            border-radius: 5px;
+        }
+        .btn-cart {
+            background-color: blue;
+        }
+        .btn-shop {
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎉 Payment Successful! 🎉</h2>
+        <p>Thank you for your purchase!</p>
+
+        <h3>Payment Details:</h3>
+        <p><strong>Transaction ID:</strong> {{ order.transaction_id }}</p>
+        <p><strong>Amount Paid:</strong> Ksh {{ order.amount_paid }}</p>
+        <p><strong>Phone Number:</strong> {{ order.phone_number }}</p>
+        <p><strong>Order ID:</strong> {{ order.id }}</p>
+
+        <a href="/cart/" class="btn btn-cart">🛒 View Cart</a>
+        <a href="/shop/" class="btn btn-shop">🛍️ Continue Shopping</a>
+    </div>
 </body>
 </html>

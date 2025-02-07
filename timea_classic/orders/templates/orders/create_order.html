@@ -81,11 +81,6 @@
         {% csrf_token %}
         <h3>Shipping Information</h3>
 
-        {% comment %} <h2>Select Items to Order</h2>
-        {% for cart_item in cart.items.all %}
-            <input type="checkbox" name="selected_items" value="{{ cart_item.id }}"> {{ cart_item.product.name }} - KSh {{ cart_item.price }} <br>
-        {% endfor %}
-        <br>  {% endcomment %}
 
 
         <label for="shipping_address">Shipping Address:</label>

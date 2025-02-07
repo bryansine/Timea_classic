@@ -6,7 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 import json
-
+from daraja.utils import get_mpesa_access_token
 
 @login_required
 def create_order(request):
@@ -82,126 +82,93 @@ def create_order_from_cart(request):
     return render(request, 'orders/create_order.html', {'cart': cart})
 
 
-import base64
+
+import json
 import requests
 from django.conf import settings
-
-def get_mpesa_access_token():
-    """
-    Function to get M-Pesa access token from Safaricom
-    """
-    api_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-
-    # Encode consumer key and secret for Basic Authentication
-    credentials = f"{settings.MPESA_CONSUMER_KEY}:{settings.MPESA_CONSUMER_SECRET}"
-    headers = {
-        'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode()
-    }
-
-    response = requests.get(api_url, headers=headers)
-
-    print("Status Code:", response.status_code)
-    print("Response Text:", response.text)  # Debugging output
-
-    if response.status_code == 200:
-        try:
-            return response.json().get('access_token')
-        except requests.exceptions.JSONDecodeError as e:
-            print("JSON Decode Error:", str(e))
-            return None  # Handle gracefully
-    else:
-        print("Failed to get token. Response:", response.text)
-        return None
-
-
-
-
-# import base64
-# import requests
-# from django.conf import settings
-# from django.shortcuts import redirect, get_object_or_404
-# from django.http import HttpResponse
-# from .models import Order
-
-# # M-Pesa credentials from settings
-# MPESA_LIPA_NA_MPESA_SHORTCODE = settings.MPESA_SHORTCODE
-# MPESA_LIPA_NA_MPESA_PASSKEY = settings.MPESA_PASSKEY
-# MPESA_LIPA_NA_MPESA_CONSUMER_KEY = settings.MPESA_CONSUMER_KEY
-# MPESA_LIPA_NA_MPESA_CONSUMER_SECRET = settings.MPESA_CONSUMER_SECRET
-
-# def get_mpesa_access_token():
-#     """
-#     Function to get M-Pesa access token from Safaricom
-#     """
-#     api_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-    
-#     # Combine Consumer Key and Secret in the required format for Basic Authentication
-#     credentials = f'{MPESA_LIPA_NA_MPESA_CONSUMER_KEY}:{MPESA_LIPA_NA_MPESA_CONSUMER_SECRET}'
-#     # headers = {
-#     #     'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode('utf-8')
-#     # }
-    
-#     headers = {
-#     'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode()
-# }
-    
-#     response = requests.get(api_url, headers=headers)
-    
-#     print("Status Code:", response.status_code)
-#     print("Response Text:", response.text)  # This will show if the response is empty or contains an error
-
-#     if response.status_code == 200:
-#         try:
-#             json_response = response.json()
-#             return json_response.get('access_token')
-#         except requests.exceptions.JSONDecodeError as e:
-#             print("JSON Decode Error:", str(e))
-#             return None  # Handle gracefully instead of breaking
-#     else:
-#         print("Failed to get token. Response:", response.text)
-#         return None
-
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from .models import Order
+from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
 def initiate_payment(request, order_id):
     """
-    Function to initiate M-Pesa payment via STK Push
+    Function to initiate M-Pesa payment via STK Push.
     """
     # Get the order object based on the order_id
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     # Ensure payment status is Pending
     if order.payment_status != 'Pending':
-        return HttpResponse("Payment has already been made.")
+        return HttpResponse("Payment has already been made.", status=400)
 
     # Get the access token for authorization
     access_token = get_mpesa_access_token()
     if not access_token:
-        return HttpResponse("Failed to retrieve access token from M-Pesa. Please try again later.")
+        return HttpResponse("Failed to retrieve access token from M-Pesa. Please try again later.", status=500)
     
+    # Generate timestamp & password for STK push
+    timestamp = get_timestamp()
+    password = generate_password()
+
     # M-Pesa STK Push request headers
     headers = {
-        "Authorization": "Bearer " + access_token,
+        "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json"
     }
-    
 
+    # STK Push API endpoint
+    stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+    phone_number = str(order.phone_number)
+    if phone_number.startswith("0"):
+        phone_number = "254" + phone_number[1:]
+    elif phone_number.startswith("+"):
+        phone_number = phone_number[1:]
+
+    # STK Push payload (update PhoneNumber field)
     payload = {
-    "BusinessShortcode": settings.MPESA_SHORTCODE,  
-    "LipaNaMpesaOnlineShortcode": settings.MPESA_SHORTCODE,  
-    "LipaNaMpesaOnlineShortcodePasskey": settings.MPESA_PASSKEY,
-    "PhoneNumber": str(order.phone_number),  # Ensure it's a string
-    "Amount": float(order.total_price),  # Convert Decimal to float
-    "AccountReference": str(order.id),
-    "TransactionDesc": f"Payment for Order {order.id}"
-}
+        "BusinessShortCode": settings.MPESA_SHORTCODE,
+        "Password": password,
+        "Timestamp": timestamp,
+        "TransactionType": "CustomerPayBillOnline",
+        "Amount": float(order.total_price),
+        "PartyA": phone_number,
+        "PartyB": settings.MPESA_SHORTCODE,
+        "PhoneNumber": phone_number,
+        "CallBackURL": settings.MPESA_CALLBACK_URL,
+        "AccountReference": str(order.id),
+        "TransactionDesc": f"Payment for Order {order.id}"
+    }
 
+
+    # # Payload for STK Push request
+    # payload = {
+    #     "BusinessShortCode": settings.MPESA_SHORTCODE,  # Corrected field name
+    #     "Password": password,  # Correctly generated password
+    #     "Timestamp": timestamp,  # Correct timestamp format
+    #     "TransactionType": "CustomerPayBillOnline",
+    #     "Amount": float(order.total_price),  # Convert Decimal to float
+    #     "PartyA": str(order.phone_number),  # Ensure it's a string
+    #     "PartyB": settings.MPESA_SHORTCODE,  # The PayBill/Till number
+    #     "PhoneNumber": str(order.phone_number),  # Ensure it's a string
+    #     "CallBackURL": settings.MPESA_CALLBACK_URL,  # Use a callback URL from settings
+    #     "AccountReference": str(order.id),
+    #     "TransactionDesc": f"Payment for Order {order.id}"
+    # }
+
+    # Send request to M-Pesa STK Push API
+    response = requests.post(stk_push_url, headers=headers, data=json.dumps(payload))
+
+    # Return response from Safaricom API
+    return JsonResponse(response.json(), status=response.status_code)
+
+    
 
 
     
     
     # URL for initiating the STK Push request
     url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-    
     
     # Send the STK Push request to Safaricom's API
     response = requests.post(url, json=payload, headers=headers)
@@ -230,6 +197,83 @@ def stk_push_payment(order):
     return response.json()
 
 
+
+
+
+
+# @csrf_exempt
+# def mpesa_callback(request):
+#     # Safaricom returns the response in JSON format
+#     data = json.loads(request.body)
+
+#     # Extract the OrderID from the callback data
+#     order_id = data.get("OrderID")
+    
+#     # Ensure the order exists and belongs to the user
+#     order = get_object_or_404(Order, id=order_id)
+
+#     # Check the result code returned by Safaricom
+#     if data.get("ResultCode") == "0":
+#         # Successful payment
+#         order.payment_status = "Paid"
+#         order.save()
+
+#         # Redirect to the payment success page
+#         return redirect('orders:payment_success', order_id=order.id)
+#     else:
+#         # Payment failure
+#         order.payment_status = "Failed"
+#         order.save()
+
+#         # Return failure message
+#         return HttpResponse("Payment Failed", status=400)
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Order
+
+@csrf_exempt
+def mpesa_callback(request):
+    try:
+        data = json.loads(request.body)
+
+        # Extract Order ID from the callback data
+        order_id = data.get("OrderID")
+        order = get_object_or_404(Order, id=order_id)
+
+        # Check payment result
+        result_code = data.get("ResultCode")
+
+        if result_code == "0":
+            # Successful payment
+            order.payment_status = "Paid"
+            order.transaction_id = data.get("TransactionID", "N/A")  # Store M-Pesa transaction ID
+            order.amount_paid = data.get("Amount", 0)  # Store paid amount
+            order.phone_number = data.get("PhoneNumber", "Unknown")  # Store phone number
+            order.save()
+
+            return redirect(f'/orders/payment-success/{order.id}/')  # Redirect to success page
+        
+        else:
+            # Payment failure
+            order.payment_status = "Failed"
+            order.save()
+
+            return redirect('/orders/payment-failed/')  # Redirect to failure page
+
+    except json.JSONDecodeError:
+        return HttpResponse("Invalid JSON format", status=400)
+
+    except Exception as e:
+        return HttpResponse(f"Error processing payment: {str(e)}", status=500)
+
+# def payment_success(request, order_id):
+#     order = get_object_or_404(Order, id=order_id)
+#     return render(request, 'orders/payment_success.html', {'order': order})
+
+
 @login_required
 def payment_success(request, order_id):
     # Fetch the order
@@ -246,31 +290,5 @@ def payment_success(request, order_id):
 
 
 
-
-
-@csrf_exempt
-def mpesa_callback(request):
-    # Safaricom returns the response in JSON format
-    data = json.loads(request.body)
-
-    # Extract the OrderID from the callback data
-    order_id = data.get("OrderID")
-    
-    # Ensure the order exists and belongs to the user
-    order = get_object_or_404(Order, id=order_id)
-
-    # Check the result code returned by Safaricom
-    if data.get("ResultCode") == "0":
-        # Successful payment
-        order.payment_status = "Paid"
-        order.save()
-
-        # Redirect to the payment success page
-        return redirect('orders:payment_success', order_id=order.id)
-    else:
-        # Payment failure
-        order.payment_status = "Failed"
-        order.save()
-
-        # Return failure message
-        return HttpResponse("Payment Failed", status=400)
+def payment_failed(request):
+    return render(request, 'orders/payment_failed.html')
