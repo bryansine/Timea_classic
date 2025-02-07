@@ -180,6 +180,54 @@ def initiate_payment(request, order_id):
         return HttpResponse(f"Payment initiation failed: {response.text}")
 
 
+# from django.shortcuts import render, redirect
+# from django.http import JsonResponse
+# import requests
+# import json
+# from django.conf import settings
+# from .models import Order
+
+# @login_required
+# def initiate_payment(request, order_id):
+#     order = Order.objects.get(id=order_id, user=request.user)
+
+#     # STK push payload
+#     payload = {
+#         "BusinessShortCode": settings.MPESA_SHORTCODE,
+#         "Password": settings.MPESA_PASSKEY,
+#         "Timestamp": "20250207145600",  # Generate dynamically
+#         "TransactionType": "CustomerPayBillOnline",
+#         "Amount": order.get_total_amount(),
+#         "PartyA": order.phone_number,
+#         "PartyB": settings.MPESA_SHORTCODE,
+#         "PhoneNumber": order.phone_number,
+#         "CallBackURL": settings.MPESA_CALLBACK_URL,  # Ensure this is configured correctly
+#         "AccountReference": "Timea Order",
+#         "TransactionDesc": f"Payment for Order {order.id}"
+#     }
+
+#     headers = {
+#         "Authorization": f"Bearer {get_mpesa_access_token()}",
+#         "Content-Type": "application/json"
+#     }
+
+#     # Send STK push request
+#     response = requests.post(settings.MPESA_STK_PUSH_URL, json=payload, headers=headers)
+
+#     response_data = response.json()
+
+#     if response_data.get("ResponseCode") == "0":
+#         # Save the CheckoutRequestID for tracking
+#         order.mpesa_checkout_id = response_data["CheckoutRequestID"]
+#         order.status = "Payment Pending"
+#         order.save()
+
+#         # Redirect user to a "waiting for payment" page
+#         return redirect('orders:payment_waiting', order_id=order.id)
+    
+#     return JsonResponse(response_data)
+
+
 
 def stk_push_payment(order):
     """Function to initiate M-Pesa STK Push"""
@@ -272,6 +320,18 @@ def mpesa_callback(request):
 # def payment_success(request, order_id):
 #     order = get_object_or_404(Order, id=order_id)
 #     return render(request, 'orders/payment_success.html', {'order': order})
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
+@login_required
+def check_payment_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.status == "Paid":
+        return redirect("orders:order_success", order_id=order.id)
+
+    return JsonResponse({"status": order.status})
 
 
 @login_required
