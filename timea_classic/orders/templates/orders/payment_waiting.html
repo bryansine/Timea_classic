@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -64,7 +65,28 @@
         <div class="spinner"></div>
         <p class="message">Please approve the payment on your phone.</p>
         <p>Once the payment is completed, you will be redirected automatically.</p>
-        <a href="{% url 'orders:check_payment_status' order.id %}" class="retry-button">Check Payment Status</a>
+        <a href="{% url 'orders:payment_waiting' order.id %}" class="retry-button">Check Payment Status</a>
     </div>
+
+    <script>
+        function checkPaymentStatus() {
+            fetch("{% url 'orders:check_payment_status' order.id %}") 
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        window.location.href = "{% url 'orders:payment_success' order.id %}"; 
+                    } else if (data.status === "failed") {
+                        window.location.href = "{% url 'orders:payment_failed' %}";
+                    } else {
+                        setTimeout(checkPaymentStatus, 5000); // Check again in 5 seconds
+                    }
+                })
+                .catch(error => console.error("Error checking payment status:", error));
+        }
+    
+        setTimeout(checkPaymentStatus, 5000); // Start checking every 5 seconds
+    </script>
+    
+    
 </body>
 </html>

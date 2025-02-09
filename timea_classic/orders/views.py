@@ -1,12 +1,14 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Order, OrderItem
-from django.contrib.auth.decorators import login_required
-from cart.models import Cart, CartItem
-from django.http import HttpResponse, JsonResponse
-from django.db import transaction
-from django.views.decorators.csrf import csrf_exempt
 import json
+from django.db import transaction
+from django.contrib import messages
+from .models import Order, OrderItem
+from cart.models import Cart, CartItem
 from daraja.utils import get_mpesa_access_token
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+
 
 @login_required
 def create_order(request):
@@ -61,17 +63,25 @@ def create_order(request):
 
 
 
+# @login_required
+# def order_detail(request, order_id):
+#     order = get_object_or_404(Order, id=order_id, user=request.user)
+
+#     # If payment status is Pending, show the "Place Order & Pay" button
+#     if order.payment_status == 'Pending':
+#         # Logic to initiate M-Pesa payment if clicked
+#         return redirect('orders:initiate_payment', order_id=order.id)
+
+#     context = {'order': order}
+#     return render(request, 'orders/order_detail.html', context)
+
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    # If payment status is Pending, show the "Place Order & Pay" button
-    if order.payment_status == 'Pending':
-        # Logic to initiate M-Pesa payment if clicked
-        return redirect('orders:initiate_payment', order_id=order.id)
-
     context = {'order': order}
-    return render(request, 'orders/order_detail.html', context)
+    return render(request, 'orders/order_detail.html', context)  # No automatic redirect
+
 
 @login_required
 def create_order_from_cart(request):
@@ -83,49 +93,111 @@ def create_order_from_cart(request):
 
 
 
+# import json
+# import requests
+# from django.conf import settings
+# from django.shortcuts import get_object_or_404
+# from django.http import JsonResponse, HttpResponse
+# from .models import Order
+# from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
+
+# def initiate_payment(request, order_id):
+#     """
+#     Function to initiate M-Pesa payment via STK Push.
+#     """
+#     # Get the order object based on the order_id
+#     order = get_object_or_404(Order, id=order_id, user=request.user)
+
+#     # Ensure payment status is Pending
+#     if order.payment_status != 'Pending':
+#         return HttpResponse("Payment has already been made.", status=400)
+
+#     # Get the access token for authorization
+#     access_token = get_mpesa_access_token()
+#     if not access_token:
+#         return HttpResponse("Failed to retrieve access token from M-Pesa. Please try again later.", status=500)
+    
+#     # Generate timestamp & password for STK push
+#     timestamp = get_timestamp()
+#     password = generate_password()
+
+#     # M-Pesa STK Push request headers
+#     headers = {
+#         "Authorization": f"Bearer {access_token}",
+#         "Content-Type": "application/json"
+#     }
+
+#     # STK Push API endpoint
+#     stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+#     phone_number = str(order.phone_number)
+#     if phone_number.startswith("0"):
+#         phone_number = "254" + phone_number[1:]
+#     elif phone_number.startswith("+"):
+#         phone_number = phone_number[1:]
+
+#     # STK Push payload (update PhoneNumber field)
+#     payload = {
+#         "BusinessShortCode": settings.MPESA_SHORTCODE,
+#         "Password": password,
+#         "Timestamp": timestamp,
+#         "TransactionType": "CustomerPayBillOnline",
+#         "Amount": float(order.total_price),
+#         "PartyA": phone_number,
+#         "PartyB": settings.MPESA_SHORTCODE,
+#         "PhoneNumber": phone_number,
+#         "CallBackURL": settings.MPESA_CALLBACK_URL,
+#         "AccountReference": str(order.id),
+#         "TransactionDesc": f"Payment for Order {order.id}"
+#     }
+
+#     # Send request to M-Pesa STK Push API
+#     response = requests.post(stk_push_url, headers=headers, data=json.dumps(payload))
+
+#     # Return response from Safaricom API
+#     return JsonResponse(response.json(), status=response.status_code)
+   
+    
+#     # URL for initiating the STK Push request
+#     url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+    
+#     # Send the STK Push request to Safaricom's API
+#     response = requests.post(url, json=payload, headers=headers)
+
+#     # Handle the response
+#     if response.status_code == 200:
+#         return redirect('orders:mpesa_callback', order_id=order.id)
+#     else:
+#         return HttpResponse(f"Payment initiation failed: {response.text}")
+
 import json
 import requests
+from .models import Order
 from django.conf import settings
+from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, HttpResponse
-from .models import Order
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
+@login_required
 def initiate_payment(request, order_id):
-    """
-    Function to initiate M-Pesa payment via STK Push.
-    """
-    # Get the order object based on the order_id
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    # Ensure payment status is Pending
     if order.payment_status != 'Pending':
-        return HttpResponse("Payment has already been made.", status=400)
+        messages.error(request, "Payment has already been processed.")
+        return redirect('orders:order_detail', order_id=order.id)
 
-    # Get the access token for authorization
     access_token = get_mpesa_access_token()
     if not access_token:
-        return HttpResponse("Failed to retrieve access token from M-Pesa. Please try again later.", status=500)
-    
-    # Generate timestamp & password for STK push
+        messages.error(request, "Failed to retrieve M-Pesa token.")
+        return redirect('orders:order_detail', order_id=order.id)
+
     timestamp = get_timestamp()
     password = generate_password()
 
-    # M-Pesa STK Push request headers
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
-
-    # STK Push API endpoint
-    stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
     phone_number = str(order.phone_number)
     if phone_number.startswith("0"):
         phone_number = "254" + phone_number[1:]
-    elif phone_number.startswith("+"):
-        phone_number = phone_number[1:]
 
-    # STK Push payload (update PhoneNumber field)
     payload = {
         "BusinessShortCode": settings.MPESA_SHORTCODE,
         "Password": password,
@@ -140,92 +212,83 @@ def initiate_payment(request, order_id):
         "TransactionDesc": f"Payment for Order {order.id}"
     }
 
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
 
-    # # Payload for STK Push request
-    # payload = {
-    #     "BusinessShortCode": settings.MPESA_SHORTCODE,  # Corrected field name
-    #     "Password": password,  # Correctly generated password
-    #     "Timestamp": timestamp,  # Correct timestamp format
-    #     "TransactionType": "CustomerPayBillOnline",
-    #     "Amount": float(order.total_price),  # Convert Decimal to float
-    #     "PartyA": str(order.phone_number),  # Ensure it's a string
-    #     "PartyB": settings.MPESA_SHORTCODE,  # The PayBill/Till number
-    #     "PhoneNumber": str(order.phone_number),  # Ensure it's a string
-    #     "CallBackURL": settings.MPESA_CALLBACK_URL,  # Use a callback URL from settings
-    #     "AccountReference": str(order.id),
-    #     "TransactionDesc": f"Payment for Order {order.id}"
-    # }
+    response = requests.post("https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest", 
+                             headers=headers, 
+                             data=json.dumps(payload))
 
-    # Send request to M-Pesa STK Push API
-    response = requests.post(stk_push_url, headers=headers, data=json.dumps(payload))
+    response_data = response.json()
 
-    # Return response from Safaricom API
-    return JsonResponse(response.json(), status=response.status_code)
+    if response.status_code == 200 and response_data.get("ResponseCode") == "0":
+        order.mpesa_checkout_id = response_data["CheckoutRequestID"]
+        order.payment_status = "Payment Initiated"
+        order.save()
+        return redirect('orders:payment_waiting', order_id=order.id)  # ✅ Use the correct name
 
-    
+    messages.error(request, response_data.get("errorMessage", "Payment initiation failed."))
+    return redirect('orders:order_detail', order_id=order.id)
 
-
-    
-    
-    # URL for initiating the STK Push request
-    url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-    
-    # Send the STK Push request to Safaricom's API
-    response = requests.post(url, json=payload, headers=headers)
-
-    # Handle the response
-    if response.status_code == 200:
-        return redirect('orders:mpesa_callback', order_id=order.id)
-    else:
-        return HttpResponse(f"Payment initiation failed: {response.text}")
-
-
-# from django.shortcuts import render, redirect
-# from django.http import JsonResponse
-# import requests
-# import json
-# from django.conf import settings
-# from .models import Order
 
 # @login_required
 # def initiate_payment(request, order_id):
-#     order = Order.objects.get(id=order_id, user=request.user)
+#     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-#     # STK push payload
+#     if order.payment_status != 'Pending':
+#         return JsonResponse({"error": "Payment has already been processed."}, status=400)
+
+#     access_token = get_mpesa_access_token()
+#     if not access_token:
+#         return JsonResponse({"error": "Failed to retrieve M-Pesa token"}, status=500)
+
+#     timestamp = get_timestamp()
+#     password = generate_password()
+
+#     phone_number = str(order.phone_number)
+#     if phone_number.startswith("0"):
+#         phone_number = "254" + phone_number[1:]
+
 #     payload = {
 #         "BusinessShortCode": settings.MPESA_SHORTCODE,
-#         "Password": settings.MPESA_PASSKEY,
-#         "Timestamp": "20250207145600",  # Generate dynamically
+#         "Password": password,
+#         "Timestamp": timestamp,
 #         "TransactionType": "CustomerPayBillOnline",
-#         "Amount": order.get_total_amount(),
-#         "PartyA": order.phone_number,
+#         "Amount": float(order.total_price),
+#         "PartyA": phone_number,
 #         "PartyB": settings.MPESA_SHORTCODE,
-#         "PhoneNumber": order.phone_number,
-#         "CallBackURL": settings.MPESA_CALLBACK_URL,  # Ensure this is configured correctly
-#         "AccountReference": "Timea Order",
+#         "PhoneNumber": phone_number,
+#         "CallBackURL": settings.MPESA_CALLBACK_URL,
+#         "AccountReference": str(order.id),
 #         "TransactionDesc": f"Payment for Order {order.id}"
 #     }
 
 #     headers = {
-#         "Authorization": f"Bearer {get_mpesa_access_token()}",
+#         "Authorization": f"Bearer {access_token}",
 #         "Content-Type": "application/json"
 #     }
 
-#     # Send STK push request
-#     response = requests.post(settings.MPESA_STK_PUSH_URL, json=payload, headers=headers)
+#     response = requests.post(
+#         "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest", 
+#         headers=headers, 
+#         data=json.dumps(payload)
+#     )
 
 #     response_data = response.json()
 
-#     if response_data.get("ResponseCode") == "0":
-#         # Save the CheckoutRequestID for tracking
-#         order.mpesa_checkout_id = response_data["CheckoutRequestID"]
-#         order.status = "Payment Pending"
+#     if response.status_code == 200 and response_data.get("ResponseCode") == "0":
+#         order.mpesa_checkout_id = response_data["CheckoutRequestID"]  # Save this for tracking
+#         order.payment_status = "Payment Initiated"
 #         order.save()
+        
+#         # ✅ Redirect to the payment waiting page instead of returning JSON
+#         return redirect('orders:check_payment_status', order_id=order.id)
 
-#         # Redirect user to a "waiting for payment" page
-#         return redirect('orders:payment_waiting', order_id=order.id)
-    
-#     return JsonResponse(response_data)
+#     return JsonResponse({"error": response_data.get("errorMessage", "Payment initiation failed.")}, status=400)
+
+
 
 
 
@@ -246,92 +309,113 @@ def stk_push_payment(order):
 
 
 
-
-
+# from django.shortcuts import render, redirect, get_object_or_404
+# from django.http import JsonResponse, HttpResponse
+# from django.views.decorators.csrf import csrf_exempt
+# import json
+# from .models import Order
 
 # @csrf_exempt
 # def mpesa_callback(request):
-#     # Safaricom returns the response in JSON format
-#     data = json.loads(request.body)
+#     try:
+#         data = json.loads(request.body)
 
-#     # Extract the OrderID from the callback data
-#     order_id = data.get("OrderID")
-    
-#     # Ensure the order exists and belongs to the user
-#     order = get_object_or_404(Order, id=order_id)
+#         # Extract Order ID from the callback data
+#         order_id = data.get("OrderID")
+#         order = get_object_or_404(Order, id=order_id)
 
-#     # Check the result code returned by Safaricom
-#     if data.get("ResultCode") == "0":
-#         # Successful payment
-#         order.payment_status = "Paid"
-#         order.save()
+#         # Check payment result
+#         result_code = data.get("ResultCode")
 
-#         # Redirect to the payment success page
-#         return redirect('orders:payment_success', order_id=order.id)
-#     else:
-#         # Payment failure
-#         order.payment_status = "Failed"
-#         order.save()
+#         if result_code == "0":
+#             # Successful payment
+#             order.payment_status = "Paid"
+#             order.transaction_id = data.get("TransactionID", "N/A")  # Store M-Pesa transaction ID
+#             order.amount_paid = data.get("Amount", 0)  # Store paid amount
+#             order.phone_number = data.get("PhoneNumber", "Unknown")  # Store phone number
+#             order.save()
 
-#         # Return failure message
-#         return HttpResponse("Payment Failed", status=400)
+#             return redirect(f'/orders/payment-success/{order.id}/')  # Redirect to success page
+        
+#         else:
+#             # Payment failure
+#             order.payment_status = "Failed"
+#             order.save()
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+#             return redirect('/orders/payment-failed/')  # Redirect to failure page
+
+#     except json.JSONDecodeError:
+#         return HttpResponse("Invalid JSON format", status=400)
+
+#     except Exception as e:
+#         return HttpResponse(f"Error processing payment: {str(e)}", status=500)
+
+# # def payment_success(request, order_id):
+# #     order = get_object_or_404(Order, id=order_id)
+# #     return render(request, 'orders/payment_success.html', {'order': order})
+
+# from django.http import JsonResponse
+# from django.shortcuts import get_object_or_404
+
+# @login_required
+# def check_payment_status(request, order_id):
+#     order = get_object_or_404(Order, id=order_id, user=request.user)
+
+#     if order.status == "Paid":
+#         return redirect("orders:order_success", order_id=order.id)
+
+#     return JsonResponse({"status": order.status})
+
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Order
 
 @csrf_exempt
 def mpesa_callback(request):
     try:
         data = json.loads(request.body)
+        checkout_request_id = data.get("Body", {}).get("stkCallback", {}).get("CheckoutRequestID")
+        result_code = data.get("Body", {}).get("stkCallback", {}).get("ResultCode")
 
-        # Extract Order ID from the callback data
-        order_id = data.get("OrderID")
-        order = get_object_or_404(Order, id=order_id)
+        if not checkout_request_id:
+            return JsonResponse({"error": "Invalid callback data"}, status=400)
 
-        # Check payment result
-        result_code = data.get("ResultCode")
+        order = Order.objects.filter(mpesa_checkout_id=checkout_request_id).first()
+        if not order:
+            return JsonResponse({"error": "Order not found"}, status=404)
 
-        if result_code == "0":
-            # Successful payment
+        if result_code == 0:  # Payment successful
             order.payment_status = "Paid"
-            order.transaction_id = data.get("TransactionID", "N/A")  # Store M-Pesa transaction ID
-            order.amount_paid = data.get("Amount", 0)  # Store paid amount
-            order.phone_number = data.get("PhoneNumber", "Unknown")  # Store phone number
             order.save()
+            return JsonResponse({"message": "Payment successful"}, status=200)
 
-            return redirect(f'/orders/payment-success/{order.id}/')  # Redirect to success page
-        
-        else:
-            # Payment failure
+        else:  # Payment failed
             order.payment_status = "Failed"
             order.save()
-
-            return redirect('/orders/payment-failed/')  # Redirect to failure page
-
-    except json.JSONDecodeError:
-        return HttpResponse("Invalid JSON format", status=400)
+            return JsonResponse({"error": "Payment failed"}, status=400)
 
     except Exception as e:
-        return HttpResponse(f"Error processing payment: {str(e)}", status=500)
+        return JsonResponse({"error": str(e)}, status=500)
 
-# def payment_success(request, order_id):
-#     order = get_object_or_404(Order, id=order_id)
-#     return render(request, 'orders/payment_success.html', {'order': order})
 
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 
-@login_required
+
+
+def payment_waiting(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    return render(request, 'orders/payment_waiting.html', {'order': order})
+
+
+
+
 def check_payment_status(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_object_or_404(Order, id=order_id)
 
-    if order.status == "Paid":
-        return redirect("orders:order_success", order_id=order.id)
-
-    return JsonResponse({"status": order.status})
+    if order.payment_status == "Paid":
+        return JsonResponse({"status": "success", "message": "Payment successful."})
+    elif order.payment_status == "Failed":
+        return JsonResponse({"status": "failed", "message": "Payment failed."})
+    else:
+        return JsonResponse({"status": "pending", "message": "Payment is still processing."})
 
 
 @login_required
