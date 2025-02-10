@@ -1,8 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <title>Payment Failed</title>
     <style>
         body {
@@ -42,8 +44,8 @@
     <div class="container">
         <h2>❌ Payment Failed</h2>
         <p>Oops! Something went wrong with your payment.</p>
-        <a href="/cart/" class="btn btn-cart">🛒 View Cart</a>
-        <a href="/checkout/" class="btn btn-retry">🔄 Try Again</a>
+        <a href="{% url 'cart:view' %}" class="btn btn-cart">🛒 View Cart</a>
+        <a href="{% url 'orders:create_order_from_cart' %}" class="btn btn-retry">🔄 Try Again</a>
     </div>
 </body>
 </html>

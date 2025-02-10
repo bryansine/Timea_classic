@@ -418,20 +418,22 @@ def check_payment_status(request, order_id):
         return JsonResponse({"status": "pending", "message": "Payment is still processing."})
 
 
+
 @login_required
 def payment_success(request, order_id):
     # Fetch the order
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    if order.payment_status != "Pending":
-        return HttpResponse("Invalid payment status.")
+    # If already paid, just show the success page
+    if order.payment_status == "Paid":
+        return render(request, 'orders/payment_success.html', {'order': order})
 
-    # Simulate successful payment
-    order.payment_status = "Paid"
-    order.save()
+    # If it's pending, update to paid
+    if order.payment_status == "Pending":
+        order.payment_status = "Paid"
+        order.save()
 
     return render(request, 'orders/payment_success.html', {'order': order})
-
 
 
 def payment_failed(request):

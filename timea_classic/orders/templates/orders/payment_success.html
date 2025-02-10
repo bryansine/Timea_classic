@@ -1,8 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <title>Payment Success</title>
     <style>
         body {
@@ -19,9 +21,25 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
+        
         h2 {
             color: green;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
         }
+
+        h3 { 
+            color: green;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
         .btn {
             display: inline-block;
             padding: 10px 20px;
@@ -42,15 +60,28 @@
     <div class="container">
         <h2>🎉 Payment Successful! 🎉</h2>
         <p>Thank you for your purchase!</p>
+        <p>You can view your order details or check your cart.</p>
+        <p>Your order ID is: {{ order.id }}</p>
+        <p>You can track your order status on our <a href="#">tracking page</a>.</p>
+        <p>Please note that your order will be shipped to the following address:</p>
+        <p>{{ order.shipping_address }}</p>
+        <p>Please make sure to provide this information when picking up your order.</p>
+        <p>If you have any questions or need further assistance, please don't hesitate to contact our support team.</p>
 
+        <h3>Order Details:</h3>
+        {% for item in order.items.all %}
+            <p><strong>{{ item.product.name }}</strong> - Ksh {{ item.price }} x {{ item.quantity }}</p
+            {% endfor %}
+        <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
+        <p><strong>Payment status:</strong> {{ order.payment_status }}</p>
+        <p><strong> status:</strong> {{ order.status }}</p>
+       
         <h3>Payment Details:</h3>
-        <p><strong>Transaction ID:</strong> {{ order.transaction_id }}</p>
-        <p><strong>Amount Paid:</strong> Ksh {{ order.amount_paid }}</p>
         <p><strong>Phone Number:</strong> {{ order.phone_number }}</p>
         <p><strong>Order ID:</strong> {{ order.id }}</p>
 
-        <a href="/cart/" class="btn btn-cart">🛒 View Cart</a>
-        <a href="/shop/" class="btn btn-shop">🛍️ Continue Shopping</a>
+        <a href="{% url 'cart:view' %}" class="btn btn-cart">🛒 View Cart</a>
+        <a href="{% url 'products:list' %}" class="btn btn-shop">Continue Shopping</a>
     </div>
 </body>
 </html>

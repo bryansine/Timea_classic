@@ -101,20 +101,12 @@
             <p><strong>Status:</strong> {{ order.status }}</p>
         </div>
 
-        {% comment %} {% if order.payment_status == 'Pending' %}
-            <div class="order-actions">
-                <a href="{% url 'orders:initiate_payment' order.id %}" class="btn btn-primary">Place Order & Pay</a>
-            </div>
-        {% else %}
-            <p><strong>Payment Status:</strong> Paid</p>
-        {% endif %} {% endcomment %}
-
             {% if order.payment_status == "Pending" %}
         <form action="{% url 'orders:initiate_payment' order.id %}" method="POST">
             {% csrf_token %}
         <button type="submit">Place Order & Pay</button>
         </form>
-            {% elif order.payment_status == "Payment Initiated" %}
+            {% elif order.payment_status == "Paid" %}
         <p>Waiting for payment confirmation...</p>
             {% elif order.payment_status == "Paid" %}
         <p>Payment successful!</p>
