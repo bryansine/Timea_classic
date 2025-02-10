@@ -424,7 +424,6 @@ def payment_success(request, order_id):
     # Fetch the order
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    # If already paid, just show the success page
     if order.payment_status == "Paid":
         return render(request, 'orders/payment_success.html', {'order': order})
 
