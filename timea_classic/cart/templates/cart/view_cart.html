@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
-    <title>Your Cart</title>
+    <title>🛒 Your Cart</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,19 +53,41 @@
             text-align: center;
             margin-top: 20px;
         }
+
+        #profile-nav {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background-color: #0056b3;
+            padding: 12px 20px;
+        }
+    
+        .profile-btn {
+            text-decoration: none;
+            background-color: white;
+            color: #0056b3;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+    
+        .profile-btn:hover {
+            background-color: #003d80;
+            color: white;
+        }
+           
     </style>
 </head>
 <body>
     <header>
-        <h2>Your Cart</h2>
+        <h2>🛒 </h2>
     </header>
 
-    <nav style="display: flex;background-color:#0056b3; align-items: right; ">
-        <ul>
-            <button><a href="{% url 'profile' %}">Profile</a></button>
-        </ul>
+    <nav id="profile-nav">
+        <a href="{% url 'profile' %}" class="profile-btn">Profile</a>
     </nav>
-    
 
     <main>
         {% if cart.items.all %}
