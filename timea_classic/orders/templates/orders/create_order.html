@@ -87,6 +87,18 @@
         <label for="phone_number">Phone Number:</label>
         <input type="text" id="phone_number" name="phone_number" required>
         <br>
+        
+        <div class="profile-info">
+            <h3>Personal Information</h3>
+            <ul>
+                <li><strong>Username:</strong> {{ user.username }}</li>
+                <li><strong>Full Name:</strong> {{ user.first_name }} {{ user.last_name }}</li>
+                <li><strong>Email:</strong> {{ user.email }}</li>
+                <li><strong>Date Joined:</strong> {{ user.date_joined|date:"M d, Y" }}</li>
+                <li><strong>Phone Number:</strong> {{ user.userprofile.phone_number|default:"Not provided" }}</li>
+                <li><strong>Address:</strong> {{ user.userprofile.address|default:"Not provided" }}</li>
+            </ul>
+        </div>
 
         <h3>Cart Items</h3>
         {% for item in cart.items.all %}
