@@ -101,8 +101,13 @@
 
         /* Hover Effects for Product Item */
         .product-item:hover {
-            background-color: #ddd;
+            background-color: #f0a1c1;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
             cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
         }
 
         /* Product Title */
@@ -115,11 +120,19 @@
         /* Product Image */
         .product-item img {
             width: 100%;
-            height: 150px;
+            height: 200px; 
             object-fit: cover;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 10px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
+
+        /* Hover Effect - Pop-up and Highlight */
+        .product-item:hover img {
+            transform: scale(1.1); 
+            box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
 
         /* Product Description */
         .product-item p {
@@ -228,16 +241,17 @@
 
         
         /* Product Item Styles */
-        .in-stock {
-            color: green;
+        .product-item .in-stock {
+            color: green !important;
             font-weight: bold;
         }
         
-        .out-of-stock {
+        .product-item .out-of-stock {
             font-weight: bold;
-            opacity: 1.9;
-            color: red;
+            color: red !important;
+            opacity: 0.7;
         }
+        
 
         /* Search Bar Styles */
         .nav-search {
@@ -462,7 +476,7 @@
     <header class="main-header">
         <h1 style="color:;">Timea-classic</h1>
         <a href="/" class="logo-link">
-            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" class="logo-img">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" class="logo-img" loading="lazy">
         </a>
 
         <div class="header-info">
@@ -539,7 +553,7 @@
                 <div class="product-items">
                     {% for product in category.products.all %}
                     <div class="product-item">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                         <h3>{{ product.name }}</h3>
                         <p>Ksh.{{ product.price }}</p>
                         {% if product.is_in_stock %}
@@ -551,6 +565,7 @@
                     </div>
                     {% empty %}
                         <p>No products available in this category.</p>
+                        
                     {% endfor %}
                 </div>
             </section>

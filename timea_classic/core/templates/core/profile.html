@@ -9,12 +9,251 @@
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
 </head>
 <body>
+    <style>
+
+                    /* Global Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+            color: #333;
+        }
+
+        header {
+            background-color: #0056b3;
+            padding: 10px 20px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            padding: 10px;
+            transition: background 0.3s;
+        }
+
+        .navbar-link:hover {
+            background-color: #003d80;
+            border-radius: 4px;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-header h2 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .profile-email {
+            font-size: 1rem;
+            color: #777;
+        }
+
+        .profile-info {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .profile-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .profile-info ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .profile-info li {
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .profile-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .action-btn {
+            padding: 12px 20px;
+            background-color: #0056b3;
+            color: white;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #003d80;
+        }
+
+        /* Orders Section */
+        .profile-orders {
+            margin-top: 40px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-orders h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .order-item {
+            background-color: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-item h3 {
+            font-size: 1.5rem;
+            color: #0056b3;
+        }
+
+        .order-item p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .status.pending {
+            color: orange;
+        }
+
+        .status.completed {
+            color: green;
+        }
+
+        .status.cancelled {
+            color: red;
+        }
+
+        .order-detail-link {
+            color: #0056b3;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .order-detail-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #0056b3;
+            color: white;
+            padding: 0 0;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-around;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .footer-container div {
+            width: 30%;
+        }
+
+        .footer-container h4 {
+            font-size: 1.3rem;
+        }
+
+        .footer-container p {
+            font-size: 1rem;
+        }
+
+        .social-media {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        .social-link:hover {
+            color: #ffc107;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+
+        /* Back actions container */
+        .back-actions {
+            display: flex;
+            justify-content: center; /* Center the button horizontally */
+            margin-top: 20px; /* Add some space above the button */
+        }
+
+        /* Styling the  button */
+        .btn {
+            display: inline-block;
+            text-align: center;
+            padding: 12px 24px; /* Add padding for a better button size */
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.3s; /* Smooth transition for hover effect */
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+
+    </style>
    <header>
-        <nav>
-            <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'products:list' %}">Shop</a>
-            <a href="{% url 'cart:view' %}">Cart</a>
-            <a href="{% url 'logout' %}">Logout</a>
+        <nav class="navbar">
+            <a href="{% url 'home' %}" class="navbar-link">Home</a>
+            <a href="{% url 'products:list' %}" class="navbar-link">Products</a>
+            <a href="{% url 'cart:view' %}" class="navbar-link">Cart</a>
+            <a href="{% url 'home' %}" class="navbar-link" >Logout</a>
         </nav>
     </header> 
 
@@ -22,9 +261,10 @@
         <!-- Profile Section -->
         <section class="profile-section">
             <div class="profile-container">
-                <h2>Welcome, {{ user.username }}</h2>
-                <p class="profile-email">Email: {{ user.email }}</p>
-                
+                <div class="profile-header">
+                    <h2>Welcome, {{ user.username }}</h2>
+                    <p class="profile-email">Email: {{ user.email }}</p>
+                </div>
 
                 <div class="profile-info">
                     <h3>Personal Information</h3>
@@ -38,55 +278,39 @@
                     </ul>
                 </div>
 
-                
-                
-
-                {% comment %} <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ user_form.as_p }}
-                    {{ profile_form.as_p }}
-                    <button type="submit">Save</button>
-                </form> {% endcomment %}
-
-                {% comment %} <div class="profile-picture">
-                    <h3>Profile Picture</h3>
-                    {% if user.userprofile.profile_picture %}
-                        <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile Picture" class="profile-img">
-                    {% else %}
-                        <p>No profile picture uploaded.</p>
-                    {% endif %}
-                </div> {% endcomment %}
-
                 <div class="profile-actions">
-                    {% comment %} <button class="hero-btn" onclick="window.location.href='{% url 'profile_edit' %}'">Edit Profile</button>  {% endcomment %}
-                    {% comment %} <button class="hero-btn" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>  {% endcomment %}
+                    <button class="action-btn" onclick="window.location.href='{% url 'profile_edit' %}'">Edit Profile</button> 
+                    <button class="action-btn" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button> 
                 </div>
-                <a href="{% url 'profile_edit' %}" class="nav-link">Edit Profile</a>
-
             </div>
         </section>
 
         <!-- Orders Section -->
-        {% comment %} <section class="profile-orders">
+        <section class="profile-orders">
             <h2>Your Orders</h2>
             <div class="orders-list">
                 {% for order in user.orders.all %}
                     <div class="order-item">
                         <h3>Order #{{ order.id }}</h3>
-                        <p>Status: {{ order.status }}</p>
+                        <p>Status: <span class="status {{ order.status|lower }}">{{ order.status }}</span></p>
                         <p>Placed on: {{ order.created_at|date:"M d, Y" }}</p>
-                        <a href="{% url 'order_detail' order.id %}" class="btn-view-details">View Order</a>
-                        <a href="{% url 'payment' order.id %}" class="btn-pay-now">Pay Now</a>
+                        <p>Total Amount: Ksh.{{ order.total_price }}</p>
+                        <p>Payment Status: {{ order.payment_status }}</p>
+                        <a href="{% url 'orders:order_detail' order.id %}" class="order-detail-link">View More Details</a>
                     </div>
                 {% empty %}
                     <p>No orders placed yet.</p>
                 {% endfor %}
             </div>
-        </section> {% endcomment %}
-    </main>
+        </section>
 
-    <!-- Footer -->
-    <footer class="main-footer">
+    </main>
+    <div class="back-actions">
+        <a href="{% url 'cart:view' %}" class="btn btn-primary">Back to cart</a>
+    </div>
+
+    {% comment %} <!-- Footer -->
+    <footer class="footer">
         <div class="footer-container">
             <div>
                 <h4>About Us</h4>
@@ -100,15 +324,15 @@
             <div>
                 <h4>Follow Us</h4>
                 <div class="social-media">
-                    <a href="#">Facebook</a>
-                    <a href="#">Instagram</a>
-                    <a href="#">Twitter</a>
+                    <a href="#" class="social-link">Facebook</a>
+                    <a href="#" class="social-link">Instagram</a>
+                    <a href="#" class="social-link">Twitter</a>
                 </div>
             </div>
         </div>
         <div class="copyright">
-            <p>&copy; 2024 Timea Classic. All Rights Reserved.</p>
+            <p>&copy; 2025 Timea Classic. All Rights Reserved.</p>
         </div>
-    </footer>
+    </footer> {% endcomment %}
 </body>
 </html>

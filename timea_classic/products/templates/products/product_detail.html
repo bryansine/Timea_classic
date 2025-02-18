@@ -101,12 +101,7 @@
             padding: 20px;
         }
 
-        .variant-items {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
+        /* Variant Item Container */
         .variant-item {
             text-align: center;
             padding: 10px;
@@ -114,16 +109,21 @@
             border-radius: 5px;
         }
 
+        /* Variant Item Image */
         .variant-item img {
             width: 100px;
             height: auto;
+            border-radius: 5px;
             margin-bottom: 10px;
             cursor: pointer;
+            transition: transform 0.3s ease-in-out;
         }
 
-        .variant-item p {
-            margin: 5px 0;
+        /* Hover Effect image enlargement */
+        .variant-item img:hover {
+            transform: scale(3.0); 
         }
+
 
         .in-stock {
             color: green;
@@ -226,7 +226,7 @@
     <header>
         <h1>Timea-classic</h1>
         <a href="/">
-            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
         </a>
     </header>
 
@@ -246,7 +246,7 @@
         <!-- Left Side: Main Product Details -->
         <div class="product-main">
             <h2>{{ product.name }}</h2>
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
             <form action="{% url 'cart:add' product.id %}" method="post" class="btn-add-to-cart">
                 {% csrf_token %}
                 <label for="quantity">Quantity:</label>
@@ -264,7 +264,7 @@
             <div class="variant-items">
                 {% for variant in variants %}
                     <div class="variant-item">
-                        <img src="{{ variant.image.url }}" alt="{{ variant.color_name }}" class="variant-image" onclick="openModal('{{ variant.image.url }}')">
+                        <img src="{{ variant.image.url }}" alt="{{ variant.color_name }}" class="variant-image" onclick="openModal('{{ variant.image.url }}')" loading="lazy">
                         <p>{{ variant.color_name }}</p>
                         {% if variant.is_in_stock %}
                         <p class="in-stock">Stock: {{ variant.stock_quantity }}</p>

@@ -5,84 +5,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <title>🛒 Your Cart</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9;
             color: #333;
         }
-        header h2 {
+
+        header {
+            background-color:dimgray;
+            color: white;
+            padding: 5px 0;
             text-align: center;
             font-size: 2rem;
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            text-align: left;
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        .btn {
-            text-decoration: none;
-            color: white;
-            background-color: #007bff;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        .btn-remove {
-            background-color: #dc3545;
-        }
-        .btn-remove:hover {
-            background-color: #a71d2a;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
+            font-weight: 600;
         }
 
         #profile-nav {
             display: flex;
             justify-content: flex-end;
-            align-items: center;
-            background-color: #0056b3;
-            padding: 12px 20px;
+            background-color: #ffffff;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-    
+
         .profile-btn {
             text-decoration: none;
-            background-color: white;
-            color: #0056b3;
+            background-color: #0056b3;
+            color: white;
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 30px;
             font-weight: bold;
             font-size: 16px;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: background-color 0.3s ease;
         }
-    
+
         .profile-btn:hover {
             background-color: #003d80;
-            color: white;
         }
-           
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .cart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cart-item {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .cart-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .cart-item img {
+            width: 120px;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .item-price {
+            color: #333;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-remove {
+            background-color: #dc3545;
+        }
+
+        .btn-remove:hover {
+            background-color: #a71d2a;
+        }
+
+        .empty-cart {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #777;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .continue-shopping {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .continue-shopping:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h2>🛒 </h2>
+        <h2>🛒 Your Cart</h2>
     </header>
 
     <nav id="profile-nav">
@@ -91,22 +163,12 @@
 
     <main>
         {% if cart.items.all %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Subtotal</th>
-                    <th>Update</th>
-                    <th>Action</th>
-                    <th>checkout</th>
-                    <th>order</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart.items.all %}
-                <tr>
-                    <td>
+        <div class="cart-container">
+            {% for item in cart.items.all %}
+            <div class="cart-item">
+                <img src="{% if item.variant and item.variant.image %}{{ item.variant.image.url }}{% else %}{{ item.product.image.url }}{% endif %}" alt="{{ item.product.name }}">
+                <div class="item-details">
+                    <p class="item-name">
                         {% if item.product %}
                             {{ item.product.name }}
                         {% elif item.variant %}
@@ -114,38 +176,32 @@
                         {% else %}
                             Unknown Product
                         {% endif %}
-                    </td>
-                    <td>{{ item.quantity }}</td>
-                    <td>Ksh {{ item.total_price }}</td>
-                    <td>
+                    </p>
+                    <p class="item-price">Ksh {{ item.total_price }}</p>
+                    <div class="btn-container">
                         <form method="post" action="{% url 'cart:update_cart_item' item.id %}">
                             {% csrf_token %}
                             <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
-                            <button type="submit">Update</button>
+                            <button type="submit" class="btn">Update</button>
                         </form>
-                    </td>
-                    <td>
                         <a href="{% url 'cart:remove' item.id %}" class="btn btn-remove">Remove</a>
-                    </td>
-                    <td>
-                        <a href="{% url 'orders:create_order_from_cart' %}" class="btn">Checkout</a>
-                    </td>
-                    <td>
-                        <a href="cart:view" class="btn">Order Now</a>
-                    </td>
-
-                </tr>
-                {% endfor %}
-                
-            </tbody>
-            
-        </table>
+                    </div>
+                </div>
+                <div class="btn-container">
+                    <a href="{% url 'orders:create_order_from_cart' %}" class="btn">Checkout</a>
+                    <a href="#" class="btn">Order Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
         <p class="empty-cart">Your cart is empty.</p>
         {% endif %}
     </main>
-    <footer class="footer">
-        <a href="{% url 'products:list' %}" class="btn">Continue Shopping</a>
+    
+
+    <footer>
+        <a href="{% url 'products:list' %}" class="continue-shopping">Continue Shopping</a>
     </footer>
 </body>
 </html>

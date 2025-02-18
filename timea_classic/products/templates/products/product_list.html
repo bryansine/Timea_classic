@@ -266,7 +266,7 @@
     <header>
         <h1>Timea-classic</h1>
         <a href="/">
-            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
         </a>
     </header>
 
@@ -311,7 +311,7 @@
                 {% for product in products %}
                     <div class="product-item">
                         <a href="{% url 'products:detail' product.id %}">
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
                             <h3>{{ product.name }}</h3>
                             <p>Ksh {{ product.price }}</p>
                             <p>

@@ -65,7 +65,7 @@ def product_search(request):
         products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
 
     # Paginate search results
-    paginator = Paginator(products, 10)  # Show 10 products per page
+    paginator = Paginator(products, 20)  # Show 10 products per page
     page_number = request.GET.get('page')  # Get current page number from query parameters
     page_obj = paginator.get_page(page_number)  # Get the page object for the current page
 
