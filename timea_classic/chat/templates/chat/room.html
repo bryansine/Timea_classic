@@ -2,45 +2,51 @@
 <html>
 <head>
     <title>Chat Room</title>
+    {% load static %}
 </head>
 <body>
-    <h1>Room: {{ room_name }}</h1>
-    <div id="chatMessages" style="border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px;">
-        <!-- Chat messages will appear here -->
-    </div>
+    <h1>Room: {{ chat_room_name }}</h1>  <div id="chatMessages" style="border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px;"></div>
     <input id="chatInput" type="text" placeholder="Type a message..." style="width: 100%; padding: 10px;">
 
     <script>
-        const roomName = "{{ room_name|escapejs }}";
+        const roomName = "{{ chat_room_name|escapejs }}"; // Use chat_room_name
 
-        {% comment %} const chatSocket = new WebSocket(
-            'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
-        ); {% endcomment %}
+        if (roomName) { // Check if roomName is defined
+            const chatMessages = document.getElementById('chatMessages');
 
-        {% comment %} const chatSocket = new WebSocket('ws://localhost:8000/ws/chat/testroom/') {% endcomment %}
-        const chatSocket = new WebSocket('ws://localhost:8001/ws/chat/testroom/');
+            const chatSocket = new WebSocket(
+                'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+            );
 
+            chatSocket.onopen = function() {
+                console.log('Connected to WebSocket');
+            };
 
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = data.message;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            };
 
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const messageNode = document.createElement('div');
-            messageNode.textContent = data.message;
-            document.querySelector('#chatMessages').appendChild(messageNode);
-        };
+            chatSocket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
 
-        chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
-        };
+            chatSocket.onclose = function(e) {
+                console.log('Chat socket closed:', e.code, e.reason);
+            };
 
-        document.querySelector('#chatInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && this.value.trim() !== '') {
-                chatSocket.send(JSON.stringify({
-                    'message': this.value.trim()
-                }));
-                this.value = '';
-            }
-        });
+            document.querySelector('#chatInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    chatSocket.send(JSON.stringify({'message': this.value.trim()}));
+                    this.value = '';
+                }
+            });
+        } else {
+            console.error("Room name is not defined. Check your template context.");
+        }
     </script>
 </body>
 </html>
