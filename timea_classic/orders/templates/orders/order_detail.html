@@ -7,23 +7,43 @@
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <title>Order Details</title>
     <style>
+        /* General Styling */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
             background-color: #f9f9f9;
             color: #333;
         }
 
-        .order-details {
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .order-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .order-details h2 {
-            font-size: 2rem;
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            border-bottom: 3px solid #ff7b54;
+            padding-bottom: 10px;
             margin-bottom: 20px;
+        }
+
+        /* Order Items */
+        .order-items {
+            margin-bottom: 20px;
+        }
+
+        .order-items h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #ff7b54;
         }
 
         .order-items ul {
@@ -32,47 +52,109 @@
         }
 
         .order-items li {
-            font-size: 1.1rem;
+            background: #fdf2ec;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .order-items li strong {
+            color: #444;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: #fff6f2;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(255, 123, 84, 0.2);
+        }
+
+        .order-summary h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ff7b54;
             margin-bottom: 10px;
         }
 
-        .order-summary p,
+        .order-summary p {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        /* Payment & Status */
         .order-status p {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
+            color: #ff7b54;
         }
 
+        /* Buttons */
         .order-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin-top: 20px;
         }
 
-        .order-actions .btn {
-            padding: 10px 15px;
+        .btn {
+            display: inline-block;
+            width: 100%;
+            max-width: 250px;
+            padding: 12px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
             text-decoration: none;
             color: white;
-            border-radius: 5px;
-            font-size: 1rem;
+            border-radius: 8px;
+            transition: 0.3s;
+            cursor: pointer;
         }
 
-        .order-actions .btn-primary {
-            background-color: #007bff;
+        .btn-primary {
+            background-color: #ff7b54;
         }
 
-        .order-actions .btn-secondary {
+        .btn-primary:hover {
+            background-color: #e66a3f;
+        }
+
+        .btn-secondary {
             background-color: #6c757d;
         }
 
-        .order-actions .btn:hover {
-            opacity: 0.8;
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .order-container {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .btn {
+                width: 90%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="order-details">
+    <div class="order-container">
         <h2>Order #{{ order.id }} - Status: {{ order.status }}</h2>
 
         <div class="order-items">
-            <h3>Items in Your Order:</h3>
+            <h3>Items in Your Order</h3>
             <ul>
                 {% for item in order.items.all %}
                     <li>
@@ -83,7 +165,7 @@
                         {% else %}
                             <strong>Unknown Item</strong>
                         {% endif %}
-                        - Quantity: {{ item.quantity }} x Ksh {{ item.price }}
+                        - {{ item.quantity }} x Ksh {{ item.price }}
                     </li>
                 {% endfor %}
             </ul>
@@ -98,26 +180,20 @@
         </div>
 
         <div class="order-status">
-            <p><strong>Status:</strong> {{ order.status }}</p>
+            {% if order.payment_status == "Pending" %}
+                <p>Payment Pending</p>
+                <form action="{% url 'orders:initiate_payment' order.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Place Order & Pay</button>
+                </form>
+            {% elif order.payment_status == "Paid" %}
+                <p>Payment Successful!</p>
+            {% endif %}
         </div>
 
-            {% if order.payment_status == "Pending" %}
-        <form action="{% url 'orders:initiate_payment' order.id %}" method="POST">
-            {% csrf_token %}
-        <button type="submit">Place Order & Pay</button>
-        </form>
-            {% elif order.payment_status == "Paid" %}
-        <p>Waiting for payment confirmation...</p>
-            {% elif order.payment_status == "Paid" %}
-        <p>Payment successful!</p>
-            {% endif %}
-
-        
         <div class="order-actions">
-            <a href="{% url 'cart:view' %}" class="btn btn-primary">Back to cart</a>
+            <a href="{% url 'cart:view' %}" class="btn btn-secondary">Back to Cart</a>
         </div>
     </div>
 </body>
 </html>
-
-

@@ -95,11 +95,12 @@
         <p>Once the payment is completed, you will be redirected automatically.</p>
        
         <button id="retryBtn" class="button retry-button">🔄 Checking Payment...</button>
+        <div class="order-actions">
+            <a href="{% url 'cart:view' %}" class="button cart-button"> 🛒 Back to Cart</a>
+        </div>
     </div>
 
-    <div class="order-actions">
-        <a href="{% url 'cart:view' %}" class="button cart-button"> 🛒 Back to Cart</a>
-    </div>
+ 
 
     <script>
         function checkPaymentStatus() {
