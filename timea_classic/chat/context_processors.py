@@ -4,4 +4,4 @@ def chat_room(request):
     if request.user.is_authenticated:
         room_name = request.user.username  # Or your logic for generating room names
         return {'chat_room_name': room_name}
-    return {}  # Important: Return an empty dictionary if the user is not authenticated
+    return {}
