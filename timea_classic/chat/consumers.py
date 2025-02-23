@@ -24,7 +24,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
-        if self.scope['user'].is_authenticated: #Only allow logged in users to send messages
+        if self.scope['user'].is_authenticated:
             text_data_json = json.loads(text_data)
             message = text_data_json['message']
 
