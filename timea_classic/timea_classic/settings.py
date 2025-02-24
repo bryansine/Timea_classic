@@ -121,7 +121,8 @@ DATABASES = {
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),  
+        'PORT': config('DB_PORT'),
+        'CONN_MAX_AGE': 600,
     }
 }
 
@@ -208,15 +209,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # SECURE_CONTENT_TYPE_NOSNIFF = True
 # SECURE_SSL_REDIRECT = True  
 
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-#         "LOCATION": "redis://localhost:6379/1",  # Use Railway Redis URL if hosted remotely
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     }
-# }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 
 # M-Pesa Configurations
