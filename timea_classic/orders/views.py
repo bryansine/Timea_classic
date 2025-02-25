@@ -15,20 +15,18 @@ from daraja.utils import get_mpesa_access_token, generate_password, get_timestam
 
 @login_required
 def create_order(request):
-    cart = request.user.cart  # Ensure this is correct for your app
-    if not cart.items.exists():  # Check if cart is empty
-        return redirect('cart:view')  # Adjust 'cart:view' to your actual cart view
+    cart = request.user.cart 
+    if not cart.items.exists():
+        return redirect('cart:view') 
 
     if request.method == 'POST':
         shipping_address = request.POST.get('shipping_address')
         phone_number = request.POST.get('phone_number')
 
-        selected_cart_items = request.POST.getlist('cart_items')  # List of selected cart item IDs
+        selected_cart_items = request.POST.getlist('cart_items') 
 
-        # Ensure selected_cart_items is a list of integers
         selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items]
 
-        # Use a transaction to ensure atomicity
         with transaction.atomic():
             # Create the Order
             order = Order.objects.create(
@@ -55,12 +53,10 @@ def create_order(request):
                 )
                 cart_items_to_remove.append(item.id)
 
-            # Remove only the ordered items from the cart
             CartItem.objects.filter(id__in=cart_items_to_remove).delete()
 
         return redirect('orders:order_detail', order_id=order.id)
 
-    # Render the order creation form for GET requests
     return render(request, 'orders/create_order.html', {'cart': cart})
 
 
@@ -69,7 +65,7 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     context = {'order': order}
-    return render(request, 'orders/order_detail.html', context)  # No automatic redirect
+    return render(request, 'orders/order_detail.html', context)
 
 
 @login_required
@@ -131,7 +127,7 @@ def initiate_payment(request, order_id):
         order.mpesa_checkout_id = response_data["CheckoutRequestID"]
         order.payment_status = "Payment Initiated"
         order.save()
-        return redirect('orders:payment_waiting', order_id=order.id)  # ✅ Use the correct name
+        return redirect('orders:payment_waiting', order_id=order.id)
 
     messages.error(request, response_data.get("errorMessage", "Payment initiation failed."))
     return redirect('orders:order_detail', order_id=order.id)
@@ -140,9 +136,9 @@ def initiate_payment(request, order_id):
 def stk_push_payment(order):
     """Function to initiate M-Pesa STK Push"""
     phone_number = order.phone_number
-    amount = order.total_price  # Or any amount you want to charge
+    amount = order.total_price 
 
-    url = "http://127.0.0.1:8000/daraja/stk_push/"  # Your local or deployed endpoint
+    url = "http://127.0.0.1:8000/daraja/stk_push/"
     data = {
         "phone_number": phone_number,
         "amount": amount
@@ -168,12 +164,12 @@ def mpesa_callback(request):
         if not order:
             return JsonResponse({"error": "Order not found"}, status=404)
 
-        if result_code == 0:  # Payment successful
+        if result_code == 0:
             order.payment_status = "Paid"
             order.save()
             return JsonResponse({"message": "Payment successful"}, status=200)
 
-        else:  # Payment failed
+        else:
             order.payment_status = "Failed"
             order.save()
             return JsonResponse({"error": "Payment failed"}, status=400)

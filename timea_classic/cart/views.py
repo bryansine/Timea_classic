@@ -1,4 +1,5 @@
 from .models import Cart, CartItem
+from django.core.cache import cache
 from products.models import Product, ProductVariant
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -27,31 +28,33 @@ def add_to_cart(request, product_id, variant_id=None):
     return redirect('cart:view')
 
 
+
 @login_required
 def view_cart(request):
-    cart = Cart.objects.filter(user=request.user).first()
-    items = cart.items.all() if cart else []
+    cache_key = f"cart_{request.user.id}"  # Unique cache key for each user
+    cart_data = cache.get(cache_key)  # Try getting cached cart data
 
-    cart_items = []
-    for item in items:
-        if item.product:
-            item_name = item.product.name
-        elif item.variant:
-            item_name = item.variant.product.name
-        else:
-            item_name = "Unknown Product"
-        
-        cart_items.append({
-            'item': item,
-            'item_name': item_name,
-        })
+    if not cart_data:
+        cart = Cart.objects.filter(user=request.user).first()
+        items = cart.items.all() if cart else []
 
-    context = {
-        'cart': cart,
-        'cart_items': cart_items,
-    }
+        cart_items = [
+            {
+                'item': item,
+                'item_name': item.product.name if item.product else item.variant.product.name
+            }
+            for item in items
+        ]
 
-    return render(request, 'cart/view_cart.html', context)
+        cart_data = {
+            'cart': cart,
+            'cart_items': cart_items
+        }
+
+        cache.set(cache_key, cart_data, timeout=60)
+
+    return render(request, 'cart/view_cart.html', cart_data)
+
 
 
 @login_required

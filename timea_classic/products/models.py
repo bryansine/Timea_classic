@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.core.cache import cache
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -45,3 +48,13 @@ class ProductVariant(models.Model):
 
     def is_in_stock(self):
         return self.stock_quantity > 0
+
+# 🚀 CACHE INVALIDATION WHEN PRODUCTS CHANGE
+@receiver(post_save, sender=Product)
+@receiver(post_delete, sender=Product)
+def clear_product_cache(sender, instance, **kwargs):
+    """ Clears product-related cache when a product is added, updated, or deleted. """
+    cache.delete("product_list_all")  # Clear main product list cache
+    if instance.category:
+        cache.delete(f"product_list_{instance.category.id}")  # Clear category-specific cache
+    cache.delete(f"product_{instance.id}")  # Clear individual product cache

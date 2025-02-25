@@ -14,7 +14,7 @@ class Cart(models.Model):
         return sum(item.total_price() for item in self.items.all())
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE, default=None) #if kuna issue undo the default here
+    cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE, default=None, db_index=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
