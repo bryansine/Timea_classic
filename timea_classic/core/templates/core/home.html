@@ -17,6 +17,8 @@
             padding: 0;
             height: 100%;
             display: flex;
+            font-family: Arial, sans-serif;
+
             flex-direction: column;
         }
 
@@ -25,28 +27,42 @@
             flex: 1;
         }
 
-        /* explore button styles */
-        button.hero-btn {
-            background-color: cornflowerblue;
-            color: white;
-            padding: 5px 10px;
-            font-size: 16px;
+
+        /* Hero Section */
+        .hero {
+            display: grid;
+            justify-content: left;
+            align-items: center;
+            height: 400px;
+            color: left;
+            text-align: left;
+        }
+
+        /* Hero Button */
+        .hero-btn button {
+            background:#ff5722;
+            opacity: 0.7;
             border: none;
-            border-radius: 5px;
+            padding: 10px 20px;
+            color: white;
             cursor: pointer;
-            text-transform: uppercase;
-            transition: background-color 0.3s, transform 0.2s;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
         }
-        
-        button.hero-btn:hover {
-            background-color: royalblue;
-            transform: scale(1.05);
+
+        /* Hover Effect */
+        .hero-btn button:hover {
+            background: pink;
+            transform: translateY(-3px);
         }
-        
-        button.hero-btn:active {
-            background-color: navy;
-            transform: scale(0.95);
+
+        /* Active Effect*/
+        .hero-btn button:active {
+            background: #ff4081;
+            transform: translateY(1px);
         }
+
 
             /* auth styles*/
         .auth form {
@@ -74,14 +90,47 @@
         button.auth-btn:active {
             background-color: #212529;
             transform: translateY(1px);
-        }      
+        }
+        
+        
+        /* About Section Styles */
+        .about {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
 
+        /*  About Us button */
+        .about-btn {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 25px;
+            font-size: 15px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .about-btn:hover {
+            background-color: pink;
+            transform: translateY(-3px);
+        }
+
+        .about-btn:active {
+            background-color: #212529;
+            transform: translateY(1px);
+        }
 
         /* Product Items - Grid Layout for categories */
         .product-items {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-            gap: 20px;
+            gap: 30px;
             justify-items: center;
             padding: 20px;
         }
@@ -101,7 +150,7 @@
 
         /* Hover Effects for Product Item */
         .product-item:hover {
-            background-color: #f0a1c1;
+            background-color:pink;
             font-size: 1rem;
             padding: 10px 20px;
             border: none;
@@ -447,30 +496,7 @@
             padding: 10px;
             height: 20px;
         }
-
-        /* About styles*/
-        .about {
-            color: white;
-
-        }
-
-        .about form {
-            margin: 0;
-            display: grid;
-            background-color: black;
-        }
-        
-        button.about-btn {
-            background-color: black;
-            color: white;
-            padding: 10px 25px;
-            font-size: 15px;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-        
+  
     </style>
 
     <header class="main-header">
@@ -489,10 +515,9 @@
         </div>
 
         <section class="about">
-            <form action="{% url 'about' %}" method="get">
-                <button type="submit" class="auth-btn">About Us</button>
-            </form>
+            <a href="{% url 'about' %}" class="about-btn">About Us</a>
         </section>
+        
 
         <section class="auth">
             <form action="{% url 'register' %}" method="get">
