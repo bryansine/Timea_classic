@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Timea-Classic Imara Daima</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{% static 'core/css/mystyle.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+
+</head>
+<body>
+    <style>        
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        .contact-section h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .location, .contact-info, .map-section {
+            margin-bottom: 20px;
+        }
+        
+        .location h2, .contact-info h2, .map-section h2 {
+            margin-bottom: 10px;
+        }
+        
+        .map-container {
+            width: 100%;
+            padding: 10px;
+        }
+        
+        .map-container iframe {
+            width: 100%;
+            height: 400px;
+            border: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .map-container iframe {
+                height: 300px;
+            }
+        }
+    </style>
+    <header>
+        <h1>Timea-classic</h1>
+        <a href="/">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
+        </a>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="{% url 'products:list' %}">Products</a></li>
+            <li><a href="{% url "cart:view" %}">Cart</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href=" {% url 'contact' %} ">Contact</a></li>
+        </ul>
+    </nav>
+    <section class="contact-section">
+        <div class="container">
+            <h1>How to Find Us</h1>
+
+            <div class="location">
+                <h2>Location:</h2>
+                <address>Timea-Classic Imara Daima, Opposite Bakhita Catholic Church.<br>
+                Imara Daima, Embakasi South</address>
+            </div>
+
+            <div class="contact-info">
+                <h2>Tel/WhatsApp:</h2>
+                <p>0713423885 / 0723329320</p>
+            </div>
+
+            <div class="map-section">
+                <h2>Our Location on Google Maps</h2>
+                <div class="map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7707.430304333979!2d36.87904944116799!3d-1.325316344648426!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1324194e498d%3A0x4cdaa48660b576c!2sWINMOI%20BABYSHOP!5e1!3m2!1sen!2ske!4v1740661131574!5m2!1sen!2ske" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+
+
+        </div>
+    </section>
+</body>
+</html>

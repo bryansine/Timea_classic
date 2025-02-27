@@ -16,6 +16,10 @@ from .models import UserProfile
 def about(request):
     return render(request, 'core/about.html')
 
+
+def contact(request):
+    return render(request, 'core/contact_us.html')
+
 def home(request):
     categories = Category.objects.all()
     category_id = request.GET.get('category')
