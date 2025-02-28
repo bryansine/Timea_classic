@@ -17,35 +17,44 @@
         }
 
         header {
-            background-color:dimgray;
+            background-color: dimgray;
             color: white;
-            padding: 5px 0;
+            padding: 8px 0;
             text-align: center;
-            font-size: 2rem;
+            font-size: 1.5rem; 
             font-weight: 600;
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
         }
-
+        
         #profile-nav {
             display: flex;
-            justify-content: flex-end;
-            background-color: #ffffff;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            align-items: center;
+            padding: 0 10px;
         }
-
-        .profile-btn {
-            text-decoration: none;
-            background-color: #0056b3;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+        
+        #profile-nav a.profile-btn {
+            display: grid;
+            align-items: center;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #ccc;
+            transition: border-color 0.3s ease;
         }
-
-        .profile-btn:hover {
-            background-color: #003d80;
+        
+        #profile-nav a.profile-btn:hover {
+            border-color: #007bff;
+        }
+        
+        #profile-nav a.profile-btn img {
+            width: 40px; 
+            height: 40px;
+            display: block;
+        }
+        
+        header h2{ 
+            margin: 0 10px;
         }
 
         main {
@@ -155,11 +164,15 @@
 <body>
     <header>
         <h2>🛒 Cart</h2>
+
+        <nav id="profile-nav">
+            <a href="{% url 'profile' %}" class="profile-btn">
+                <img src="{% static 'core/images/profile.png' %}"  style="width: 50px; height: 50px;">
+            </a>
+        </nav>
     </header>
 
-    <nav id="profile-nav">
-        <a href="{% url 'profile' %}" class="profile-btn">Profile</a>
-    </nav>
+
 
     <main>
         {% if cart.items.all %}

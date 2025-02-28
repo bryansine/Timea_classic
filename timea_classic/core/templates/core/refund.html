@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timea-classic Returns & Refund Policy</title>
+    <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <style>
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        nav ul li p {
+            margin-right: 5px;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #0056b3; /* Darker blue */
+            margin-bottom: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+        strong {
+            font-weight: bold;
+        }
+        .return-process, .refund-details, .conditions {
+            margin-bottom: 30px;
+        }
+        .return-process h2, .refund-details h2, .conditions h2 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Timea-classic</h1>
+        <a href="/">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
+        </a>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1>Timea-classic Returns & Refund Policy</h1>
+
+        <p>At Timea-classic, we strive to ensure you are completely satisfied with your purchase. While we primarily offer exchanges or replacements, we understand that certain situations may require a refund. Please read our policy carefully to understand your options.</p>
+
+        <div class="refund-details">
+            <h2>Refund Details</h2>
+            <p><strong>General Refund Policy:</strong> We primarily offer replacements or exchanges. However, refunds may be considered under specific circumstances, such as:</p>
+            <ul>
+                <li>If the product is defective or damaged upon arrival and a replacement is not available.</li>
+                <li>If we have shipped the wrong product.</li>
+                <li>If the product is unavailable after your order has been processed.</li>
+            </ul>
+            <p><strong>Refund Method:</strong> Refunds, when approved, will be processed using the original payment method. Please allow 7-10 business days for the refund to reflect in your account.</p>
+            <p><strong>Refund Processing Time:</strong> Once we receive your returned item and inspect it, we will notify you of the approval or rejection of your refund. If approved, your refund will be processed within 3-5 business days.</p>
+        </div>
+
+        <div class="return-process">
+            <h2>Returns & Exchange Process</h2>
+            <p>We do not offer cash refunds for change of mind. However, we are happy to consider a replacement or exchange as quickly as possible.</p>
+            <ul>
+                <li>To initiate a return or exchange, you must notify us within 1 day of the delivery date.</li>
+                <li>The product to be exchanged or returned must be received by us within 2 working days of the delivery date to be eligible.</li>
+                <li>You are responsible for shipping/courier charges for a replaced/re-shipped product. In certain cases, at our discretion, we may offer free courier/shipping.</li>
+            </ul>
+        </div>
+
+        <div class="conditions">
+            <h2>Conditions for Returns & Exchanges</h2>
+            <p>Products cannot be returned or exchanged if:</p>
+            <ul>
+                <li>They have been custom-made or cut to measure.</li>
+                <li>They have been damaged by lightning or other electrical surges.</li>
+                <li>They have been misused or intentionally damaged.</li>
+                <li>They have been used for a purpose other than their intended design.</li>
+                <li>They have not been used according to the user manual supplied with the product.</li>
+                <li>The original packaging, documentation, and contents are not intact or in new condition.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

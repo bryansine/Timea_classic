@@ -14,16 +14,36 @@
             line-height: 1.6;
         }
 
-         /* logout class Styles */ 
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
         nav ul li.logout {
             margin-left: auto;
             display: flex;
+            align-items: center;
+        }
 
-            transition: background-color 0.3s ease;
-            background-color: transparent;
-            color:darkslategray;
-            cursor: pointer;
-            
+        nav ul li.logout p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        nav ul li.logout a {
+            margin-left: 5px; 
+            color: #d9534f;
+            text-decoration: none;
+        }
+
+        nav ul li.logout a:hover {
+            color: red;
+        }
+
+        nav ul li p {
+            margin-right: 5px;
+            color: white;
         }
 
         /* Product Detail Layout */

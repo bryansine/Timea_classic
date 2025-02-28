@@ -533,7 +533,7 @@
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="{% url 'products:list' %}">Products</a></li>
-            <li><a href="{% url "cart:view" %}">Cart</a></li>
+            <li><a href="{% url 'cart:view' %}">Cart</a></li>
             <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href=" {% url 'contact' %} ">Contact</a></li>
         </ul>
@@ -566,10 +566,65 @@
         </form>
     </div>
 
-    
 
-    <main> 
-        {% block content %}
+    <main>
+        {% block content %}    
+        <h2>Recent Products</h2>
+        <div style="display:flex;">
+            {% for product in recent_products %}
+                <p>{{ product.name }} - {{ product.price }}</p>
+                <div class="product-item">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    <h3>{{ product.name }}</h3>
+                    <p>Ksh.{{ product.price }}</p>
+                    {% if product.is_in_stock %}
+                        <p class="in-stock">In Stock</p>
+                    {% else %}
+                        <p class="out-of-stock">Out of Stock</p>
+                    {% endif %}
+                    <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                </div>
+                
+            {% endfor %}
+        </div>
+    
+        <h2>Products on Offer</h2>
+        <div>
+            {% for product in discounted_products %}
+                <p>{{ product.name }} - Discount Price: {{ product.discount_price }}</p>
+                <div class="product-item">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    <h3>{{ product.name }}</h3>
+                    <p>Ksh.{{ product.price }}</p>
+                    {% if product.is_in_stock %}
+                        <p class="in-stock">In Stock</p>
+                    {% else %}
+                        <p class="out-of-stock">Out of Stock</p>
+                    {% endif %}
+                    <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                </div>
+
+            {% endfor %}
+        </div>
+    
+        <h2>Flash Sale</h2>
+        <div>
+            {% for product in flash_sale_products %}
+                <p>{{ product.name }} - Flash Sale Price: {{ product.discount_price }}</p>
+                <div class="product-item">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    <h3>{{ product.name }}</h3>
+                    <p>Ksh.{{ product.price }}</p>
+                    {% if product.is_in_stock %}
+                        <p class="in-stock">In Stock</p>
+                    {% else %}
+                        <p class="out-of-stock">Out of Stock</p>
+                    {% endif %}
+                    <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                </div>
+            {% endfor %}
+        </div>
+    
         <div class="home-sections">
             {% for category in categories %}
             <section class="category-section">
@@ -590,14 +645,15 @@
                     </div>
                     {% empty %}
                         <p>No products available in this category.</p>
-                        
                     {% endfor %}
                 </div>
             </section>
             {% endfor %}
         </div>
+        
         {% endblock %}
     </main>
+
     
 
     <section class="main-footer">
@@ -606,6 +662,13 @@
                 <h3>  About Us</h3>
                 <p>Learn more about our mission and vision.</p>
                 <a href="{% url 'about' %}"><button>Read More</button></a>
+            </div>
+
+            <div>
+                <h3> RETURNS & EXCHANGE Policy </h3>
+                <p>our Refund policy.</p>
+                <a href="{% url 'refund' %}"><button>Read More</button></a>
+                {% comment %} <a href="{% url 'refund' %}">Readd more</a></ {% endcomment %}
             </div>
 
             <div class="delivery-info">
@@ -618,7 +681,7 @@
                 <h3>Payment Methods</h3>
                 <a href="/"><img src="{% static 'products/images/payment.png' %}" alt="Payment methods" class="payment-img" height="50px" loading="lazy"></a>
             </div>
-
+{% comment %} 
             <div class="newsletter-form">
                 <h3>Subscribe to our newsletter</h3>
                 <form action="/subscribe/" method="post">
@@ -626,7 +689,9 @@
                     <input type="email" name="email" placeholder="Enter your email address" required>
                     <button type="submit">Subscribe</button>
                 </form>
-            </div>
+            </div> {% endcomment %}
+
+
 
             <div>
                 <h3>Contact</h3>
