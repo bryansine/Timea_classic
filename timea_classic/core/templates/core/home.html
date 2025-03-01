@@ -569,63 +569,71 @@
 
     <main>
         {% block content %}    
-        <h2>Recent Products</h2>
-        <div style="display:flex;">
-            {% for product in recent_products %}
-                <p>{{ product.name }} - {{ product.price }}</p>
-                <div class="product-item">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                    <h3>{{ product.name }}</h3>
-                    <p>Ksh.{{ product.price }}</p>
-                    {% if product.is_in_stock %}
-                        <p class="in-stock">In Stock</p>
-                    {% else %}
-                        <p class="out-of-stock">Out of Stock</p>
-                    {% endif %}
-                    <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
-                </div>
-                
-            {% endfor %}
-        </div>
-    
-        <h2>Products on Offer</h2>
-        <div>
-            {% for product in discounted_products %}
-                <p>{{ product.name }} - Discount Price: {{ product.discount_price }}</p>
-                <div class="product-item">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                    <h3>{{ product.name }}</h3>
-                    <p>Ksh.{{ product.price }}</p>
-                    {% if product.is_in_stock %}
-                        <p class="in-stock">In Stock</p>
-                    {% else %}
-                        <p class="out-of-stock">Out of Stock</p>
-                    {% endif %}
-                    <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
-                </div>
-
-            {% endfor %}
-        </div>
-    
-        <h2>Flash Sale</h2>
-        <div>
-            {% for product in flash_sale_products %}
-                <p>{{ product.name }} - Flash Sale Price: {{ product.discount_price }}</p>
-                <div class="product-item">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                    <h3>{{ product.name }}</h3>
-                    <p>Ksh.{{ product.price }}</p>
-                    {% if product.is_in_stock %}
-                        <p class="in-stock">In Stock</p>
-                    {% else %}
-                        <p class="out-of-stock">Out of Stock</p>
-                    {% endif %}
-                    <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
-                </div>
-            {% endfor %}
-        </div>
     
         <div class="home-sections">
+            <section class="category-section">
+                <h2>Recent Products</h2>
+                <div class="product-items">
+                    {% for product in recent_products %}
+                    <div class="product-item">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        <h3>{{ product.name }}</h3>
+                        <p>Ksh.{{ product.price }}</p>
+                        {% if product.is_in_stock %}
+                            <p class="in-stock">In Stock</p>
+                        {% else %}
+                            <p class="out-of-stock">Out of Stock</p>
+                        {% endif %}
+                        <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                    </div>
+                    {% empty %}
+                        <p>No recent products available.</p>
+                    {% endfor %}
+                </div>
+            </section>
+    
+            <section class="category-section">
+                <h2>Products on Offer</h2>
+                <div class="product-items">
+                    {% for product in discounted_products %}
+                    <div class="product-item">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        <h3>{{ product.name }}</h3>
+                        <p>Discount Price: Ksh.{{ product.discount_price }}</p>
+                        {% if product.is_in_stock %}
+                            <p class="in-stock">In Stock</p>
+                        {% else %}
+                            <p class="out-of-stock">Out of Stock</p>
+                        {% endif %}
+                        <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                    </div>
+                    {% empty %}
+                        <p>No discounted products available.</p>
+                    {% endfor %}
+                </div>
+            </section>
+    
+            <section class="category-section">
+                <h2>Flash Sale</h2>
+                <div class="product-items">
+                    {% for product in flash_sale_products %}
+                    <div class="product-item">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        <h3>{{ product.name }}</h3>
+                        <p>Flash Sale Price: Ksh.{{ product.discount_price }}</p>
+                        {% if product.is_in_stock %}
+                            <p class="in-stock">In Stock</p>
+                        {% else %}
+                            <p class="out-of-stock">Out of Stock</p>
+                        {% endif %}
+                        <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                    </div>
+                    {% empty %}
+                        <p>No flash sale products available.</p>
+                    {% endfor %}
+                </div>
+            </section>
+    
             {% for category in categories %}
             <section class="category-section">
                 <h2>{{ category.name }}</h2>
@@ -652,7 +660,7 @@
         </div>
         
         {% endblock %}
-    </main>
+    </main>   
 
     
 
