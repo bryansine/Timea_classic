@@ -178,41 +178,61 @@
 <body>
     <main>
         <div class="container">
+            <h2>Enter Shipping Information</h2>
             <form method="POST" action="{% url 'orders:create_order' %}">
                 {% csrf_token %}
-                <h2>Shipping Information</h2>
+                
                 <label for="shipping_address">Shipping Address:</label>
                 <input type="text" id="shipping_address" name="shipping_address" required>
         
                 <label for="phone_number">Phone Number:</label>
                 <input type="text" id="phone_number" name="phone_number" required>
-
-                <label for="order_notes">Additional Information (Order notes, optional):</label>
-                <textarea id="order_notes" name="order_notes" placeholder="Any special instructions for your order..."></textarea>
-        
-                <h2>Cart Items</h2>
-                <div class="cart-container">
-                    {% for item in cart.items.all %}
-                        <div class="cart-item">
-                            <img src="{% if item.variant and item.variant.image %}{{ item.variant.image.url }}{% else %}{{ item.product.image.url }}{% endif %}" alt="{{ item.product.name }}">
-                            <div class="item-info">
-                                {% if item.product %}
-                                    {{ item.product.name }} - {{ item.quantity }} x Ksh {{ item.product.price }}
-                                {% elif item.variant %}
-                                    {{ item.variant.product.name }} - {{ item.variant.color_name }} - {{ item.quantity }} x Ksh {{ item.variant.price }}
-                                {% else %}
-                                    Unknown Item
-                                {% endif %}
-                            </div>
-                            <input type="checkbox" id="cart_item_{{ item.id }}" name="cart_items" value="{{ item.id }}">
+    
+                <label for="order_notes">Additional Information (Optional):</label>
+                <textarea id="order_notes" name="order_notes" placeholder="Any special instructions..."></textarea>
+    
+                <!-- Buy It Now Section -->
+                {% if buy_now_product %}
+                    <h3>Buying Now</h3>
+                    <div class="cart-item">
+                        <img src="{{ buy_now_product.image.url }}" alt="{{ buy_now_product.name }}">
+                        <div class="item-info">
+                            <p><strong>{{ buy_now_product.name }}</strong></p>
+                            <p>Price: Ksh {{ buy_now_product.price }}</p>
+                            <p>Quantity: 1</p>
                         </div>
-                    {% endfor %}
-                </div>
-        
-                <button type="submit">Place Order</button>
+                    </div>
+                {% else %}
+                    <!-- Cart Items Section -->
+                    <h2>Cart Items</h2>
+                    <div class="cart-container">
+                        {% for item in cart.items.all %}
+                            <div class="cart-item">
+                                <img src="{% if item.variant and item.variant.image %}{{ item.variant.image.url }}{% else %}{{ item.product.image.url }}{% endif %}" alt="{{ item.product.name }}">
+                                <div class="item-info">
+                                    {% if item.product %}
+                                        <p>{{ item.product.name }} - {{ item.quantity }} x Ksh {{ item.product.price }}</p>
+                                    {% elif item.variant %}
+                                        <p>{{ item.variant.product.name }} - {{ item.variant.color_name }} - {{ item.quantity }} x Ksh {{ item.variant.price }}</p>
+                                    {% else %}
+                                        <p>Unknown Item</p>
+                                    {% endif %}
+                                </div>
+                                <input type="checkbox" id="cart_item_{{ item.id }}" name="cart_items" value="{{ item.id }}">
+                            </div>
+                        {% empty %}
+                            <p>Your cart is empty.</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+    
+                <button type="submit" style="background-color:#28a745; color:white; padding:10px; margin-top:10px;">
+                    Place Order
+                </button>
             </form>
         </div>
     </main>
+    
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {

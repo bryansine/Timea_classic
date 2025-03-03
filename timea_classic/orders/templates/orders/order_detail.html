@@ -158,16 +158,29 @@
             <ul>
                 {% for item in order.items.all %}
                     <li>
-                        {% if item.product %}
-                            <strong>{{ item.product.name }}</strong>
-                        {% elif item.variant %}
-                            <strong>{{ item.variant.product.name }} ({{ item.variant.color_name }})</strong>
-                        {% else %}
-                            <strong>Unknown Item</strong>
+                        <strong>
+                            {% if item.product %}
+                                {{ item.product.name }}
+                            {% elif item.variant %}
+                                {{ item.variant.product.name }} ({{ item.variant.color_name }})
+                            {% else %}
+                                Unknown Item
+                            {% endif %}
+                        </strong> - {{ item.quantity }} x Ksh {{ item.price }}
+
+                        <!-- Buy It Now (Single Item Purchase) -->
+                        <!-- Buy It Now (Single Item Purchase) -->
+                        {% if order.items.count == 1 and order.buy_now_product %}
+                            <form action="{% url 'orders:initiate_payment' order.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning btn-sm">Buy It Now</button>
+                            </form>
                         {% endif %}
-                        - {{ item.quantity }} x Ksh {{ item.price }}
                     </li>
+                {% empty %}
+                    <p>No items in this order.</p>
                 {% endfor %}
+                
             </ul>
         </div>
 
@@ -180,20 +193,23 @@
         </div>
 
         <div class="order-status">
-            {% if order.payment_status == "Pending" %}
-                <p>Payment Pending</p>
-                <form action="{% url 'orders:initiate_payment' order.id %}" method="POST">
+            {% if order.payment_status == "Pending" and not order.buy_now_product %}
+                <form action="{% url 'orders:initiate_payment' order.id %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Place Order & Pay</button>
+                    <button type="submit" class="btn btn-primary">
+                        Place Order & Pay
+                    </button>
                 </form>
             {% elif order.payment_status == "Paid" %}
-                <p>Payment Successful!</p>
+                <p><strong style="color: green;">Payment Successful!</strong></p>
             {% endif %}
         </div>
+        
 
         <div class="order-actions">
             <a href="{% url 'cart:view' %}" class="btn btn-secondary">Back to Cart</a>
         </div>
     </div>
 </body>
+
 </html>

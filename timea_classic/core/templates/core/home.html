@@ -496,6 +496,26 @@
             padding: 10px;
             height: 20px;
         }
+
+        /* Styling the "New" Label: */
+        .product-image-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .new-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ff3b30;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 5px 8px;
+            border-radius: 5px;
+            text-transform: uppercase;
+        }
+        
   
     </style>
 
@@ -576,7 +596,10 @@
                 <div class="product-items">
                     {% for product in recent_products %}
                     <div class="product-item">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        <div class="product-image-container">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            <span class="new-badge">New</span>
+                        </div>
                         <h3>{{ product.name }}</h3>
                         <p>Ksh.{{ product.price }}</p>
                         {% if product.is_in_stock %}
@@ -591,6 +614,8 @@
                     {% endfor %}
                 </div>
             </section>
+        </div>
+        
     
             <section class="category-section">
                 <h2>Products on Offer</h2>
@@ -599,7 +624,8 @@
                     <div class="product-item">
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                         <h3>{{ product.name }}</h3>
-                        <p>Discount Price: Ksh.{{ product.discount_price }}</p>
+                        <p>Discount Price: Ksh.{{ product.price }}</p>
+                        {% comment %} <p>Discount Price: Ksh.{{ product.discount_price }}</p> {% endcomment %}
                         {% if product.is_in_stock %}
                             <p class="in-stock">In Stock</p>
                         {% else %}
@@ -620,7 +646,9 @@
                     <div class="product-item">
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                         <h3>{{ product.name }}</h3>
-                        <p>Flash Sale Price: Ksh.{{ product.discount_price }}</p>
+                        <p>Flash Sale Price: Ksh.{{ product.price }}</p>
+                        {% comment %} <p>Flash Sale Price: Ksh.{{ product.discount_price }}</p> {% endcomment %}
+                        <p>Discount Price: Ksh.{{ product.price }}</p>
                         {% if product.is_in_stock %}
                             <p class="in-stock">In Stock</p>
                         {% else %}

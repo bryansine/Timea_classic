@@ -1,3 +1,6 @@
+
+from products.models import Product  # Import your Product model
+
 import json
 import requests
 from django.conf import settings
@@ -13,51 +16,79 @@ from django.shortcuts import render, get_object_or_404, redirect
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
 
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from .models import Order, OrderItem
+from cart.models import CartItem
+from products.models import Product
+
 @login_required
 def create_order(request):
-    cart = request.user.cart 
-    if not cart.items.exists():
-        return redirect('cart:view') 
+    """Handles order creation for both cart checkout and Buy It Now purchases."""
+    cart = request.user.cart
+    buy_now_product_data = request.session.get('buy_now_product', None)
+
+    # Ensure user has items in cart or a Buy Now product
+    if not cart.items.exists() and not buy_now_product_data:
+        return redirect('cart:view')
+
+    # Fetch full product instance if "Buy It Now" is active
+    buy_now_product = None
+    if buy_now_product_data:
+        buy_now_product = get_object_or_404(Product, id=buy_now_product_data['id'])
 
     if request.method == 'POST':
         shipping_address = request.POST.get('shipping_address')
         phone_number = request.POST.get('phone_number')
-
-        selected_cart_items = request.POST.getlist('cart_items') 
-
-        selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items]
+        selected_cart_items = request.POST.getlist('cart_items')
 
         with transaction.atomic():
-            # Create the Order
             order = Order.objects.create(
                 user=request.user,
                 shipping_address=shipping_address,
                 phone_number=phone_number,
-                status='Pending'
+                status='Pending',
+                buy_now_product=buy_now_product  # ✅ Assign Buy Now Product if applicable
             )
 
-            # Track cart items to remove after order creation
-            cart_items_to_remove = []
-
-            # Add selected items from cart to the order
-            for item in cart.items.filter(id__in=selected_cart_item_ids):
-                price = item.product.price if item.product else item.variant.price
-                name = item.product.name if item.product else f"{item.variant.product.name} - {item.variant.color_name}"
-
+            if buy_now_product:
+                # Process "Buy It Now" purchase
                 OrderItem.objects.create(
                     order=order,
-                    product=item.product,
-                    variant=item.variant,
-                    quantity=item.quantity,
-                    price=price
+                    product=buy_now_product,
+                    quantity=1,
+                    price=buy_now_product.price
                 )
-                cart_items_to_remove.append(item.id)
+                del request.session['buy_now_product']  # Clear session data after use
+            else:
+                # Normal cart checkout
+                selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items]
+                cart_items_to_remove = []
 
-            CartItem.objects.filter(id__in=cart_items_to_remove).delete()
+                for item in cart.items.filter(id__in=selected_cart_item_ids):
+                    price = item.product.price if item.product else item.variant.price
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item.product,
+                        variant=item.variant,
+                        quantity=item.quantity,
+                        price=price
+                    )
+                    cart_items_to_remove.append(item.id)
+
+                CartItem.objects.filter(id__in=cart_items_to_remove).delete()
 
         return redirect('orders:order_detail', order_id=order.id)
 
-    return render(request, 'orders/create_order.html', {'cart': cart})
+    return render(request, 'orders/create_order.html', {
+        'cart': cart,
+        'buy_now_product': buy_now_product  # Now it contains the full Product instance
+    })
+
+
+
 
 
 @login_required
@@ -214,3 +245,21 @@ def payment_success(request, order_id):
 
 def payment_failed(request):
     return render(request, 'orders/payment_failed.html')
+
+
+@login_required
+def buy_now(request, product_id):
+    """Handles Buy Now flow by redirecting user to order creation page with a specific product"""
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == "POST":
+        # Store product details in session to use in the order form
+        request.session['buy_now_product'] = {
+            'id': product.id,
+            'name': product.name,
+            'price': str(product.price),  # Store as string to avoid JSON serialization issues
+        }
+        return redirect('orders:create_order')
+
+    return redirect('products:detail', product_id=product.id)
+    

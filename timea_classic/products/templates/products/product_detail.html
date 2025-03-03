@@ -273,6 +273,13 @@
                 <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}">
                 <button type="submit">Add to Cart</button>
             </form>
+            <form action="{% url 'orders:buy_now' product.id %}" method="post" class="btn-buy-now">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" style="background-color:#ff4500; color:white; padding:10px;">
+                    Buy It Now
+                </button>
+            </form>
             <br/>     
             <p><strong>Price:</strong> Ksh {{ product.price }}</p>
             <p><strong>Description:</strong> {{ product.description }}</p>
@@ -295,6 +302,15 @@
                             <input type="number" name="quantity" value="1" min="1" max="{{ variant.stock_quantity }}">
                             <button type="submit" style="background-color:#28a745">Add to Cart</button>
                         </form>
+                        
+                        <form action="{% url 'orders:buy_now' product.id %}" method="post" class="btn-buy-now">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" style="background-color:#ff4500; color:white; padding:10px;">
+                                Buy It Now
+                            </button>
+                        </form>
+                        
                         {% else %}
                         <p class="out-of-stock" style="color: red;">Out of Stock</p>
                         {% endif %}

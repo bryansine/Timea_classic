@@ -19,6 +19,8 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
+    buy_now_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
+
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     shipping_address = models.TextField(blank=True, null=True)
@@ -30,6 +32,10 @@ class Order(models.Model):
     @property
     def total_price(self):
         return sum(item.total_price for item in self.items.all())
+
+    @property
+    def total_price(self):
+        return sum(item.price * item.quantity for item in self.items.all())
 
 
 class OrderItem(models.Model):

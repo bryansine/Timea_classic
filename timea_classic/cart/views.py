@@ -31,8 +31,8 @@ def add_to_cart(request, product_id, variant_id=None):
 
 @login_required
 def view_cart(request):
-    cache_key = f"cart_{request.user.id}"  # Unique cache key for each user
-    cart_data = cache.get(cache_key)  # Try getting cached cart data
+    cache_key = f"cart_{request.user.id}"
+    cart_data = cache.get(cache_key)
 
     if not cart_data:
         cart = Cart.objects.filter(user=request.user).first()
