@@ -1,10 +1,8 @@
-
-from products.models import Product  # Import your Product model
-
 import json
 import requests
 from django.conf import settings
 from django.db import transaction
+from products.models import Product
 from django.contrib import messages
 from .models import Order, OrderItem
 from cart.models import Cart, CartItem
@@ -16,25 +14,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from .models import Order, OrderItem
-from cart.models import CartItem
-from products.models import Product
-
 @login_required
 def create_order(request):
     """Handles order creation for both cart checkout and Buy It Now purchases."""
     cart = request.user.cart
     buy_now_product_data = request.session.get('buy_now_product', None)
 
-    # Ensure user has items in cart or a Buy Now product
     if not cart.items.exists() and not buy_now_product_data:
         return redirect('cart:view')
 
-    # Fetch full product instance if "Buy It Now" is active
     buy_now_product = None
     if buy_now_product_data:
         buy_now_product = get_object_or_404(Product, id=buy_now_product_data['id'])
@@ -50,20 +38,18 @@ def create_order(request):
                 shipping_address=shipping_address,
                 phone_number=phone_number,
                 status='Pending',
-                buy_now_product=buy_now_product  # ✅ Assign Buy Now Product if applicable
+                buy_now_product=buy_now_product
             )
 
             if buy_now_product:
-                # Process "Buy It Now" purchase
                 OrderItem.objects.create(
                     order=order,
                     product=buy_now_product,
                     quantity=1,
                     price=buy_now_product.price
                 )
-                del request.session['buy_now_product']  # Clear session data after use
+                del request.session['buy_now_product']
             else:
-                # Normal cart checkout
                 selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items]
                 cart_items_to_remove = []
 
@@ -84,11 +70,8 @@ def create_order(request):
 
     return render(request, 'orders/create_order.html', {
         'cart': cart,
-        'buy_now_product': buy_now_product  # Now it contains the full Product instance
+        'buy_now_product': buy_now_product 
     })
-
-
-
 
 
 @login_required
@@ -229,13 +212,11 @@ def check_payment_status(request, order_id):
 
 @login_required
 def payment_success(request, order_id):
-    # Fetch the order
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if order.payment_status == "Paid":
         return render(request, 'orders/payment_success.html', {'order': order})
 
-    # If it's pending, update to paid
     if order.payment_status == "Pending":
         order.payment_status = "Paid"
         order.save()
@@ -253,11 +234,10 @@ def buy_now(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == "POST":
-        # Store product details in session to use in the order form
         request.session['buy_now_product'] = {
             'id': product.id,
             'name': product.name,
-            'price': str(product.price),  # Store as string to avoid JSON serialization issues
+            'price': str(product.price),
         }
         return redirect('orders:create_order')
 

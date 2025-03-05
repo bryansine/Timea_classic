@@ -1,19 +1,16 @@
-from django.core.cache import cache
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404, redirect
+from django.core.cache import cache
 from django.core.paginator import Paginator
-from django.contrib.auth.decorators import login_required
 from .models import Product, ProductVariant, Category
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
 
 @login_required
-def product_list(request):
-    """Fetches and displays products with caching and category filtering."""
-    
-    # Fetch categories from cache
+def product_list(request):   
     categories = cache.get("categories")
     if not categories:
         categories = list(Category.objects.all())
-        cache.set("categories", categories, timeout=900)  # Cache for 15 minutes
+        cache.set("categories", categories, timeout=900)
 
     category_id = request.GET.get('category')
     query = request.GET.get('q')
@@ -29,10 +26,9 @@ def product_list(request):
         if query:
             products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
         
-        products = list(products)  # Convert queryset to list before caching
-        cache.set(cache_key, products, timeout=900)  # Cache for 15 minutes
+        products = list(products)
+        cache.set(cache_key, products, timeout=900)
 
-    # Pagination
     paginator = Paginator(products, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -55,9 +51,8 @@ def product_detail(request, product_id):
 
     if not product:
         product = get_object_or_404(Product, id=product_id)
-        cache.set(cache_key, product, timeout=3600)  # Cache for 1 hour
+        cache.set(cache_key, product, timeout=3600)
 
-    # Fetch variants dynamically without caching
     variants = product.variants.all()
     
     return render(request, 'products/product_detail.html', {'product': product, 'variants': variants})
@@ -72,8 +67,8 @@ def product_by_category(request, category_id):
 
     if not products:
         category = get_object_or_404(Category, id=category_id)
-        products = list(category.products.all())  # Convert to list
-        cache.set(cache_key, products, timeout=900)  # Cache for 15 minutes
+        products = list(category.products.all())
+        cache.set(cache_key, products, timeout=900)
 
     return render(request, 'products/product_list.html', {'products': products, 'category': category})
 
@@ -91,10 +86,9 @@ def product_search(request):
         if query:
             products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
         
-        products = list(products)  # Convert to list before caching
-        cache.set(cache_key, products, timeout=600)  # Cache for 10 minutes
+        products = list(products)
+        cache.set(cache_key, products, timeout=600)
 
-    # Pagination
     paginator = Paginator(products, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -103,13 +97,10 @@ def product_search(request):
 
 
 @login_required
-def add_variant_to_cart(request, product_id, variant_id):
-    """Handles adding a product variant to the shopping cart stored in session."""
-    
+def add_variant_to_cart(request, product_id, variant_id):    
     product = get_object_or_404(Product, id=product_id)
     variant = get_object_or_404(ProductVariant, id=variant_id)
 
-    # Fetch cart from session
     cart = request.session.get('cart', {})
 
     if str(variant.id) in cart:
@@ -122,9 +113,8 @@ def add_variant_to_cart(request, product_id, variant_id):
         }
 
     request.session['cart'] = cart
-    request.session.modified = True  # Ensure session is updated
+    request.session.modified = True 
 
-    # Invalidate cache for product lists (since stock or availability might change)
     cache.delete(f"product_list_all")
     cache.delete(f"product_list_{product.category.id}" if product.category else None)
 
