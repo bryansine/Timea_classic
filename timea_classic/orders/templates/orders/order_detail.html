@@ -169,7 +169,6 @@
                         </strong> - {{ item.quantity }} x Ksh {{ item.price }}
 
                         <!-- Buy It Now (Single Item Purchase) -->
-                        <!-- Buy It Now (Single Item Purchase) -->
                         {% if order.items.count == 1 and order.buy_now_product %}
                             <form action="{% url 'orders:initiate_payment' order.id %}" method="post" style="display:inline;">
                                 {% csrf_token %}
