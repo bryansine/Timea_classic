@@ -57,7 +57,7 @@ def home(request):
     # Fetch recent products (latest 5 added)
     recent_products = cache.get("recent_products")
     if not recent_products:
-        recent_products = Product.objects.order_by('-created_at')[:5]
+        recent_products = Product.objects.order_by('-created_at')[:8]
         cache.set("recent_products", recent_products, timeout=60 * 5)
 
     # Fetch discounted products (products with discount_price or marked as on_offer)

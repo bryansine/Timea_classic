@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,46 +79,6 @@
             margin: 10px 0;
         }
 
-        .btn-add-to-cart {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fff;
-            width: 100%;
-            max-width: 400px; 
-            box-sizing: border-box;
-            margin-top: 20px;
-        }
-
-        .btn-add-to-cart label {
-            font-size: 16px;
-            color: #333;
-        }
-
-        .btn-add-to-cart input[type="number"] {
-            padding: 8px;
-            width: 80px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-
-        .btn-add-to-cart button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-add-to-cart button:hover {
-            background-color: #218838;
-        }
 
         .product-variants {
             padding: 20px;
@@ -240,6 +203,77 @@
             cursor: pointer;
         }
 
+        /* Common Button Styling */
+        .btn-add-to-cart,
+        .btn-buy-now {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Styling for both buttons */
+        .btn-add-to-cart button,
+        .btn-buy-now button {
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Add to Cart Button */
+        .btn-add-to-cart button {
+            background-color: #28a745;
+        }
+
+        .btn-add-to-cart button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-add-to-cart button:active {
+            transform: scale(0.95);
+        }
+
+        /* Buy It Now Button */
+        .btn-buy-now button {
+            background-color: #ff4500; 
+            margin-left: 180px; 
+        }
+
+        .btn-buy-now button:hover {
+            background-color: #ff6347;
+            transform: translateY(-2px);
+        }
+
+        .btn-buy-now button:active {
+            transform: scale(0.95);
+        }
+
+        /* Input inside Add to Cart */
+        .btn-add-to-cart input[type="number"] {
+            padding: 8px;
+            width: 80px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }    
+
     </style>
 </head>
 <body>
@@ -271,14 +305,19 @@
                 {% csrf_token %}
                 <label for="quantity">Quantity:</label>
                 <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}">
-                <button type="submit">Add to Cart</button>
+                <button type="submit">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                </button>
             </form>
+            
             <form action="{% url 'orders:buy_now' product.id %}" method="post" class="btn-buy-now">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" style="background-color:#ff4500; color:white; padding:10px;">
-                    Buy It Now
+                <button type="submit">
+                    <i class="fas fa-shopping-bag"></i> Buy It Now
                 </button>
+            </form>
+            
             </form>
             <br/>     
             <p><strong>Price:</strong> Ksh {{ product.price }}</p>
@@ -296,20 +335,23 @@
                         {% if variant.is_in_stock %}
                         <p class="in-stock">Stock: {{ variant.stock_quantity }}</p>
                         <p><strong>Price:</strong> Ksh {{ variant.price }}</p>
-                        <form action="{% url 'cart:add_variant' product.id variant.id %}" method="post" class="btn-add-to-cart">
+                        <form action="{% url 'cart:add' product.id %}" method="post" class="btn-add-to-cart">
                             {% csrf_token %}
                             <label for="quantity">Quantity:</label>
-                            <input type="number" name="quantity" value="1" min="1" max="{{ variant.stock_quantity }}">
-                            <button type="submit" style="background-color:#28a745">Add to Cart</button>
+                            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}">
+                            <button type="submit">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
                         </form>
                         
                         <form action="{% url 'orders:buy_now' product.id %}" method="post" class="btn-buy-now">
                             {% csrf_token %}
                             <input type="hidden" name="quantity" value="1">
-                            <button type="submit" style="background-color:#ff4500; color:white; padding:10px;">
-                                Buy It Now
+                            <button type="submit">
+                                <i class="fas fa-shopping-bag"></i> Buy It Now
                             </button>
                         </form>
+                        
                         
                         {% else %}
                         <p class="out-of-stock" style="color: red;">Out of Stock</p>
