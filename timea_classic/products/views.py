@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
 @login_required
-def product_list(request):   
+def product_list(request):
     categories = cache.get("categories")
     if not categories:
         categories = list(Category.objects.all())
@@ -14,29 +14,33 @@ def product_list(request):
 
     category_id = request.GET.get('category')
     query = request.GET.get('q')
-    
+
+    category = None
+
     cache_key = f"product_list_{category_id or 'all'}_{query or 'none'}"
     products = cache.get(cache_key)
 
     if not products:
         products = Product.objects.all()
+
         if category_id:
             category = get_object_or_404(Category, id=category_id)
             products = products.filter(category=category)
+
         if query:
             products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
         
         products = list(products)
         cache.set(cache_key, products, timeout=900)
 
-    paginator = Paginator(products, 10)
+    paginator = Paginator(products, 16)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
         'categories': categories,
         'products': page_obj,
-        'category': category if category_id else None,
+        'category': category,
         'query': query,
     }
     return render(request, 'products/product_list.html', context)
@@ -74,9 +78,7 @@ def product_by_category(request, category_id):
 
 
 @login_required
-def product_search(request):
-    """Handles product search with caching."""
-    
+def product_search(request):    
     query = request.GET.get('q', '').strip()
     cache_key = f"search_results_{query or 'none'}"
     products = cache.get(cache_key)

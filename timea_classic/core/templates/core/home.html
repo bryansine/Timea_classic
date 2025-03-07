@@ -667,26 +667,25 @@
                 <h2>{{ category.name }}</h2>
                 <p>{{ category.description }}</p>
                 <div class="product-items">
-                    {% for product in category.products.all %}
-                    <div class="product-item">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                        <h3>{{ product.name }}</h3>
-                        <p>Ksh.{{ product.price }}</p>
-                        {% if product.is_in_stock %}
-                            <p class="in-stock">In Stock</p>
-                        {% else %}
-                            <p class="out-of-stock">Out of Stock</p>
-                        {% endif %}
-                        <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
-                    </div>
+                    {% for product in category.products.all|slice:":8" %}
+                        <div class="product-item">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            <h3>{{ product.name }}</h3>
+                            <p>Ksh. {{ product.price }}</p>
+                            {% if product.is_in_stock %}
+                                <p class="in-stock">In Stock</p>
+                            {% else %}
+                                <p class="out-of-stock">Out of Stock</p>
+                            {% endif %}
+                            <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                        </div>
                     {% empty %}
                         <p>No products available in this category.</p>
                     {% endfor %}
                 </div>
             </section>
-            {% endfor %}
-        </div>
-        
+        {% endfor %}
+        </div>  
         {% endblock %}
     </main>   
 

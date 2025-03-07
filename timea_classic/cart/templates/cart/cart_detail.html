@@ -11,10 +11,13 @@
 </head>
 <body>
     <header>
-        <h1> 🛒 Cart</h1>
-        {% comment %} <button type="submit">
+        <h1> 🛒 Cart </h1>
+        <a href="{% url 'cart:view_cart' %}">
             <i class="fas fa-shopping-cart"></i> Cart
-        </button> {% endcomment %}
+        </a>
+        <button type="submit">
+            <i class="fas fa-shopping-cart"></i> Cart
+        </button>
     </header>
     <main>
         <!-- cart_detail.html -->
