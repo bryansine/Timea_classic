@@ -173,9 +173,9 @@ STATIC_URL = '/static/'
 
 # Directories where Django will search for static files during development
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # 'static' folder at the project root
-    os.path.join(BASE_DIR, 'core/static'),  # 'core/static' folder for the Core app
-    os.path.join(BASE_DIR, 'products/static'),  # 'products/static' folder for the Products app
+    os.path.join(BASE_DIR, 'static'), 
+    os.path.join(BASE_DIR, 'core/static'), 
+    os.path.join(BASE_DIR, 'products/static'), 
 ]
 
 

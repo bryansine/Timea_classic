@@ -1,21 +1,18 @@
-
-from django.utils import timezone
-from django.core.cache import cache
-from products.models import Category, Product
-# views.py
+from .models import UserProfile
 from django.urls import reverse
-from django.shortcuts import render, redirect
+from django.utils import timezone
 from .forms import UserProfileForm
+from django.core.cache import cache
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from products.models import Category, Product
+from .forms import UserRegistrationForm, UserForm
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-from .forms import UserRegistrationForm, UserForm
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
-from products.models import Product, Category
-from django.contrib import messages
-from .models import UserProfile
 
 def about(request):
     return render(request, 'core/about.html')

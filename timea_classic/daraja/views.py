@@ -2,8 +2,8 @@ import json
 import requests
 from django.conf import settings
 from django.http import JsonResponse
-from .utils import get_mpesa_access_token, get_timestamp, generate_password
 from django.views.decorators.csrf import csrf_exempt
+from .utils import get_mpesa_access_token, get_timestamp, generate_password
 
 def mpesa_token_view(request):
     # Get the access token
@@ -13,11 +13,11 @@ def mpesa_token_view(request):
 @csrf_exempt
 def stk_push(request):
     if request.method == "POST":
-        phone_number = request.POST.get("phone_number")  # Get user phone numbfer
-        amount = request.POST.get("amount")  # Get amount to pay
+        phone_number = request.POST.get("phone_number") 
+        amount = request.POST.get("amount")
 
         # Use your credentials from the sandbox
-        access_token = get_mpesa_access_token()  # Corrected function name here
+        access_token = get_mpesa_access_token()
         endpoint = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
 
         headers = {
@@ -31,7 +31,7 @@ def stk_push(request):
             "Timestamp": get_timestamp(),
             "TransactionType": "CustomerPayBillOnline",
             "Amount": amount,
-            "PartyA": phone_number,  # Customer phone number
+            "PartyA": phone_number, 
             "PartyB": settings.MPESA_SHORTCODE,
             "PhoneNumber": phone_number,
             "CallBackURL": settings.MPESA_CALLBACK_URL,
@@ -39,10 +39,8 @@ def stk_push(request):
             "TransactionDesc": "Payment for Order",
         }
 
-        # Sending the payment request to Safaricom's STK Push API
         response = requests.post(endpoint, json=payload, headers=headers)
 
-        # Returning the response from the STK Push request as a JSON response
         return JsonResponse(response.json())
 
     return JsonResponse({"error": "Invalid request"}, status=400)

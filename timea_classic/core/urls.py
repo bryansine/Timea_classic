@@ -1,11 +1,10 @@
-from django.urls import path
 from . import views
+from django.urls import path
 from django.contrib.auth import views as auth_views 
 
 
 urlpatterns = [
     path('', views.home, name='home'),
-    # path('contact/', views.contact, name='contact'),  # Later add a contact view
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
     path('logout/', views.logout, name='logout'),
