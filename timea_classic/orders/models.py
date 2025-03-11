@@ -20,7 +20,6 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
     buy_now_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
-
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     shipping_address = models.TextField(blank=True, null=True)

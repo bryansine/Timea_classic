@@ -515,8 +515,60 @@
             border-radius: 5px;
             text-transform: uppercase;
         }
+
+        /* h2 styles */
+        main .category-section h2 {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            background-color: #f9f9f9;
+        }
         
-  
+        main .category-section .recent-products-heading {
+            background-color: #E0F7FA;
+            color: #00838F;
+        }
+        
+        main .category-section .products-offer-heading {
+            background-color: #FFF0F5;
+            color: #FF69B4;
+        }
+        
+        main .category-section .flash-sale-heading {
+            background-color: #FFF3E0;
+            color: #FF9800;
+        }
+        
+        main .category-section .category-heading {
+            background-color: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        /* category-description styles */
+        main .category-section .category-description {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        
+        /* Emojis */
+        main .category-section .recent-products-heading::before { content: "🆕"; margin-right: 5px; }
+        main .category-section .products-offer-heading::before { content: "🎁"; margin-right: 5px; }
+        main .category-section .flash-sale-heading::before { content: "⚡"; margin-right: 5px; }
+        
+        /* Category badges */
+        main .category-section .category-heading::after {
+            content: "👶";
+            margin-left: 5px;
+            
+        }
+        
     </style>
 
     <header class="main-header">
@@ -536,8 +588,7 @@
 
         <section class="about">
             <a href="{% url 'about' %}" class="about-btn">About Us</a>
-        </section>
-        
+        </section>        
 
         <section class="auth">
             <form action="{% url 'register' %}" method="get">
@@ -592,7 +643,7 @@
     
         <div class="home-sections">
             <section class="category-section">
-                <h2>Recent Products</h2>
+                <h2 class="recent-products-heading">Recent Products</h2>
                 <div class="product-items">
                     {% for product in recent_products %}
                     <div class="product-item">
@@ -617,38 +668,38 @@
         </div>
         
     
-            <section class="category-section">
-                <h2>Products on Offer</h2>
-                <div class="product-items">
-                    {% for product in discounted_products %}
-                    <div class="product-item">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                        <h3>{{ product.name }}</h3>
-                        <p>Discount Price: Ksh.{{ product.price }}</p>
-                        {% comment %} <p>Discount Price: Ksh.{{ product.discount_price }}</p> {% endcomment %}
-                        {% if product.is_in_stock %}
-                            <p class="in-stock">In Stock</p>
-                        {% else %}
-                            <p class="out-of-stock">Out of Stock</p>
-                        {% endif %}
-                        <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
-                    </div>
-                    {% empty %}
-                        <p>No discounted products available.</p>
-                    {% endfor %}
+        <section class="category-section">
+            <h2 class="products-offer-heading">Products on Offer (Ksh. -500)</h2>
+            <div class="product-items">
+                {% for product in discounted_products %}
+                <div class="product-item">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    <h3>{{ product.name }}</h3>
+                    <p style="text-decoration: line-through;">Regular Price: Ksh..{{ product.price|add:"+500" }}</p>
+                    <p style="color: red;">Discounted Price: Ksh.{{ product.price }}</p>
+                    <p>You Save: Ksh.{{ product.price|add:"-"|add:product.price|add:"500" }}</p>
+                    {% if product.is_in_stock %}
+                        <p class="in-stock">In Stock</p>
+                    {% else %}
+                        <p class="out-of-stock">Out of Stock</p>
+                    {% endif %}
+                    <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
                 </div>
-            </section>
+                {% empty %}
+                    <p>No discounted products available.</p>
+                {% endfor %}
+            </div>
+        </section>
     
             <section class="category-section">
-                <h2>Flash Sale</h2>
+                <h2 class="flash-sale-heading">Flash Sale | Live Now</h2>
                 <div class="product-items">
                     {% for product in flash_sale_products %}
                     <div class="product-item">
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                         <h3>{{ product.name }}</h3>
-                        <p>Flash Sale Price: Ksh.{{ product.price }}</p>
-                        {% comment %} <p>Flash Sale Price: Ksh.{{ product.discount_price }}</p> {% endcomment %}
-                        <p>Discount Price: Ksh.{{ product.price }}</p>
+                        <p style="text-decoration:line-through;">Regular Price: Ksh.{{ product.price|add:"+500" }}</p>
+                        <p style="font-weight: bold;">Flash Sale Price: Ksh.{{ product.price }}</p>
                         {% if product.is_in_stock %}
                             <p class="in-stock">In Stock</p>
                         {% else %}
@@ -664,8 +715,8 @@
     
             {% for category in categories %}
             <section class="category-section">
-                <h2>{{ category.name }}</h2>
-                <p>{{ category.description }}</p>
+                <h2 class="category-heading">{{ category.name }}</h2>
+                <p class="category-description">{{ category.description }}</p>
                 <div class="product-items">
                     {% for product in category.products.all|slice:":8" %}
                         <div class="product-item">
