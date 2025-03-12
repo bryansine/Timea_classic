@@ -669,15 +669,15 @@
         
     
         <section class="category-section">
-            <h2 class="products-offer-heading">Products on Offer (Ksh. -500)</h2>
+            <h2 class="products-offer-heading">Products on Offer (Ksh. -300)</h2>
             <div class="product-items">
                 {% for product in discounted_products %}
                 <div class="product-item">
                     <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                     <h3>{{ product.name }}</h3>
-                    <p style="text-decoration: line-through;">Regular Price: Ksh..{{ product.price|add:"+500" }}</p>
+                    <p style="text-decoration: line-through;">Regular Price: Ksh..{{ product.price|add:"+300" }}</p>
                     <p style="color: red;">Discounted Price: Ksh.{{ product.price }}</p>
-                    <p>You Save: Ksh.{{ product.price|add:"-"|add:product.price|add:"500" }}</p>
+                    <p>You Save: Ksh.{{ product.price|add:"-"|add:product.price|add:"300" }}</p>
                     {% if product.is_in_stock %}
                         <p class="in-stock">In Stock</p>
                     {% else %}
@@ -691,15 +691,20 @@
             </div>
         </section>
     
-            <section class="category-section">
-                <h2 class="flash-sale-heading">Flash Sale | Live Now</h2>
-                <div class="product-items">
-                    {% for product in flash_sale_products %}
+        <section class="category-section">
+            <h2 class="flash-sale-heading">Flash Sale | Live Now</h2>
+            <div class="product-items">
+                {% for product in flash_sale_products %}
                     <div class="product-item">
+                        {% if product.expiry_time %}
+                            <p id="countdown-{{ product.id }}">Time Left: Loading...</p>
+                        {% endif %}
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                         <h3>{{ product.name }}</h3>
-                        <p style="text-decoration:line-through;">Regular Price: Ksh.{{ product.price|add:"+500" }}</p>
-                        <p style="font-weight: bold;">Flash Sale Price: Ksh.{{ product.price }}</p>
+                        <p>
+                            <strong style="font-size: 1.2em;">KSh {{ product.price }}</strong>
+                            <span style="text-decoration: line-through; margin-left: 5px;">KSh {{ product.price|add:"+250" }}</span>
+                        </p>
                         {% if product.is_in_stock %}
                             <p class="in-stock">In Stock</p>
                         {% else %}
@@ -707,11 +712,11 @@
                         {% endif %}
                         <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
                     </div>
-                    {% empty %}
-                        <p>No flash sale products available.</p>
-                    {% endfor %}
-                </div>
-            </section>
+                {% empty %}
+                    <p>No flash sale products available.</p>
+                {% endfor %}
+            </div>
+        </section>        
     
             {% for category in categories %}
             <section class="category-section">
@@ -766,7 +771,8 @@
                 <h3>Payment Methods</h3>
                 <a href="/"><img src="{% static 'products/images/payment.png' %}" alt="Payment methods" class="payment-img" height="50px" loading="lazy"></a>
             </div>
-{% comment %} 
+         {% comment %}
+         
             <div class="newsletter-form">
                 <h3>Subscribe to our newsletter</h3>
                 <form action="/subscribe/" method="post">
@@ -774,7 +780,9 @@
                     <input type="email" name="email" placeholder="Enter your email address" required>
                     <button type="submit">Subscribe</button>
                 </form>
-            </div> {% endcomment %}
+            </div> 
+            
+        {% endcomment %}
 
 
 
@@ -861,6 +869,32 @@
         }
     </script>
 {% endif %}
+
+    <script>
+        {% for product in flash_sale_products %}
+            {% if product.expiry_time %}
+                function updateCountdown{{ product.id }}() {
+                    const expiryTime = new Date("{{ product.expiry_time|date:'c' }}").getTime();
+                    const now = new Date().getTime();
+                    const timeLeft = expiryTime - now;
+    
+                    if (timeLeft > 0) {
+                        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    
+                        document.getElementById("countdown-{{ product.id }}").innerHTML = `Time Left: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+                    } else {
+                        document.getElementById("countdown-{{ product.id }}").innerHTML = "Flash Sale Ended For This Product! 😢 Check out our other great deals!";                    }
+                }
+    
+                updateCountdown{{ product.id }}();
+                setInterval(updateCountdown{{ product.id }}, 1000);
+            {% endif %}
+        {% endfor %}
+    </script>
+
 
 </body>
 </html>

@@ -25,7 +25,6 @@ def contact(request):
 def refund(request):
     return render(request, 'core/refund.html')
 
-
 def home(request):
     categories = Category.objects.all()
     category_id = request.GET.get('category')
@@ -50,64 +49,21 @@ def home(request):
     # Fetch flash sale products (products with flash_sale=True and valid expiry_time)
     flash_sale_products = Product.objects.filter(flash_sale=True, expiry_time__gt=timezone.now())
 
+    # Get the expiry time for the flash sale
+    expiry_time = None
+    if flash_sale_products.exists():
+        expiry_time = flash_sale_products.first().expiry_time
+
     context = {
         'categories': categories,
         'products': products,
         'recent_products': recent_products,
         'discounted_products': discounted_products,
         'flash_sale_products': flash_sale_products,
+        'expiry_time': expiry_time,
     }
     
     return render(request, 'core/home.html', context)
-
-# def home(request):
-#     categories = Category.objects.all()
-#     category_id = request.GET.get('category')
-
-#     cache_key = "product_list_all" if not category_id else f"product_list_{category_id}"
-#     products = cache.get(cache_key)
-
-#     if not products:
-#         if category_id:
-#             try:
-#                 category = Category.objects.get(id=category_id)
-#                 products = Product.objects.filter(category=category)
-#             except Category.DoesNotExist:
-#                 products = Product.objects.all()
-#         else:
-#             products = Product.objects.all()
-
-#         cache.set(cache_key, products, timeout=60 * 5)
-        
-#     products = products[:8]  
-
-#     # Fetch recent products
-#     recent_products = cache.get("recent_products")
-#     if not recent_products:
-#         recent_products = Product.objects.order_by('-created_at')[:8]
-#         cache.set("recent_products", recent_products, timeout=60 * 5)
-
-#     # Fetch discounted products (products with discount_price or marked as on_offer)
-#     discounted_products = cache.get("discounted_products")
-#     if not discounted_products:
-#         discounted_products = Product.objects.filter(on_offer=True) | Product.objects.filter(discount_price__isnull=False)
-#         cache.set("discounted_products", discounted_products, timeout=60 * 5)
-
-#     # Fetch flash sale products (products with flash_sale=True and valid expiry_time)
-#     flash_sale_products = cache.get("flash_sale_products")
-#     if not flash_sale_products:
-#         flash_sale_products = Product.objects.filter(flash_sale=True, expiry_time__gt=timezone.now())
-#         cache.set("flash_sale_products", flash_sale_products, timeout=60 * 5)
-
-#     context = {
-#         'categories': categories,
-#         'products': products,
-#         'recent_products': recent_products,
-#         'discounted_products': discounted_products,
-#         'flash_sale_products': flash_sale_products,
-#     }
-    
-#     return render(request, 'core/home.html', context)
 
 def register(request):
     if request.method == 'POST':
