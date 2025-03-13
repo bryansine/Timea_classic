@@ -43,10 +43,10 @@ def home(request):
     # Fetch recent products
     recent_products = Product.objects.order_by('-created_at')[:8]
 
-    # Fetch discounted products (products with discount_price or marked as on_offer)
+    # Fetch discounted products ( products with discount_price or marked as on_offer )
     discounted_products = Product.objects.filter(on_offer=True) | Product.objects.filter(discount_price__isnull=False)
 
-    # Fetch flash sale products (products with flash_sale=True and valid expiry_time)
+    # Fetch flash sale products ( products with flash_sale=True )
     flash_sale_products = Product.objects.filter(flash_sale=True, expiry_time__gt=timezone.now())
 
     # Get the expiry time for the flash sale
@@ -120,7 +120,6 @@ def profile_view(request):
 
 @login_required
 def profile_edit(request):
-    # Your logic to handle the profile editing form goes here
     user_form = UserForm(instance=request.user)
     profile, created = UserProfile.objects.get_or_create(user=request.user)
 
