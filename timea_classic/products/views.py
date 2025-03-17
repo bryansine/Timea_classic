@@ -58,8 +58,11 @@ def product_detail(request, product_id):
         cache.set(cache_key, product, timeout=3600)
 
     variants = product.variants.all()
-    
-    return render(request, 'products/product_detail.html', {'product': product, 'variants': variants})
+
+    # Get related products (same category, excluding the current product)
+    related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
+
+    return render(request, 'products/product_detail.html', {'product': product, 'variants': variants, 'related_products': related_products})
 
 
 @login_required

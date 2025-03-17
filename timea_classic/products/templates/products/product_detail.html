@@ -274,6 +274,78 @@
             border: 1px solid #ddd;
         }    
 
+        /* Related Products Styles */
+        .related-products {
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .related-products h3 {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+        }
+
+        .related-products-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .related-product-item {
+            flex: 1 1 200px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            transition: background-color 0.3s ease; 
+        }
+
+        .related-product-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .related-product-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease; 
+        }
+
+        .related-product-item img:hover {
+            transform: scale(1.05); 
+        }
+
+        .related-product-item a {
+            text-decoration: none; 
+            color: inherit; 
+        }
+
+        .related-product-item h4 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: #333; 
+        }
+
+        .related-product-item p {
+            margin: 5px 0;
+            color: rgba(0, 0, 0, 0.7); 
+        }
+
+        /* view-details styles */
+        .btn-view-details {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-view-details:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -361,6 +433,27 @@
                     <p>No variants available for this product.</p>
                 {% endfor %}
             </div>
+
+            <div class="related-products">
+                <h3>You May Also Like</h3>
+                <div class="related-products-list">
+                    {% for related_product in related_products %}
+                        <div class="related-product-item">
+                            <a href="{% url 'products:detail' related_product.id %}">
+                                <img src="{{ related_product.image.url }}" alt="{{ related_product.name }}" loading="lazy">
+                                <h4>{{ related_product.name }}</h4>
+                                <p>Ksh {{ related_product.price }}</p>
+                                <a href="{% url 'products:detail' related_product.id %}" class="btn-view-details">View Details</a>
+                                <p></p>
+                            </a>
+                        </div>
+                    {% empty %}
+                        <p>No related products found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            
             <div>
                 <a href="{% url 'products:list' %}" class="back-button">
                     <button style="color: black; background-color: burlywood;">
