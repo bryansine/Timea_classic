@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Shipping Options</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+    
+        .shipping-options {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+    
+        .shipping-options h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+    
+        .shipping-option {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+    
+        .shipping-option:hover,
+        .shipping-option input[type="radio"]:checked + label {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        /* Style the radio buttons */
+        .shipping-option input[type="radio"] {
+            margin-right: 10px; /* Add some spacing */
+            appearance: none; /* Remove default styling */
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+        }
+    
+        /* Style the checked state */
+        .shipping-option input[type="radio"]:checked {
+            border-color: #007bff;
+            background-color: #007bff;
+        }
+    
+        .shipping-option input[type="radio"]:checked::after {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            margin: 2px;
+        }
+    
+        .shipping-option label {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+    
+        .shipping-icon {
+            width: 50px;
+            height: auto;
+            margin-right: 20px;
+        }
+    
+        .shipping-details strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+    
+        .shipping-details {
+            flex-grow: 1;
+        }
+    
+        .return-policy {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    
+        .return-policy a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    
+        .return-policy a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="shipping-options">
+        <h3>Shipping Options</h3>
+        <div class="shipping-option">
+            <input type="radio" id="shipping-pickup" name="shipping_option" value="pickup" required>
+            <label for="shipping-pickup">
+                <img src="{% static 'core/images/store-icon.png' %}" alt="Pick up from the Warehouse" class="shipping-icon">
+                <div class="shipping-details">
+                    <strong>Pick up from the Warehouse</strong><br>
+                    To pick up Saturday 8am-11am<br>
+                    <strong>Free</strong>
+                </div>
+            </label>
+        </div>
+        <div class="shipping-option">
+            <input type="radio" id="shipping-delivery" name="shipping_option" value="delivery" required>
+            <label for="shipping-delivery">
+                <img src="{% static 'core/images/delivery-car-icon.png' %}" alt="Our own Delivery" class="shipping-icon">
+                <div class="shipping-details">
+                    <strong>Our own Delivery</strong><br>
+                    We will deliver to your home / office<br>
+                    Next Day<br>
+                    250 Ksh
+                </div>
+            </label>
+        </div>
+        <div class="shipping-option">
+            <input type="radio" id="shipping-courier" name="shipping_option" value="courier" required>
+            <label for="shipping-courier">
+                <img src="{% static 'core/images/dhl-logo.png' %}" alt="Outside Nairobi by Courier" class="shipping-icon">
+                <div class="shipping-details">
+                    <strong>Outside Nairobi by Courier</strong><br>
+                    Courier will deliver to your town (doorstep or pick)<br>
+                    2-3 Days<br>
+                    (Cost will vary depending on location)
+                </div>
+            </label>
+        </div>
+        <div class="return-policy">
+            Free 7-Day returns <a href="{% url 'refund' %}">View more</a>
+        </div>
+    </div>
+
+</body>
+</html>

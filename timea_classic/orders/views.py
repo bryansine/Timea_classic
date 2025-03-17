@@ -13,7 +13,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
-
 @login_required
 def create_order(request):
     """Handles order creation for both cart checkout and Buy It Now purchases."""
@@ -31,6 +30,29 @@ def create_order(request):
         shipping_address = request.POST.get('shipping_address')
         phone_number = request.POST.get('phone_number')
         selected_cart_items = request.POST.getlist('cart_items')
+        shipping_option = request.POST.get('shipping_option')  # Get selected shipping option
+
+        shipping_option_name = None
+        shipping_option_description = None
+        shipping_option_delivery_time = None
+        shipping_cost = 0.00
+
+        # Determine shipping details based on selected option
+        if shipping_option == 'pickup':
+            shipping_option_name = 'Pick up from the Warehouse'
+            shipping_option_description = 'To pick up Saturday 8am-11am'
+            shipping_option_delivery_time = 'Saturday'
+            shipping_cost = 0.00
+        elif shipping_option == 'delivery':
+            shipping_option_name = 'Our own Delivery'
+            shipping_option_description = 'We will deliver to your home / office'
+            shipping_option_delivery_time = 'Next Day'
+            shipping_cost = 250.00
+        elif shipping_option == 'courier':
+            shipping_option_name = 'Outside Nairobi by Courier'
+            shipping_option_description = 'Courier will deliver to your town (doorstep or pick)'
+            shipping_option_delivery_time = '2-3 Days'
+            shipping_cost = 500.00  # Example cost, adjust as needed
 
         with transaction.atomic():
             order = Order.objects.create(
@@ -38,7 +60,11 @@ def create_order(request):
                 shipping_address=shipping_address,
                 phone_number=phone_number,
                 status='Pending',
-                buy_now_product=buy_now_product
+                buy_now_product=buy_now_product,
+                shipping_option_name=shipping_option_name,
+                shipping_option_description=shipping_option_description,
+                shipping_option_delivery_time=shipping_option_delivery_time,
+                shipping_cost=shipping_cost
             )
 
             if buy_now_product:

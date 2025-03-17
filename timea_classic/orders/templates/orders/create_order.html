@@ -191,7 +191,8 @@
                 <label for="order_notes">Additional Information (Optional):</label>
                 <textarea id="order_notes" name="order_notes" placeholder="Any special instructions..."></textarea>
     
-                <!-- Buy It Now Section -->
+                {% include 'orders/shipping_options.html' %}
+
                 {% if buy_now_product %}
                     <h3>Buying Now</h3>
                     <div class="cart-item">
@@ -203,7 +204,6 @@
                         </div>
                     </div>
                 {% else %}
-                    <!-- Cart Items Section -->
                     <h2>Cart Items</h2>
                     <div class="cart-container">
                         {% for item in cart.items.all %}
