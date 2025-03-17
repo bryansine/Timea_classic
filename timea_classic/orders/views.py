@@ -30,7 +30,7 @@ def create_order(request):
         shipping_address = request.POST.get('shipping_address')
         phone_number = request.POST.get('phone_number')
         selected_cart_items = request.POST.getlist('cart_items')
-        shipping_option = request.POST.get('shipping_option')  # Get selected shipping option
+        shipping_option = request.POST.get('shipping_option')
 
         shipping_option_name = None
         shipping_option_description = None
@@ -52,7 +52,7 @@ def create_order(request):
             shipping_option_name = 'Outside Nairobi by Courier'
             shipping_option_description = 'Courier will deliver to your town (doorstep or pick)'
             shipping_option_delivery_time = '2-3 Days'
-            shipping_cost = 500.00  # Example cost, adjust as needed
+            shipping_cost = 500.00
 
         with transaction.atomic():
             order = Order.objects.create(

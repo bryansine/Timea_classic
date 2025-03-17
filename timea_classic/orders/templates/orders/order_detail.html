@@ -147,6 +147,27 @@
                 width: 90%;
             }
         }
+
+        .order-items li form {
+            display: inline-block;
+            margin-left: 10px; 
+        }
+
+        .order-items li .btn-warning {
+            background-color: #ffc107; 
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #333;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .order-items li .btn-warning:hover {
+            background-color: #ffca2c; 
+        }
+
     </style>
 </head>
 <body>
@@ -168,7 +189,6 @@
                             {% endif %}
                         </strong> - {{ item.quantity }} x Ksh {{ item.price }}
 
-                        <!-- Buy It Now (Single Item Purchase) -->
                         {% if order.items.count == 1 and order.buy_now_product %}
                             <form action="{% url 'orders:initiate_payment' order.id %}" method="post" style="display:inline;">
                                 {% csrf_token %}
@@ -179,12 +199,14 @@
                 {% empty %}
                     <p>No items in this order.</p>
                 {% endfor %}
-                
             </ul>
         </div>
 
         <div class="order-summary">
             <h3>Order Summary</h3>
+            <p><strong>Shipping Option:</strong> {{ order.shipping_option_name }} - {{ order.shipping_option_delivery_time }}</p>
+            <p><strong>Shipping Cost:</strong> Ksh {{ order.shipping_cost }}</p>
+            <p><strong>Subtotal Price:</strong> Ksh {{ order.subtotal_price }}</p>
             <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
             <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
             <p><strong>Phone Number:</strong> {{ order.phone_number }}</p>
@@ -204,11 +226,9 @@
             {% endif %}
         </div>
         
-
         <div class="order-actions">
             <a href="{% url 'cart:view' %}" class="btn btn-secondary">Back to Cart</a>
         </div>
     </div>
 </body>
-
 </html>
