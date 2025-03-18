@@ -208,8 +208,18 @@
             <p><strong>Shipping Cost:</strong> Ksh {{ order.shipping_cost }}</p>
             <p><strong>Subtotal Price:</strong> Ksh {{ order.subtotal_price }}</p>
             <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
-            <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
-            <p><strong>Phone Number:</strong> {{ order.phone_number }}</p>
+
+            <p><strong>Email:</strong> {{ order.email }}</p>
+            <p><strong>First Name:</strong> {{ order.first_name }}</p>
+            <p><strong>Last Name:</strong> {{ order.last_name }}</p>
+            <p><strong>Address:</strong> {{ order.address }}</p>
+            {% if order.apartment %}
+                <p><strong>Apartment:</strong> {{ order.apartment }}</p>
+            {% endif %}
+            <p><strong>ZIP Code:</strong> {{ order.zip_code }}</p>
+            <p><strong>Town / City:</strong> {{ order.town_city }}</p>
+            <p><strong>Closest Town:</strong> {{ order.closest_town }}</p>
+
             <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
         </div>
 
@@ -225,6 +235,7 @@
                 <p><strong style="color: green;">Payment Successful!</strong></p>
             {% endif %}
         </div>
+        
         
         <div class="order-actions">
             <a href="{% url 'cart:view' %}" class="btn btn-secondary">Back to Cart</a>

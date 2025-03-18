@@ -27,10 +27,25 @@ def create_order(request):
         buy_now_product = get_object_or_404(Product, id=buy_now_product_data['id'])
 
     if request.method == 'POST':
+        # Get existing fields
         shipping_address = request.POST.get('shipping_address')
         phone_number = request.POST.get('phone_number')
         selected_cart_items = request.POST.getlist('cart_items')
         shipping_option = request.POST.get('shipping_option')
+
+        # Get new shipping fields
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        address = request.POST.get('address')
+        apartment = request.POST.get('apartment')
+        zip_code = request.POST.get('zip_code')
+        town_city = request.POST.get('town_city')
+        closest_town = request.POST.get('closest_town')
+        receive_emails = request.POST.get('receive_emails') == 'on'
+
+        # Get order notes
+        order_notes = request.POST.get('order_notes')
 
         shipping_option_name = None
         shipping_option_description = None
@@ -64,7 +79,17 @@ def create_order(request):
                 shipping_option_name=shipping_option_name,
                 shipping_option_description=shipping_option_description,
                 shipping_option_delivery_time=shipping_option_delivery_time,
-                shipping_cost=shipping_cost
+                shipping_cost=shipping_cost,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                address=address,
+                apartment=apartment,
+                zip_code=zip_code,
+                town_city=town_city,
+                closest_town=closest_town,
+                receive_emails=receive_emails,
+                order_notes=order_notes,
             )
 
             if buy_now_product:
@@ -98,6 +123,7 @@ def create_order(request):
         'cart': cart,
         'buy_now_product': buy_now_product 
     })
+
 
 
 @login_required
@@ -268,4 +294,3 @@ def buy_now(request, product_id):
         return redirect('orders:create_order')
 
     return redirect('products:detail', product_id=product.id)
-    

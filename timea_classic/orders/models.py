@@ -85,12 +85,25 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     shipping_address = models.TextField(blank=True, null=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
+    order_notes = models.TextField(blank=True, null=True)
+
 
     # Shipping Fields
     shipping_option_name = models.CharField(max_length=255, blank=True, null=True)
     shipping_option_description = models.TextField(blank=True, null=True)
     shipping_option_delivery_time = models.CharField(max_length=100, blank=True, null=True)
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    # More Shipping Fields
+    email = models.EmailField(default='example@example.com')
+    first_name = models.CharField(max_length=100, default='First Name')
+    last_name = models.CharField(max_length=100, default='Last Name')
+    address = models.TextField(default='Unknown Address')
+    apartment = models.CharField(max_length=100, blank=True, null=True)
+    zip_code = models.CharField(max_length=20, default='00000')
+    town_city = models.CharField(max_length=100, default='Nairobi')
+    closest_town = models.CharField(max_length=100, default='Nairobi') 
+    receive_emails = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Order #{self.id} - {self.status}"

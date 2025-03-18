@@ -15,7 +15,7 @@
         }
         .container {
             background: white;
-            max-width: 400px;
+            max-width: 600px; /* Increased max-width */
             margin: auto;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -62,23 +62,38 @@
         <p>Thank you for your purchase!</p>
         <p>You can view your order details or check your cart.</p>
         <p>Your order ID is: {{ order.id }}</p>
-        <p>You can track your order status on our <a href="#">tracking page</a>.</p>
-        <p>Please note that your order will be shipped to the following address:</p>
-        <p>{{ order.shipping_address }}</p>
-        <p>Please make sure to provide this information when picking up your order.</p>
-        <p>If you have any questions or need further assistance, please don't hesitate to contact our support team.</p>
+        <p>You can track your order status on our <a href="{% url 'profile' %}">tracking page</a>.</p>
 
         <h3>Order Details:</h3>
         {% for item in order.items.all %}
-            <p><strong>{{ item.product.name }}</strong> - Ksh {{ item.price }} x {{ item.quantity }}</p
-            {% endfor %}
-        <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
-        <p><strong>Payment status:</strong> {{ order.payment_status }}</p>
-        <p><strong> status:</strong> {{ order.status }}</p>
-       
+            <p><strong>{{ item.product.name }}</strong> - Ksh {{ item.price }} x {{ item.quantity }}</p>
+        {% endfor %}
+
+        <p><strong>Shipping Option:</strong> {{ order.shipping_option_name }} - {{ order.shipping_option_delivery_time }}</p>
+        <p><strong>Shipping Cost:</strong> Ksh {{ order.shipping_cost }}</p>
+        <p><strong>Subtotal Price:</strong> Ksh {{ order.subtotal_price }}</p>
+        <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
+
+        <h3>Shipping Information:</h3>
+        <p><strong>Email:</strong> {{ order.email }}</p>
+        <p><strong>Phone:</strong> {{ order.phone }}</p>
+        <p><strong>First Name:</strong> {{ order.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ order.last_name }}</p>
+        <p><strong>Address:</strong> {{ order.address }}</p>
+        {% if order.apartment %}
+            <p><strong>Apartment:</strong> {{ order.apartment }}</p>
+        {% endif %}
+        <p><strong>ZIP Code:</strong> {{ order.zip_code }}</p>
+        <p><strong>Town / City:</strong> {{ order.town_city }}</p>
+        <p><strong>Closest Town:</strong> {{ order.closest_town }}</p>
+
         <h3>Payment Details:</h3>
-        <p><strong>Phone Number:</strong> {{ order.phone_number }}</p>
+        <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
+        <p><strong>Order Status:</strong> {{ order.status }}</p>
         <p><strong>Order ID:</strong> {{ order.id }}</p>
+        {% if order.order_notes %}
+            <p><strong>Order Notes:</strong> {{ order.order_notes }}</p>
+        {% endif %}
 
         <a href="{% url 'cart:view' %}" class="btn btn-cart">🛒 View Cart</a>
         <a href="{% url 'products:list' %}" class="btn btn-shop">Continue Shopping</a>
