@@ -187,26 +187,36 @@
             text-align: center;
             margin: 2rem auto;
             padding: 10px;
-            max-width: 400px;
-            background-color: #f7e1e7; 
-            border-radius: 25px; 
+            max-width: 600px; /* Increased max-width */
+            background-color: #f7e1e7;
+            border-radius: 25px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         /* Input Field Styling */
-        .nav-search input[type="text"] {
-            width: 100%;
-            padding: 5px;
+        .nav-search form {
+            display: flex; /* Use flexbox for layout */
+            align-items: center; /* Align items vertically */
+            justify-content: center; /* Center items horizontally */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .nav-search form input[type="text"],
+        .nav-search form input[type="number"] {
+            width: 150px; /* Adjust width as needed */
+            padding: 8px;
             font-size: 1rem;
-            border: 2px solid #f2c1d1; 
+            border: 2px solid #f2c1d1;
             border-radius: 15px;
             outline: none;
             color: #333;
-            transition: border-color 0.3s ease-in-out;
+            margin: 5px; /* Add spacing between inputs */
+            box-sizing: border-box; /* Include padding and border in width */
         }
 
         /* Focus Effect for Input */
-        .nav-search input[type="text"]:focus {
+        .nav-search form input[type="text"]:focus,
+        .nav-search form input[type="number"]:focus {
             border-color: #f08080;
             box-shadow: 0 0 5px rgba(240, 128, 128, 0.6);
         }
@@ -221,12 +231,13 @@
             border-radius: 25px;
             cursor: pointer;
             transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            margin: 5px; /* Add spacing to button */
         }
 
         /* Button Hover Effect */
         .search-btn:hover {
             background-color: #f0789e;
-            transform: scale(1.05); 
+            transform: scale(1.05);
         }
 
         /* alert-circle styles*/
@@ -252,18 +263,135 @@
             font-weight: bold;
         }
 
-        /* Responsive Design: Adjust search bar size on smaller screens */
-        @media (max-width: 768px) {
-            .nav-search {
-                max-width: 90%;
-            }
-            .nav-search input[type="text"] {
-                width: 70%;
-            }
-        }
-
     </style>
     <header>
+        <h1>Timea-classic</h1>
+        <a href="/">
+            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
+        </a>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="{% url 'cart:view' %}">View Cart</a></li>
+            <li><a href="/">Contact</a></li>
+            <li class="logout">
+                <p>Hello,  {{ user.username }} <a href="/">Logout</a></p>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="categories-buttons">
+        <h2>Categories</h2>
+        <div class="categories-list">
+            <a href="{% url 'products:list' %}" class="category-btn">All</a>
+            {% for category in categories %}
+                <a href="?category={{ category.id }}" class="category-btn">{{ category.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="nav-search">
+        <form method="get" action="{% url 'products:search' %}">
+            <input type="text" name="q" placeholder="Search for products..." value="{{ query|default:'' }}">
+            <input type="number" name="min_price" placeholder="Min Price">
+            <input type="number" name="max_price" placeholder="Max Price">
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+    </div>
+
+    {% comment %} <div>
+        <form method="get" action="{% url 'products:search' %}">
+            <input type="text" name="q" placeholder="Search for products..." value="{{ query|default:'' }}">
+            <input type="number" name="min_price" placeholder="Min Price">
+            <input type="number" name="max_price" placeholder="Max Price">
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+        <input type="text" id="search-input" name="q" placeholder="Search for products...">
+        <ul id="suggestions-list"></ul>
+    </div> {% endcomment %}
+
+
+    <div class="product-list">
+        <h2>All Products</h2>
+        {% if category %}
+            <h3>Category: {{ category.name }}</h3>
+        {% endif %}
+
+        <div class="product-items">
+            {% if products %}
+                {% for product in products %}
+                    <div class="product-item">
+                        <a href="{% url 'products:detail' product.id %}">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                            <h3>{{ product.name }}</h3>
+                            <p>Ksh {{ product.price }}</p>
+                            <p>
+                                <span class="alert-circle">!</span> <span class="units-left"> {{ product.stock_quantity }} units left</span>
+                            </p>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No products found in this category.</p>
+                {% if query %}
+                    <p>No results found for "{{ query }}".</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="pagination">
+        <ul>
+            {% if products.has_previous %}
+                <li><a href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">First</a></li>
+                <li><a href="?page={{ products.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Previous</a></li>
+            {% endif %}
+
+            <li>Page {{ products.number }} of {{ products.paginator.num_pages }}</li>
+
+            {% if products.has_next %}
+                <li><a href="?page={{ products.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Next</a></li>
+                <li><a href="?page={{ products.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Last</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div>
+        <a href="{% url 'home' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Timea-classic. All rights reserved.</p>
+    </footer>
+    {% include 'chat/chat_snippet.html' %}
+
+    <script>
+        document.getElementById('search-input').addEventListener('input', function() {
+            const query = this.value;
+            if (query) {
+                fetch(`/products/suggestions/?q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const suggestionsList = document.getElementById('suggestions-list');
+                        suggestionsList.innerHTML = '';
+                        data.forEach(suggestion => {
+                            const li = document.createElement('li');
+                            li.textContent = suggestion;
+                            suggestionsList.appendChild(li);
+                        });
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
+
+    {% comment %} <header>
         <h1>Timea-classic</h1>
         <a href="/">
             <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
@@ -299,6 +427,47 @@
             <button type="submit" class="search-btn">Search</button>
         </form>
     </div>
+
+    {% for product in products %}
+    <p>
+        {{ product.name|highlight:query }} - {{ product.description|highlight:query }}
+    </p>
+    {% endfor %}
+
+
+    {% if not products and query %}
+    <p>No results found for "{{ query }}".</p>
+    {% endif %}
+
+    <input type="text" id="search-input" name="q" placeholder="Search for products...">
+    <ul id="suggestions-list"></ul>
+
+    <script>
+        document.getElementById('search-input').addEventListener('input', function() {
+            const query = this.value;
+            if (query) {
+                fetch(`/products/suggestions/?q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const suggestionsList = document.getElementById('suggestions-list');
+                        suggestionsList.innerHTML = '';
+                        data.forEach(suggestion => {
+                            const li = document.createElement('li');
+                            li.textContent = suggestion;
+                            suggestionsList.appendChild(li);
+                        });
+                    });
+            }
+        });
+    </script>
+
+
+    <form method="get" action="{% url 'products:search' %}">
+        <input type="text" name="q" placeholder="Search for products..." value="{{ query|default:'' }}">
+        <input type="number" name="min_price" placeholder="Min Price">
+        <input type="number" name="max_price" placeholder="Max Price">
+        <button type="submit" class="search-btn">Search</button>
+    </form>
 
     <div class="product-list">
         <h2>All Products</h2>
@@ -357,4 +526,4 @@
     </footer>
     {% include 'chat/chat_snippet.html' %} 
 </body>
-</html>
+</html> {% endcomment %}
