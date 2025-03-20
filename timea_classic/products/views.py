@@ -5,7 +5,6 @@ from django.core.paginator import Paginator
 from .models import Product, ProductVariant, Category
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 @login_required
 def product_list(request):
@@ -82,35 +81,6 @@ def product_by_category(request, category_id):
     return render(request, 'products/product_list.html', {'products': products, 'category': category})
 
 
-# @login_required
-# def product_search(request):
-#     query = request.GET.get('q', '').strip()
-#     min_price = request.GET.get('min_price')
-#     max_price = request.GET.get('max_price')
-
-#     cache_key = f"search_results_{query or 'none'}_min_{min_price or 'none'}_max_{max_price or 'none'}"
-#     products = cache.get(cache_key)
-
-#     if not products:
-#         products = Product.objects.all()
-
-#         if min_price:
-#             products = products.filter(price__gte=min_price)
-#         if max_price:
-#             products = products.filter(price__lte=max_price)
-
-#         if query:
-#             products = products.filter(name__icontains=query)
-
-#         products = list(products)
-#         cache.set(cache_key, products, timeout=600)
-
-#     paginator = Paginator(products, 20)
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-
-#     return render(request, 'products/product_list.html', {'products': page_obj, 'query': query})
-
 @login_required
 def product_search(request):
     query = request.GET.get('q', '').strip()
@@ -129,9 +99,7 @@ def product_search(request):
             products = products.filter(price__lte=max_price)
 
         if query:
-            search_vector = SearchVector('name', weight='A') + SearchVector('description', weight='B') + SearchVector('tags', weight='C')
-            search_query = SearchQuery(query)
-            products = products.annotate(rank=SearchRank(search_vector, search_query)).filter(search_vector=search_query).order_by('-rank')
+            products = products.filter(name__icontains=query)
 
         products = list(products)
         cache.set(cache_key, products, timeout=600)

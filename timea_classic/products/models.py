@@ -1,9 +1,8 @@
 from django.db import models
-from datetime import datetime
-from django.core.cache import cache
-from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
-from django.contrib.postgres.search import SearchVectorField, SearchVector
+from django.dispatch import receiver
+from django.core.cache import cache
+from datetime import datetime
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -27,15 +26,9 @@ class Product(models.Model):
     category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    #new fields
+    #new field
     tags = models.CharField(max_length=255, blank=True, null=True)
-    search_vector = SearchVectorField(null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if 'update_fields' not in kwargs or 'search_vector' not in kwargs['update_fields']:
-            self.search_vector = SearchVector('name', weight='A') + SearchVector('description', weight='B') + SearchVector('tags', weight = 'C')
-            Product.objects.filter(pk=self.pk).update(search_vector=self.search_vector)
 
     def __str__(self):
         return self.name

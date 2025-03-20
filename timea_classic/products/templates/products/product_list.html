@@ -293,7 +293,7 @@
         </div>
     </div>
 
-    <div class="nav-search">
+    <div class="nav-search" style="background-image: url('{% static 'core/images/backg1.webp' %}'); background-size: cover; background-position: center; ">
         <form method="get" action="{% url 'products:search' %}">
             <input type="text" name="q" placeholder="Search for products..." value="{{ query|default:'' }}">
             <input type="number" name="min_price" placeholder="Min Price">
@@ -301,18 +301,6 @@
             <button type="submit" class="search-btn">Search</button>
         </form>
     </div>
-
-    {% comment %} <div>
-        <form method="get" action="{% url 'products:search' %}">
-            <input type="text" name="q" placeholder="Search for products..." value="{{ query|default:'' }}">
-            <input type="number" name="min_price" placeholder="Min Price">
-            <input type="number" name="max_price" placeholder="Max Price">
-            <button type="submit" class="search-btn">Search</button>
-        </form>
-        <input type="text" id="search-input" name="q" placeholder="Search for products...">
-        <ul id="suggestions-list"></ul>
-    </div> {% endcomment %}
-
 
     <div class="product-list">
         <h2>All Products</h2>
@@ -370,160 +358,6 @@
     </footer>
     {% include 'chat/chat_snippet.html' %}
 
-    <script>
-        document.getElementById('search-input').addEventListener('input', function() {
-            const query = this.value;
-            if (query) {
-                fetch(`/products/suggestions/?q=${query}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const suggestionsList = document.getElementById('suggestions-list');
-                        suggestionsList.innerHTML = '';
-                        data.forEach(suggestion => {
-                            const li = document.createElement('li');
-                            li.textContent = suggestion;
-                            suggestionsList.appendChild(li);
-                        });
-                    });
-            }
-        });
-    </script>
+
 </body>
 </html>
-
-    {% comment %} <header>
-        <h1>Timea-classic</h1>
-        <a href="/">
-            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
-        </a>
-    </header>
-
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/products">Products</a></li>
-            <li><a href="{% url 'cart:view' %}">View Cart</a></li>
-            <li><a href="/">Contact</a></li>
-            <li class="logout">
-                <p>Hello,  {{ user.username }} <a href="/">Logout</a></p>
-            </li>
-        </ul>
-    </nav>
-
-    <div class="categories-buttons">
-        <h2>Categories</h2>
-        <div class="categories-list">
-            <a href="{% url 'products:list' %}" class="category-btn">All</a>
-            {% for category in categories %}
-                <a href="?category={{ category.id }}" class="category-btn">{{ category.name }}</a>
-            {% endfor %}
-        </div>
-    </div>
-
-
-    <div class="nav-search" style="background-image: url('{% static 'core/images/backg1.webp' %}'); background-size: cover; background-position: center; ">
-        <form method="get" action="{% url 'products:search' %}">
-            <input type="text" name="q" placeholder="Search for products..." value="{{ request.GET.q|default:'' }}">
-            <button type="submit" class="search-btn">Search</button>
-        </form>
-    </div>
-
-    {% for product in products %}
-    <p>
-        {{ product.name|highlight:query }} - {{ product.description|highlight:query }}
-    </p>
-    {% endfor %}
-
-
-    {% if not products and query %}
-    <p>No results found for "{{ query }}".</p>
-    {% endif %}
-
-    <input type="text" id="search-input" name="q" placeholder="Search for products...">
-    <ul id="suggestions-list"></ul>
-
-    <script>
-        document.getElementById('search-input').addEventListener('input', function() {
-            const query = this.value;
-            if (query) {
-                fetch(`/products/suggestions/?q=${query}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const suggestionsList = document.getElementById('suggestions-list');
-                        suggestionsList.innerHTML = '';
-                        data.forEach(suggestion => {
-                            const li = document.createElement('li');
-                            li.textContent = suggestion;
-                            suggestionsList.appendChild(li);
-                        });
-                    });
-            }
-        });
-    </script>
-
-
-    <form method="get" action="{% url 'products:search' %}">
-        <input type="text" name="q" placeholder="Search for products..." value="{{ query|default:'' }}">
-        <input type="number" name="min_price" placeholder="Min Price">
-        <input type="number" name="max_price" placeholder="Max Price">
-        <button type="submit" class="search-btn">Search</button>
-    </form>
-
-    <div class="product-list">
-        <h2>All Products</h2>
-        {% if category %}
-            <h3>Category: {{ category.name }}</h3>
-        {% endif %}
-
-        <div class="product-items">
-            {% if products %}
-                {% for product in products %}
-                    <div class="product-item">
-                        <a href="{% url 'products:detail' product.id %}">
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
-                            <h3>{{ product.name }}</h3>
-                            <p>Ksh {{ product.price }}</p>
-                            <p>
-                                <span class="alert-circle">!</span> <span class="units-left"><span class="units-left"> {{ product.stock_quantity }} units left</span>
-                                
-                            </p>
-                        </a>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p>No products found in this category.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Pagination Controls -->
-    <div class="pagination">
-        <ul>
-            {% if products.has_previous %}
-                <li><a href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">First</a></li>
-                <li><a href="?page={{ products.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Previous</a></li>
-            {% endif %}
-
-            <li>Page {{ products.number }} of {{ products.paginator.num_pages }}</li>
-
-            {% if products.has_next %}
-                <li><a href="?page={{ products.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Next</a></li>
-                <li><a href="?page={{ products.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Last</a></li>
-            {% endif %}
-        </ul>
-    </div>
-
-    <!-- Back to Home Button -->
-    <div>
-        <a href="{% url 'home' %}" class="back-button">
-            <i class="fas fa-arrow-left"></i> Back to Home
-        </a>
-    </div>
-    
-
-    <footer>
-        <p>&copy; 2025 Timea-classic. All rights reserved.</p>
-    </footer>
-    {% include 'chat/chat_snippet.html' %} 
-</body>
-</html> {% endcomment %}
