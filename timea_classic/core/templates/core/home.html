@@ -690,9 +690,9 @@
         
     
         <section class="category-section">
-            <h2 class="products-offer-heading">Products on Offer (Ksh. -300)</h2>
+            <h2 class="products-offer-heading"> (Ksh. -300)</h2>
             <div class="product-items">
-                {% for product in discounted_products %}
+                {% for product in discounted_products|slice:":8" %}
                 <div class="product-item">
                     <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                     <h3>{{ product.name }}</h3>
