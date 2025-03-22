@@ -81,28 +81,37 @@ def product_by_category(request, category_id):
     return render(request, 'products/product_list.html', {'products': products, 'category': category})
 
 
+
 @login_required
 def product_search(request):
     query = request.GET.get('q', '').strip()
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
+    sort_by = request.GET.get('sort_by', 'created_at_desc')
 
-    cache_key = f"search_results_{query or 'none'}_min_{min_price or 'none'}_max_{max_price or 'none'}"
-    products = cache.get(cache_key)
+    products = Product.objects.all()
 
-    if not products:
-        products = Product.objects.all()
+    if min_price:
+        products = products.filter(price__gte=min_price)
+    if max_price:
+        products = products.filter(price__lte=max_price)
 
-        if min_price:
-            products = products.filter(price__gte=min_price)
-        if max_price:
-            products = products.filter(price__lte=max_price)
+    if query:
+        products = products.filter(name__icontains=query)
 
-        if query:
-            products = products.filter(name__icontains=query)
-
-        products = list(products)
-        cache.set(cache_key, products, timeout=600)
+    # Sorting logic
+    if sort_by == 'price_asc':
+        products = products.order_by('price')
+    elif sort_by == 'price_desc':
+        products = products.order_by('-price')
+    elif sort_by == 'name_asc':
+        products = products.order_by('name')
+    elif sort_by == 'name_desc':
+        products = products.order_by('-name')
+    elif sort_by == 'created_at_asc':
+        products = products.order_by('created_at')
+    elif sort_by == 'created_at_desc':
+        products = products.order_by('-created_at')
 
     paginator = Paginator(products, 20)
     page_number = request.GET.get('page')

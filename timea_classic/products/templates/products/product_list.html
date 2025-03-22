@@ -262,7 +262,63 @@
             opacity: 0.7;
             font-weight: bold;
         }
-
+        /* Sorting styles */
+        .sort-options {
+            text-align: left;
+            margin: 2rem 0; 
+            padding: 3px;
+            max-width: 330px;
+            background-color: #f7e1e7;
+            border-radius: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sort-options form {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        .sort-options label {
+            font-size: 1rem;
+            color: #333;
+            margin-right: 10px;
+        }
+        
+        .sort-options select {
+            width: 150px;
+            padding: 5px;
+            font-size: 1rem;
+            border: 2px solid #f2c1d1;
+            border-radius: 15px;
+            outline: none;
+            color: #333;
+            margin: 5px;
+            box-sizing: border-box;
+        }
+        
+        .sort-options select:focus {
+            border-color: #f08080;
+            box-shadow: 0 0 5px rgba(240, 128, 128, 0.6);
+        }
+        
+        .sort-options .sort-btn {
+            background-color: #f0a1c1;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            margin: 5px;
+        }
+        
+        .sort-options .sort-btn:hover {
+            background-color: #f0789e;
+            transform: scale(1.05);
+        }
     </style>
     <header>
         <h1>Timea-classic</h1>
@@ -292,7 +348,22 @@
             {% endfor %}
         </div>
     </div>
-
+    
+    <div class="sort-options">
+        <form method="get" action="{% url 'products:search' %}">
+            <label for="sort-by">Sort by:</label>
+            <select id="sort-by" name="sort_by">
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="name_asc">Name: A to Z</option>
+                <option value="name_desc">Name: Z to A</option>
+                <option value="created_at_desc">Newest</option>
+                <option value="created_at_asc">Oldest</option>
+            </select>
+            <button type="submit" class="sort-btn">Sort</button>
+        </form>
+    </div>
+    
     <div class="nav-search" style="background-image: url('{% static 'core/images/backg1.webp' %}'); background-size: cover; background-position: center; ">
         <form method="get" action="{% url 'products:search' %}">
             <input type="text" name="q" placeholder="Search for products..." value="{{ query|default:'' }}">
@@ -357,5 +428,11 @@
         <p>&copy; 2025 Timea-classic. All rights reserved.</p>
     </footer>
     {% include 'chat/chat_snippet.html' %}
+
+    <script>
+        document.getElementById('sort-by').addEventListener('change', function() {
+            this.form.submit();
+        });
+    </script>
 </body>
 </html>
