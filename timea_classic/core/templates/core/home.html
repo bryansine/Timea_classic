@@ -715,7 +715,7 @@
         <section class="category-section">
             <h2 class="flash-sale-heading">Flash Sale | Live Now</h2>
             <div class="product-items">
-                {% for product in flash_sale_products %}
+                {% for product in flash_sale_products|slice:":8"  %}
                     <div class="product-item">
                         {% if product.expiry_time %}
                             <p id="countdown-{{ product.id }}">Time Left: Loading...</p>

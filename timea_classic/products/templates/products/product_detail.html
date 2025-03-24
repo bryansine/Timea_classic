@@ -1,3 +1,4 @@
+{% load product_filters %}  
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -346,6 +347,100 @@
         .btn-view-details:hover {
             background-color: #0056b3;
         }
+
+        /* Product revie styles */
+        .product-reviews {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            font-family: sans-serif; /* Add a nice font */
+        }
+        
+        .product-reviews h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        .average-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .average-rating .star {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        .average-rating .star.filled {
+            color: gold;
+        }
+        
+        .average-rating .star.empty {
+            color: #ccc;
+        }
+        
+        .average-rating p {
+            font-size: 1em;
+            color: #555;
+            margin-left: 5px;
+        }
+        
+        .review-list {
+            margin-top: 20px;
+        }
+        
+        .review {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .review p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+        
+        .review strong {
+            font-weight: bold;
+        }
+        
+        .review .star {
+            font-size: 1em;
+            margin-right: 3px;
+        }
+        
+        .review .star.filled {
+            color: gold;
+        }
+        
+        .review .star.empty {
+            color: #ccc;
+        }
+        
+        .review-date {
+            font-size: 0.9em;
+            color: #888;
+        }
+        
+        .add-review-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .add-review-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .product-reviews p {
+            color: #333; 
+        }
     </style>
 </head>
 <body>
@@ -369,7 +464,6 @@
     </nav>
 
     <div class="product-detail-container">
-        <!-- Left Side: Main Product Details -->
         <div class="product-main">
             <h2>{{ product.name }}</h2>
             <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
@@ -395,6 +489,16 @@
             <p><strong>Price:</strong> Ksh {{ product.price }}</p>
             <p><strong>Description:</strong> {{ product.description }}</p>
             <p><strong>Category:</strong> {{ product.category }}</p>
+
+
+            <div>
+                <a href="{% url 'products:list' %}" class="back-button">
+                    <button style="color: black; background-color: burlywood;">
+                        <i class="fas fa-arrow-left"></i> 
+                    </button>
+                </a>
+            </div>
+
         </div>
 
         <div class="product-variants">
@@ -434,6 +538,64 @@
                 {% endfor %}
             </div>
 
+            {% block content %}        
+            <div class="product-reviews">
+                <h3>Customer Reviews</h3>
+
+                {% if product.reviews.all %}
+                    <div class="average-rating">
+                        {% with average_rating=product.average_rating %}
+                            {% for i in "12345" %}
+                                {% if i|slugify|add:"0"|less_than:average_rating %}
+                                    <span class="star filled">&#9733;</span>
+                                {% else %}
+                                    <span class="star empty">&#9734;</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                        <p>{{ product.reviews.count }} reviews</p>
+                    </div>
+            
+                    {% comment %} <div class="rating-breakdown">
+                        {% if product.rating_distribution %}
+                            {% for i in "54321" %}
+                                <div class="rating-bar">
+                                    <span class="star filled">&#9733;</span>
+                                    <span class="rating-label">{{ i }} star</span>
+                                    <div class="bar">
+                                        <div class="bar-fill" style="width:{{ product.rating_distribution|get_item:i|multiply:100 }}%"></div>
+                                    </div>
+                                    <span class="rating-count">{{ product.rating_distribution|get_item:i }}</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No ratings available.</p>
+                        {% endif %}
+                    </div> {% endcomment %}
+            
+                    <div class="review-list">
+                        <h4>Reviews</h4>
+                        {% for review in product.reviews.all %}
+                            <div class="review">
+                                <p><strong>{{ review.user.username }}</strong> - Rating: {{ review.rating }}</p>
+                                <p>{{ review.comment }}</p>
+                                <p><em>{{ review.created_at }}</em></p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                {% else %}
+                    <p>Be the first to review "{{ product.name }}"</p>
+                {% endif %}
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'products:add_review' product.id %}" class="add-review-button">Add Review</a>
+            {% else %}
+                <p>You must be logged in to post a review.</p>
+            {% endif %}
+        </div>
+        {% endblock %}
+
             <div class="related-products">
                 <h3>You May Also Like</h3>
                 <div class="related-products-list">
@@ -452,24 +614,13 @@
                     {% endfor %}
                 </div>
             </div>
-
-            
-            <div>
-                <a href="{% url 'products:list' %}" class="back-button">
-                    <button style="color: black; background-color: burlywood;">
-                        <i class="fas fa-arrow-left"></i> Back to Products
-                    </button>
-                </a>
             </div>
-        </div>
     </div>
 
-    <!-- Modal for Image Enlargement -->
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
         <img class="modal-content" id="modalImage">
     </div>
-
 
 
     <footer>

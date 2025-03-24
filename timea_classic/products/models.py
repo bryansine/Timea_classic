@@ -1,8 +1,10 @@
 from django.db import models
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
-from django.core.cache import cache
 from datetime import datetime
+from django.core.cache import cache
+from django.dispatch import receiver
+from django.db.models import Avg, Count
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save, post_delete
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -44,7 +46,15 @@ class Product(models.Model):
         if self.flash_sale and self.expiry_time:
             return datetime.now() < self.expiry_time
         return False
+    
+    @property
+    def average_rating(self):
+        return self.reviews.aggregate(Avg('rating'))['rating__avg'] or 0
 
+    @property
+    def rating_distribution(self):
+        return self.reviews.values('rating').annotate(count=Count('rating'))
+    
     class Meta:
         ordering = ['-created_at']
         verbose_name = "Product"
@@ -72,3 +82,15 @@ def clear_product_cache(sender, instance, **kwargs):
     if instance.category:
         cache.delete(f"product_list_{instance.category.id}")
     cache.delete(f"product_{instance.id}")
+    
+
+
+class ProductReview(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review by {self.user.username} on {self.product.name}"

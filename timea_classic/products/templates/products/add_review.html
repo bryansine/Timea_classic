@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Review for {{ product.name }}</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        form {
+            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .errorlist {
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        .errorlist li {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>Add Review for {{ product.name }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <ul class="errorlist">
+                {% for field in form %}
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <p>
+            <label for="{{ form.rating.id_for_label }}">Rating:</label>
+            {{ form.rating }}
+        </p>
+        <p>
+            <label for="{{ form.comment.id_for_label }}">Comment:</label>
+            {{ form.comment }}
+        </p>
+        <button type="submit">Submit Review</button>
+    </form>
+</body>
+</html>

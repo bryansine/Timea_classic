@@ -1,6 +1,8 @@
 from django.db.models import Q
 from django.core.cache import cache
+from .forms import ProductReviewForm
 from django.http import JsonResponse
+from .models import Product, ProductReview
 from django.core.paginator import Paginator
 from .models import Product, ProductVariant, Category
 from django.contrib.auth.decorators import login_required
@@ -152,3 +154,21 @@ def add_variant_to_cart(request, product_id, variant_id):
     cache.delete(f"product_list_{product.category.id}" if product.category else None)
 
     return redirect('products:detail', product_id=product.id)
+
+
+
+
+@login_required
+def add_review(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    if request.method == 'POST':
+        form = ProductReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+            return redirect('products:detail', product_id=product_id)  # Redirect to product detail page
+    else:
+        form = ProductReviewForm()
+    return render(request, 'products/add_review.html', {'form': form, 'product': product})
