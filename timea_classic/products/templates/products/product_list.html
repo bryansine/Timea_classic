@@ -330,11 +330,11 @@
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/products">Products</a></li>
-            <li><a href="{% url 'cart:view' %}">View Cart</a></li>
-            <li><a href="/">Contact</a></li>
+            <li><a href="{% url 'cart:view' %}">Cart</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
             <li class="logout">
-                <p>Hello,  {{ user.username }} <a href="/">Logout</a></p>
+                <p>Hello, {{ user.username }} <a href="/">Logout</a></p>
             </li>
         </ul>
     </nav>
