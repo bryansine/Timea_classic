@@ -10,8 +10,7 @@
 </head>
 <body>
     <style>
-
-                    /* Global Styles */
+        /* Global Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -127,15 +126,42 @@
 
         .orders-list {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .order-item {
-            background-color: #fafafa;
-            padding: 15px;
+            width: calc(33.33% - 20px);
+            background-color: #f9f9f9;
             border-radius: 8px;
+            padding: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            min-width: 250px;
+        }
+        /* orders styles */
+        .order-item h3 {
+            font-size: 1.3rem;
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+
+        .order-item p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .order-detail-link {
+            display: block;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .order-detail-link:hover {
+            text-decoration: underline;
         }
 
         .order-item h3 {
@@ -143,14 +169,14 @@
             color: #0056b3;
         }
 
-        .order-item p {
-            font-size: 1rem;
-            color: #555;
+        .order-item p {            
+            font-size: 1rem;            
+            color: #555;            
         }
 
         .status {
             font-weight: bold;
-        }
+        }   
 
         .status.pending {
             color: orange;
@@ -164,7 +190,7 @@
             color: red;
         }
 
-        .order-detail-link {
+        .order-detail-link { 
             color: #0056b3;
             font-weight: bold;
             text-decoration: none;
@@ -172,6 +198,19 @@
 
         .order-detail-link:hover {
             text-decoration: underline;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .order-item {
+                width: calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .order-item {
+                width: 100%;
+            }
         }
 
         /* Footer */
@@ -225,29 +264,28 @@
         /* Back actions container */
         .back-actions {
             display: flex;
-            justify-content: center; /* Center the button horizontally */
-            margin-top: 20px; /* Add some space above the button */
+            justify-content: center;
+            margin-top: 20px;
         }
 
         /* Styling the  button */
         .btn {
             display: inline-block;
             text-align: center;
-            padding: 12px 24px; /* Add padding for a better button size */
+            padding: 12px 24px;
             font-size: 16px;
             font-weight: 600;
             text-decoration: none;
             border-radius: 8px;
-            transition: background-color 0.3s, transform 0.3s; /* Smooth transition for hover effect */
+            transition: background-color 0.3s, transform 0.3s;
             cursor: pointer;
         }
 
         .btn:hover {
             background-color: #2980b9;
         }
-
-
     </style>
+
    <header>
         <nav class="navbar">
             <a href="{% url 'home' %}" class="navbar-link">Home</a>
