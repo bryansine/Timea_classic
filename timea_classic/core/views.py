@@ -1,3 +1,4 @@
+from .models import Promotion
 from .models import UserProfile
 from django.urls import reverse
 from django.utils import timezone
@@ -24,6 +25,7 @@ def contact(request):
 
 def refund(request):
     return render(request, 'core/refund.html')
+
 
 def home(request):
     categories = Category.objects.all()
@@ -54,6 +56,22 @@ def home(request):
     if flash_sale_products.exists():
         expiry_time = flash_sale_products.first().expiry_time
 
+    # Fetch banners and pop-ups
+    now = timezone.now()
+    banners = Promotion.objects.filter(
+        promotion_type='banner',
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now,
+        location='homepage'
+    )
+    popups = Promotion.objects.filter(
+        promotion_type='popup',
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    )
+
     context = {
         'categories': categories,
         'products': products,
@@ -61,6 +79,8 @@ def home(request):
         'discounted_products': discounted_products,
         'flash_sale_products': flash_sale_products,
         'expiry_time': expiry_time,
+        'banners': banners,  # Add banners to context
+        'popups': popups,    # Add popups to context
     }
     
     return render(request, 'core/home.html', context)

@@ -368,6 +368,19 @@
                 </button>
             </form>
         </div>
+
+        {% comment %} <section class="banners">
+            {% for banner in banners %}
+                <div class="banner">
+                    <a href="{{ banner.url }}">
+                        <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+                        {% if banner.content %}
+                            <p>{{ banner.content }}</p>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+        </section> {% endcomment %}
     </main>
     
 

@@ -579,6 +579,59 @@
             margin-left: 5px;
             
         }
+
+        /* Banner styles */
+        .banner img {
+            max-width: 100%;
+            height: auto; 
+            max-height: 300px;
+        }
+
+        .banner img {
+            max-width: 100%;
+            height: auto;
+            max-height: 300px; /* Adjust as needed */
+        }
+    
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-width: 400px;
+        }
+    
+        .popup-content {
+            text-align: center;
+        }
+    
+        .popup-content img {
+            max-width: 100%;
+            height: auto;
+            max-height: 200px;
+            margin-bottom: 10px;
+        }
+    
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+    
+        .popup-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
         
     </style>
 
@@ -660,7 +713,19 @@
 
 
     <main>
-        {% block content %}    
+        {% block content %}
+        <section class="banners">
+            {% for banner in banners %}
+                <div class="banner">
+                    <a href="{{ banner.url }}">
+                        <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+                        {% if banner.content %}
+                            <p>{{ banner.content }}</p>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+        </section>
     
         <div class="home-sections">
             <section class="category-section">
@@ -687,7 +752,6 @@
                 </div>
             </section>
         </div>
-        
     
         <section class="category-section">
             <h2 class="products-offer-heading"> (Ksh. -300)</h2>
@@ -710,7 +774,6 @@
                     <p>No discounted products available.</p>
                 {% endfor %}
             </div>
-            
         </section>
     
         <section class="category-section">
@@ -740,33 +803,51 @@
             </div>
         </section>       
     
-            {% for category in categories %}
-            <section class="category-section">
-                <h2 class="category-heading">{{ category.name }}</h2>
-                <p class="category-description">{{ category.description }}</p>
-                <div class="product-items">
-                    {% for product in category.products.all|slice:":8" %}
-                        <div class="product-item">
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                            <h3>{{ product.name }}</h3>
-                            <p>Ksh. {{ product.price }}</p>
-                            {% if product.is_in_stock %}
-                                <p class="in-stock">In Stock</p>
-                            {% else %}
-                                <p class="out-of-stock">Out of Stock</p>
-                            {% endif %}
-                            <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
-                        </div>
-                    {% empty %}
-                        <p>No products available in this category.</p>
-                    {% endfor %}
+        {% for category in categories %}
+        <section class="category-section">
+            <h2 class="category-heading">{{ category.name }}</h2>
+            <p class="category-description">{{ category.description }}</p>
+            <div class="product-items">
+                {% for product in category.products.all|slice:":8" %}
+                    <div class="product-item">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        <h3>{{ product.name }}</h3>
+                        <p>Ksh. {{ product.price }}</p>
+                        {% if product.is_in_stock %}
+                            <p class="in-stock">In Stock</p>
+                        {% else %}
+                            <p class="out-of-stock">Out of Stock</p>
+                        {% endif %}
+                        <a href="{% url 'products:detail' product.id %}" class="btn-view-details">View Details</a>
+                    </div>
+                {% empty %}
+                    <p>No products available in this category.</p>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+    
+        <section class="popups">
+            {% for popup in popups %}
+                <div id="popup-{{ popup.id }}" class="popup">
+                    <div class="popup-content">
+                        <span class="close-popup" onclick="closePopup('popup-{{ popup.id }}')">&times;</span>
+                        <h2>{{ popup.title }}</h2>
+                        {% if popup.image %}
+                            <img src="{{ popup.image.url }}" alt="{{ popup.title }}">
+                        {% endif %}
+                        <p>{{ popup.content }}</p>
+                        {% if popup.url %}
+                            <a href="{{ popup.url }}" class="popup-button">Learn More</a>
+                        {% endif %}
+                    </div>
                 </div>
-            </section>
-
             {% endfor %}
-        </div>  
+        </section>
+    
         {% endblock %}
-    </main> 
+    </main>
+    
 
     <section class="main-footer">
         <div class="footer-container">
@@ -793,7 +874,7 @@
                 <a href="/"><img src="{% static 'products/images/payment.png' %}" alt="Payment methods" class="payment-img" height="50px" loading="lazy"></a>
             </div>
 
-         {% comment %}   
+
             <div class="newsletter-form">
                 <h3>Subscribe to our newsletter</h3>
                 <form action="/subscribe/" method="post">
@@ -801,8 +882,9 @@
                     <input type="email" name="email" placeholder="Enter your email address" required>
                     <button type="submit">Subscribe</button>
                 </form>
-            </div>                    
-        {% endcomment %}
+            </div>      
+                          
+        
 
             <div>
                 <h3>Contact</h3>
@@ -912,5 +994,19 @@
             {% endif %}
         {% endfor %}
     </script>
+
+    <script>
+        function closePopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+        }
+
+        // Example: Show pop-up after 3 seconds
+        {% for popup in popups %}
+            setTimeout(function() {
+                document.getElementById('popup-{{ popup.id }}').style.display = 'block';
+            }, 3000);
+        {% endfor %}
+    </script>
+
 </body>
 </html>
