@@ -581,18 +581,51 @@
         }
 
         /* Banner styles */
-        .banner img {
-            max-width: 100%;
-            height: auto; 
-            max-height: 300px;
+        .banners {
+            display: flex;
+            overflow-x: auto;
+            padding: 20px 0;
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .banner {
+            flex: 0 0 auto;
+            width: 300px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .banner:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .banner a {
+            display: block; 
+            text-decoration: none;
+            color: inherit;
         }
 
         .banner img {
-            max-width: 100%;
+            width: 100%;
             height: auto;
-            max-height: 300px; /* Adjust as needed */
+            max-height: 200px;
+            object-fit: cover;
+        }
+
+        .banner p {
+            padding: 15px;
+            text-align: center;
+            background-color: #f9f9f9;
+            margin: 0; 
+            font-size: 14px;
         }
     
+        /* popup styles */
         .popup {
             display: none;
             position: fixed;
@@ -612,11 +645,12 @@
         }
     
         .popup-content img {
-            max-width: 100%;
+            max-width: 300px; 
             height: auto;
-            max-height: 200px;
+            max-height: 400px;
             margin-bottom: 10px;
         }
+        
     
         .close-popup {
             position: absolute;
@@ -844,7 +878,6 @@
                 </div>
             {% endfor %}
         </section>
-    
         {% endblock %}
     </main>
     
@@ -931,7 +964,7 @@
 
         const roomName = "{{ chat_room_name|escapejs }}";
 
-        console.log("Room Name:", roomName); // Check this in your browser console!
+        console.log("Room Name:", roomName);
 
         if (roomName) { // Check if roomName is defined!
             const chatSocket = new WebSocket(
@@ -1000,7 +1033,6 @@
             document.getElementById(popupId).style.display = 'none';
         }
 
-        // Example: Show pop-up after 3 seconds
         {% for popup in popups %}
             setTimeout(function() {
                 document.getElementById('popup-{{ popup.id }}').style.display = 'block';

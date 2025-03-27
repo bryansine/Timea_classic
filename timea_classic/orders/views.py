@@ -1,6 +1,8 @@
 import json
 import requests
 from django.conf import settings
+from core.models import Promotion
+from django.utils import timezone
 from django.db import transaction
 from products.models import Product
 from django.contrib import messages
@@ -119,13 +121,21 @@ def create_order(request):
 
         return redirect('orders:order_detail', order_id=order.id)
 
+    now = timezone.now()
+    popups = Promotion.objects.filter(
+        promotion_type='popup',
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now,
+        location='create_order_page',
+    )
+
     return render(request, 'orders/create_order.html', {
         'cart': cart,
-        'buy_now_product': buy_now_product 
+        'buy_now_product': buy_now_product,
+        'popups': popups,
     })
-
-
-
+    
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)

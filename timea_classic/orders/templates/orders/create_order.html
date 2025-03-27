@@ -173,6 +173,48 @@
                 margin-top: 10px;
             }
         }
+        
+        /* popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-width: 400px;
+        }
+    
+        .popup-content {
+            text-align: center;
+        }
+    
+        .popup-content img {
+            max-width: 300px; 
+            height: auto;
+            max-height: 400px;
+            margin-bottom: 10px;
+        }
+        
+    
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+    
+        .popup-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -369,7 +411,7 @@
             </form>
         </div>
 
-        {% comment %} <section class="banners">
+         {% comment %} <section class="banners">
             {% for banner in banners %}
                 <div class="banner">
                     <a href="{{ banner.url }}">
@@ -380,14 +422,31 @@
                     </a>
                 </div>
             {% endfor %}
-        </section> {% endcomment %}
+        </section>  {% endcomment %}
     </main>
-    
+
+    <section class="popups">
+        {% for popup in popups %}
+            <div id="popup-{{ popup.id }}" class="popup">
+                <div class="popup-content">
+                    <span class="close-popup" onclick="closePopup('popup-{{ popup.id }}')">&times;</span>
+                    <h2>{{ popup.title }}</h2>
+                    {% if popup.image %}
+                        <img src="{{ popup.image.url }}" alt="{{ popup.title }}">
+                    {% endif %}
+                    <p>{{ popup.content }}</p>
+                    {% if popup.url %}
+                        <a href="{{ popup.url }}" class="popup-button">Learn More</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </section>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const cartItems = document.querySelectorAll(".cart-item");
-    
+
             cartItems.forEach(item => {
                 item.addEventListener("click", function(event) {
                     if (event.target.tagName !== "INPUT") {
@@ -398,6 +457,18 @@
                 });
             });
         });
-    </script>    
+    </script>
+
+    <script>
+        function closePopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+        }
+
+        {% for popup in popups %}
+            setTimeout(function() {
+                document.getElementById('popup-{{ popup.id }}').style.display = 'block';
+            }, 3000);
+        {% endfor %}
+    </script>
 </body>
 </html>

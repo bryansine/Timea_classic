@@ -69,7 +69,8 @@ def home(request):
         promotion_type='popup',
         is_active=True,
         start_date__lte=now,
-        end_date__gte=now
+        end_date__gte=now,
+        location='homepage',
     )
 
     context = {
@@ -79,8 +80,8 @@ def home(request):
         'discounted_products': discounted_products,
         'flash_sale_products': flash_sale_products,
         'expiry_time': expiry_time,
-        'banners': banners,  # Add banners to context
-        'popups': popups,    # Add popups to context
+        'banners': banners,
+        'popups': popups,
     }
     
     return render(request, 'core/home.html', context)
