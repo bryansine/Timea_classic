@@ -966,7 +966,7 @@
 
         console.log("Room Name:", roomName);
 
-        if (roomName) { // Check if roomName is defined!
+        if (roomName) {
             const chatSocket = new WebSocket(
                 'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
             );
