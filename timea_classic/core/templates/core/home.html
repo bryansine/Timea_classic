@@ -579,98 +579,215 @@
             margin-left: 5px;
             
         }
-
-        /* Banner styles */
+        /* Banners Section  */
         .banners {
             display: flex;
-            overflow-x: auto;
-            padding: 20px 0;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 20px;
-            width: 100%;
-            margin-bottom: 20px;
+            padding: 30px 15px;
+            background: linear-gradient(135deg, #fffaf0 0%, #ffebee 100%);
+            width: 100vw;
         }
 
+        /* Individual Banner */
         .banner {
-            flex: 0 0 auto;
-            width: 300px;
-            border-radius: 8px;
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            width: 90%; 
+            max-width: 1200px; 
         }
 
+        /* Hover effect */
         .banner:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
-        .banner a {
-            display: block; 
-            text-decoration: none;
-            color: inherit;
-        }
-
+        /* Banner Image */
         .banner img {
             width: 100%;
-            height: auto;
-            max-height: 200px;
+            height: auto; 
+            max-height: 400px; 
             object-fit: cover;
+            border-radius: 16px; 
+            filter: brightness(0.95) saturate(1.1);
+            transition: filter 0.3s ease-in-out;
+        }
+
+        /* Remove pink overlay */
+        .banner p {
+            position: absolute;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            text-align: center;
+            width: 80%;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .banners {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .banner {
+                width: 100%;
+                max-width: 100vw;
+            }
+
+            .banner img {
+                height: auto;
+                max-height: 250px;
+            }
+
+            .banner p {
+                font-size: 16px;
+                padding: 8px 16px;
+            }
         }
 
         .banner p {
-            padding: 15px;
-            text-align: center;
-            background-color: #f9f9f9;
-            margin: 0; 
-            font-size: 14px;
+            overflow: hidden;
+            white-space: nowrap;
         }
-    
-        /* popup styles */
+        
+        /* Scrolling text wrapper */
+        .scroll-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 40s linear infinite;
+        }
+        
+        /* Keyframes for left-to-right scrolling */
+        @keyframes marquee {
+            from {
+                transform: translateX(-100%);
+            }
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Popup Styles - Modern Babyshop Look */
         .popup {
-            display: none;
+            display: none; /* Controlled via JS */
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #fffaf0 0%, #ffebee 100%);
+            padding: 30px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             max-width: 400px;
+            border-radius: 16px;
+            animation: fadeIn 0.5s ease-in-out;
         }
-    
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -45%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        /* Popup Content */
         .popup-content {
             text-align: center;
+            position: relative;
+            padding-top: 40px; 
         }
-    
+
+        .popup-content h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .popup-content p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        /* Popup Image */
         .popup-content img {
-            max-width: 300px; 
+            width: 100%;
+            max-width: 300px;
             height: auto;
             max-height: 400px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            object-fit: cover;
+            filter: brightness(0.95) saturate(1.1);
         }
-        
-    
+
+        /* Close Button */
         .close-popup {
             position: absolute;
             top: 10px;
-            right: 10px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
             cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 10;
+            }
+
+        .close-popup:hover {
+            color: #000;
         }
-    
+
+        /* Popup Button */
         .popup-button {
             background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 12px;
             text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
         }
-        
+
+        .popup-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive Popup */
+        @media (max-width: 768px) {
+            .popup {
+                width: 90%;
+                max-width: 90%;
+                padding: 20px;
+            }
+            .popup-content h2 {
+                font-size: 20px;
+            }
+            .popup-content p {
+                font-size: 14px;
+            }
+            .popup-button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
     </style>
 
     <header class="main-header">
-        <h1 style="color:;">Timea-classic</h1>
+        <h1>Timea-classic</h1>
         <a href="/" class="logo-link">
             <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" class="logo-img" loading="lazy">
         </a>
@@ -754,12 +871,15 @@
                     <a href="{{ banner.url }}">
                         <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
                         {% if banner.content %}
-                            <p>{{ banner.content }}</p>
+                            <p>
+                                <div class="scroll-text">{{ banner.content }} &nbsp; • &nbsp; {{ banner.content }} &nbsp; • &nbsp; {{ banner.content }}</div>
+                            </p> 
                         {% endif %}
                     </a>
                 </div>
             {% endfor %}
-        </section>
+        </section>        
+        
     
         <div class="home-sections">
             <section class="category-section">
@@ -1036,7 +1156,7 @@
         {% for popup in popups %}
             setTimeout(function() {
                 document.getElementById('popup-{{ popup.id }}').style.display = 'block';
-            }, 3000);
+            }, 7000);
         {% endfor %}
     </script>
 
