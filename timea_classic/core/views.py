@@ -27,6 +27,7 @@ def refund(request):
     return render(request, 'core/refund.html')
 
 
+
 def home(request):
     categories = Category.objects.all()
     category_id = request.GET.get('category')
@@ -39,16 +40,16 @@ def home(request):
             products = Product.objects.all()
     else:
         products = Product.objects.all()
-        
-    products = products[:8]  
+
+    products = products[:8]
 
     # Fetch recent products
     recent_products = Product.objects.order_by('-created_at')[:8]
 
-    # Fetch discounted products ( products with discount_price or marked as on_offer )
+    # Fetch discounted products
     discounted_products = Product.objects.filter(on_offer=True) | Product.objects.filter(discount_price__isnull=False)
 
-    # Fetch flash sale products ( products with flash_sale=True )
+    # Fetch flash sale products
     flash_sale_products = Product.objects.filter(flash_sale=True, expiry_time__gt=timezone.now())
 
     # Get the expiry time for the flash sale
@@ -58,13 +59,22 @@ def home(request):
 
     # Fetch banners and pop-ups
     now = timezone.now()
-    banners = Promotion.objects.filter(
-        promotion_type='banner',
-        is_active=True,
-        start_date__lte=now,
-        end_date__gte=now,
-        location='homepage'
-    )
+    banner_locations = {
+        'top_home': 'top_banners',
+        'middle_home': 'middle_banners',
+        'bottom_home': 'bottom_banners',
+    }
+
+    banners = {}
+    for location, context_name in banner_locations.items():
+        banners[context_name] = Promotion.objects.filter(
+            promotion_type='banner',
+            is_active=True,
+            start_date__lte=now,
+            end_date__gte=now,
+            location=location
+        )
+
     popups = Promotion.objects.filter(
         promotion_type='popup',
         is_active=True,
@@ -80,10 +90,13 @@ def home(request):
         'discounted_products': discounted_products,
         'flash_sale_products': flash_sale_products,
         'expiry_time': expiry_time,
-        'banners': banners,
+        **banners,
+        # 'top_banners': <QuerySet of top banners>,
+        # 'middle_banners': <QuerySet of middle banners>,
+        # 'bottom_banners': <QuerySet of bottom banners>,
         'popups': popups,
     }
-    
+
     return render(request, 'core/home.html', context)
 
 def register(request):

@@ -681,9 +681,9 @@
             }
         }
 
-        /* Popup Styles - Modern Babyshop Look */
+        /* Popup Styles  */
         .popup {
-            display: none; /* Controlled via JS */
+            display: none;
             position: fixed;
             top: 50%;
             left: 50%;
@@ -845,13 +845,6 @@
         </div>
     </section>
 
-    {% comment %} <div class="nav-search" style="background-image: url('{% static 'core/images/backg1.webp' %}'); background-size: cover; background-position: center; ">
-        <form method="get" action="{% url 'products:search' %}">
-            <input type="text" name="q" placeholder="Search for products..." value="{{ request.GET.q|default:'' }}">
-            <button type="submit" class="search-btn">Search</button>
-        </form>
-    </div> {% endcomment %}
-
     <div class="nav-search" style="background-image: url('{% static 'core/images/backg1.webp' %}'); background-size: cover; background-position: center; ">
         <form method="get" action="{% url 'products:search' %}">
             <input type="text" name="q" placeholder="Search for products..." value="{{ query|default:'' }}">
@@ -865,25 +858,24 @@
 
     <main>
         {% block content %}
-        <section class="banners">
-            {% for banner in banners %}
+        <section id="top-banners" class="banners">
+            {% for banner in top_banners %}
                 <div class="banner">
                     <a href="{{ banner.url }}">
                         <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
                         {% if banner.content %}
                             <p>
                                 <div class="scroll-text">{{ banner.content }} &nbsp; • &nbsp; {{ banner.content }} &nbsp; • &nbsp; {{ banner.content }}</div>
-                            </p> 
+                            </p>
                         {% endif %}
                     </a>
                 </div>
             {% endfor %}
         </section>        
-        
     
         <div class="home-sections">
             <section class="category-section">
-                <h2 class="recent-products-heading">Recent Products</h2>
+                <h2 class="recent-products-heading">New Arrivals</h2>
                 <div class="product-items">
                     {% for product in recent_products %}
                     <div class="product-item">
@@ -955,8 +947,24 @@
                     <p>No flash sale products available.</p>
                 {% endfor %}
             </div>
-        </section>       
-    
+        </section>  
+        
+        <section id="middle-banners" class="banners">
+            {% for banner in middle_banners %}
+                <div class="banner">
+                    <a href="{{ banner.url }}">
+                        <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+                        {% if banner.content %}
+                            <p>
+                                <div class="scroll-text">{{ banner.content }} &nbsp; • &nbsp; {{ banner.content }} &nbsp; • &nbsp; {{ banner.content }}</div>
+                            </p>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+        </section>
+
+
         {% for category in categories %}
         <section class="category-section">
             <h2 class="category-heading">{{ category.name }}</h2>
@@ -980,6 +988,21 @@
             </div>
         </section>
         {% endfor %}
+
+        <section id="bottom-banners" class="banners">
+            {% for banner in bottom_banners %}
+                <div class="banner">
+                    <a href="{{ banner.url }}">
+                        <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+                        {% if banner.content %}
+                            <p>
+                                <div class="scroll-text">{{ banner.content }} &nbsp; • &nbsp; {{ banner.content }} &nbsp; • &nbsp; {{ banner.content }}</div>
+                            </p>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+        </section>
     
         <section class="popups">
             {% for popup in popups %}
