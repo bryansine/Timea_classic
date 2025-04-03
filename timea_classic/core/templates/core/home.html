@@ -1086,36 +1086,46 @@
         </div>
     </footer>
     
-    {% if user.is_authenticated %}  <button id="chatButton" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-        💬 Chat with us
+    {% if user.is_authenticated %}
+    <button id="chatButton" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <strong id="chatStatus" style="opacity: 0.9;">We're offline</strong> <br>
+        <p style="opacity: 0.7; font-size: 0.8em; margin-top: 2px;">Leave a message</p>
     </button>
-    <div id="chatBox" style="display: none; position: fixed; bottom: 60px; right: 20px; width: 300px; height: 400px; background: white; border: 1px solid #ccc; padding: 10px;">
-        <div id="chatMessages" style="height: 350px; overflow-y: auto; border-bottom: 1px solid #ccc;"></div>
-        <input id="chatInput" type="text" style="width: 100%;" placeholder="Type your message...">
+    <div id="chatBox" style="display: none; position: fixed; bottom: 60px; right: 20px; width: 300px; height: 400px; background: white; border: 1px solid #ccc; padding: 10px; flex-direction: column; display: none;">
+        <div id="chatMessages" style="height: 350px; overflow-y: auto; border-bottom: 1px solid #ccc; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; padding: 10px;"></div>
+        <div style="padding: 10px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 8px;">
+            <input id="chatInput" type="text" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em;" placeholder="Type your message...">
+            <button id="sendButton" style="background-color: #007bff; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; transition: background-color 0.3s ease;">
+                Send
+            </button>
+        </div>
     </div>
-
+    
     <script>
         const chatButton = document.getElementById('chatButton');
         const chatBox = document.getElementById('chatBox');
         const chatMessages = document.getElementById('chatMessages');
-
+        const chatInput = document.getElementById('chatInput');
+        const chatStatus = document.getElementById('chatStatus');
+        const sendButton = document.getElementById('sendButton');
+    
         chatButton.addEventListener('click', () => {
-            chatBox.style.display = chatBox.style.display === 'none' ? 'block' : 'none';
+            chatBox.style.display = chatBox.style.display === 'none' ? 'flex' : 'none';
         });
-
+    
         const roomName = "{{ chat_room_name|escapejs }}";
-
         console.log("Room Name:", roomName);
-
+    
         if (roomName) {
             const chatSocket = new WebSocket(
                 'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
             );
-
+    
             chatSocket.onopen = function() {
                 console.log('Connected to WebSocket');
+                chatStatus.textContent = "Chat with us"; // Change button text when online
             };
-
+    
             chatSocket.onmessage = function(e) {
                 const data = JSON.parse(e.data);
                 const messageDiv = document.createElement('div');
@@ -1123,19 +1133,35 @@
                 chatMessages.appendChild(messageDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             };
-
+    
             chatSocket.onerror = function(error) {
                 console.error('WebSocket error:', error);
             };
-
+    
             chatSocket.onclose = function(e) {
                 console.log('Chat socket closed:', e.code, e.reason);
+                chatStatus.textContent = "We're offline"; // Revert button text when offline
             };
-
-            document.querySelector('#chatInput').addEventListener('keypress', function(e) {
+    
+            chatInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && this.value.trim() !== '') {
                     chatSocket.send(JSON.stringify({'message': this.value.trim()}));
+                    const messageDiv = document.createElement('div');
+                    messageDiv.textContent = "You: " + this.value.trim();
+                    chatMessages.appendChild(messageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
                     this.value = '';
+                }
+            });
+    
+            sendButton.addEventListener('click', () => {
+                if (chatInput.value.trim() !== '') {
+                    chatSocket.send(JSON.stringify({'message': chatInput.value.trim()}));
+                    const messageDiv = document.createElement('div');
+                    messageDiv.textContent = "You: " + chatInput.value.trim();
+                    chatMessages.appendChild(messageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    chatInput.value = '';
                 }
             });
         } else {
