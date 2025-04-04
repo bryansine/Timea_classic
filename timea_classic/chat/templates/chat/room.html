@@ -9,9 +9,9 @@
     <input id="chatInput" type="text" placeholder="Type a message..." style="width: 100%; padding: 10px;">
 
     <script>
-        const roomName = "{{ chat_room_name|escapejs }}"; // Use chat_room_name
+        const roomName = "{{ chat_room_name|escapejs }}";
 
-        if (roomName) { // Check if roomName is defined
+        if (roomName) {
             const chatMessages = document.getElementById('chatMessages');
 
             const chatSocket = new WebSocket(
