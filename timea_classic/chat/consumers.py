@@ -6,10 +6,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
 
-        if self.scope['user'].is_authenticated:  # Check if user is authenticated
+        if self.scope['user'].is_authenticated:
             self.username = self.scope['user'].username
         else:
-            self.username = "guest"  # Or a default username
+            self.username = "guest"
 
         await self.channel_layer.group_add(
             self.room_group_name,
