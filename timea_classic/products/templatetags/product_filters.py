@@ -11,7 +11,7 @@ def get_item(queryset, rating):
     for item in queryset:
         if item['rating'] == int(rating):
             return item['count']
-    return 0  # Return 0 if the rating is not found
+    return 0
 
 @register.filter
 def multiply(value, arg):
