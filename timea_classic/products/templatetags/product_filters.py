@@ -28,13 +28,13 @@ def multiply(value, arg):
 
 # @register.filter
 # def get_item(queryset, rating):
-#     print(f"get_item called with queryset: {queryset}, rating: {rating}")  # Debugging print
+#     print(f"get_item called with queryset: {queryset}, rating: {rating}")
 #     for item in queryset:
-#         print(f"  Checking item: {item}")  # Debugging print
+#         print(f"  Checking item: {item}")
 #         if item['rating'] == int(rating):
 #             print(f"  Found count: {item['count']}")  # Debugging print
 #             return item['count']
-#     print(f"  Rating {rating} not found.")  # Debugging print
+#     print(f"  Rating {rating} not found.")
 #     return 0
 
 # @register.filter
