@@ -2,3 +2,6 @@
 myvenv/
 
 .envmyvenv/
+
+timea_classic/media/*
+
