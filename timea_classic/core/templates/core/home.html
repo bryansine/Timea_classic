@@ -586,7 +586,9 @@
             gap: 20px;
             padding: 30px 15px;
             background: linear-gradient(135deg, #fffaf0 0%, #ffebee 100%);
-            width: 100vw;
+            width:auto;     
+            overflow-x: hidden;
+            box-sizing: border-box;
         }
 
         /* Individual Banner */
@@ -632,6 +634,8 @@
             width: 80%;
             overflow: hidden;
             white-space: nowrap;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         /* Responsive Design */
@@ -667,6 +671,8 @@
             display: inline-block;
             white-space: nowrap;
             animation: marquee 40s linear infinite;
+            min-width: 100%;
+
         }
         
         /* Keyframes for left-to-right scrolling */

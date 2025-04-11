@@ -36,7 +36,7 @@ def product_list(request):
         products = list(products)
         cache.set(cache_key, products, timeout=900)
 
-    paginator = Paginator(products, 16)
+    paginator = Paginator(products, 24)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -62,7 +62,7 @@ def product_detail(request, product_id):
 
     variants = product.variants.all()
 
-    # Get related products (same category, excluding the current product)
+    # Get related products
     related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
 
     return render(request, 'products/product_detail.html', {'product': product, 'variants': variants, 'related_products': related_products})
@@ -168,7 +168,7 @@ def add_review(request, product_id):
             review.product = product
             review.user = request.user
             review.save()
-            return redirect('products:detail', product_id=product_id)  # Redirect to product detail page
+            return redirect('products:detail', product_id=product_id)
     else:
         form = ProductReviewForm()
     return render(request, 'products/add_review.html', {'form': form, 'product': product})

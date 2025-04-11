@@ -319,13 +319,75 @@
             background-color: #f0789e;
             transform: scale(1.05);
         }
+
+        /* pagination styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+          }
+          
+          .pagination ul {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px 20px;
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            align-items: center;
+          }
+          
+          .pagination ul li {
+            list-style: none;
+          }
+          
+          .pagination ul li button {
+            background-color: #ffe6ec;
+            color: #d6336c;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+          }
+          
+          .pagination ul li button:hover {
+            background-color: #ffc2d4;
+            transform: translateY(-1px);
+          }
+          
+          .pagination .page-info {
+            font-size: 0.9rem;
+            color: #666;
+            background-color: #f4f4f4;
+            padding: 8px 14px;
+            border-radius: 10px;
+          }
+
+          @media screen and (max-width: 480px) {
+            .pagination ul {
+              flex-direction: column;
+              gap: 8px;
+              align-items: stretch;
+            }
+          
+            .pagination ul li button,
+            .pagination .page-info {
+              width: 100%;
+              text-align: center;
+            }
+          }     
     </style>
     <header>
         <h1>Timea-classic</h1>
-        <a href="/">
+        <a href="{% url 'products:list' %}">
             <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
         </a>
     </header>
+    
 
     <nav>
         <ul>
@@ -373,6 +435,8 @@
         </form>
     </div>
 
+    
+
     <div class="product-list">
         <h2>All Products</h2>
         {% if category %}
@@ -401,29 +465,48 @@
             {% endif %}
         </div>
     </div>
+
+    
+    <div class="pagination">
+        <ul>
+            {% if products.has_previous %}
+                <li>
+                    <a href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                        <button>First</button>
+                    </a>
+                </li>
+                <li>
+                    <a href="?page={{ products.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                        <button>Previous</button>
+                    </a>
+                </li>
+            {% endif %}
+    
+            <li class="page-info">
+                Page {{ products.number }} of {{ products.paginator.num_pages }}
+            </li>
+    
+            {% if products.has_next %}
+                <li>
+                    <a href="?page={{ products.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                        <button>Next</button>
+                    </a>
+                </li>
+                <li>
+                    <a href="?page={{ products.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                        <button>Last</button>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+    
+
     <div>
         <a href="{% url 'home' %}" class="back-button">
             <i class="fas fa-arrow-left"></i> 
         </a>
     </div>
-
-    <div class="pagination">
-        <ul>
-            {% if products.has_previous %}
-                <li><a href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"><button>First</button></a></li>
-                <li><a href="?page={{ products.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"><button>Previous</button></a></li>
-            {% endif %}
-
-            <li>Page {{ products.number }} of {{ products.paginator.num_pages }}</li>
-
-            {% if products.has_next %}
-                <li><a href="?page={{ products.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"><button>Next</button></a></li>
-                <li><a href="?page={{ products.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"><button>Last</button></a></li>
-            {% endif %}
-        </ul>
-    </div>
-
-
 
     <footer>
         <p>&copy; 2025 Timea-classic. All rights reserved.</p>
