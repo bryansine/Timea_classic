@@ -176,7 +176,6 @@ STATICFILES_DIRS = [
 ]
 
 
-# Directory where collectstatic will gather all static files
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 #media files
