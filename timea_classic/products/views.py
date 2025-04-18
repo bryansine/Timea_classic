@@ -1,3 +1,5 @@
+
+from urllib.parse import quote
 from django.db.models import Q
 from django.core.cache import cache
 from .forms import ProductReviewForm
@@ -51,8 +53,8 @@ def product_list(request):
 
 @login_required
 def product_detail(request, product_id):
-    """Fetches and displays a single product with caching."""
-    
+    """Fetches and displays a single product with caching and WhatsApp links."""
+
     cache_key = f"product_{product_id}"
     product = cache.get(cache_key)
 
@@ -61,12 +63,31 @@ def product_detail(request, product_id):
         cache.set(cache_key, product, timeout=3600)
 
     variants = product.variants.all()
-
-    # Get related products
     related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
 
-    return render(request, 'products/product_detail.html', {'product': product, 'variants': variants, 'related_products': related_products})
+    base_url = request.build_absolute_uri()
 
+    product_message = (
+        f"Hi, I want to order {product.name} (Ksh {product.price:.2f}). "
+        f"Quantity: 1. Here is the link: {base_url}"
+    )
+    product_whatsapp_url = f"https://wa.me/254713423885?text={quote(product_message)}"
+
+    for variant in variants:
+        variant_msg = (
+            f"Hi, I want to order {product.name} - {variant.color_name} "
+            f"(Ksh {variant.price:.2f}). Quantity: 1. "
+            f"Image: {request.build_absolute_uri(variant.image.url)}. "
+            f"Product link: {base_url}"
+        )
+        variant.whatsapp_url = f"https://wa.me/254713423885?text={quote(variant_msg)}"
+
+    return render(request, 'products/product_detail.html', {
+        'product': product,
+        'variants': variants,
+        'related_products': related_products,
+        'product_whatsapp_url': product_whatsapp_url,
+    })
 
 @login_required
 def product_by_category(request, category_id):
@@ -81,8 +102,6 @@ def product_by_category(request, category_id):
         cache.set(cache_key, products, timeout=900)
 
     return render(request, 'products/product_list.html', {'products': products, 'category': category})
-
-
 
 @login_required
 def product_search(request):
