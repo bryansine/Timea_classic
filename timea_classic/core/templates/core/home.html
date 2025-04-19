@@ -876,7 +876,15 @@
                     </a>
                 </div>
             {% endfor %}
-        </section>        
+        </section>      
+        
+            {% comment %} {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %} {% endcomment %}
     
         <div class="home-sections">
             <section class="category-section">
@@ -905,7 +913,7 @@
         </div>
     
         <section class="category-section">
-            <h2 class="products-offer-heading"> (Ksh. -300)</h2>
+            <h2 class="products-offer-heading"> Discounted products (Ksh. -300)</h2>
             <div class="product-items">
                 {% for product in discounted_products|slice:":8" %}
                 <div class="product-item">
@@ -1032,60 +1040,93 @@
 
     <section class="main-footer">
         <div class="footer-container">
+    
+            <!-- About Us -->
             <div>
-                <h3>  About Us</h3>
+                <h3>About Us</h3>
                 <p>Learn more about our mission and vision.</p>
                 <a href="{% url 'about' %}"><button>Read More</button></a>
             </div>
-
+    
+            <!-- Returns & Refund -->
             <div>
-                <h3> RETURNS & EXCHANGE Policy </h3>
-                <p>our Refund policy.</p>
+                <h3>Returns & Exchange Policy</h3>
+                <p>Read our refund policy.</p>
                 <a href="{% url 'refund' %}"><button>Read More</button></a>
             </div>
-
+    
+            <!-- Delivery Info -->
             <div class="delivery-info">
                 <h3>Delivery Info</h3>
                 <p>Next Day Countrywide - <strong style="color: cornflowerblue;">Ksh. 250.00</strong></p>
                 <p>Standard Delivery - <strong style="color: cornflowerblue;">Ksh. 100.00</strong></p>
             </div>
-
+            
+    
+            {% comment %} <!-- Payment Methods -->
             <div class="payment-methods">
                 <h3>Payment Methods</h3>
-                <a href="/"><img src="{% static 'products/images/payment.png' %}" alt="Payment methods" class="payment-img" height="50px" loading="lazy"></a>
-            </div>
-
-
+                <a href="/"><img src="{% static 'products/images/payment.png' %}" alt="Payment methods" class="payment-img" height="50" loading="lazy"></a>
+            </div> {% endcomment %}
+    
+            <!-- Newsletter -->
             <div class="newsletter-form">
                 <h3>Subscribe to our newsletter</h3>
-                <form action="/subscribe/" method="post">
+                <form action="{% url 'subscribe_newsletter' %}" method="post">
                     {% csrf_token %}
                     <input type="email" name="email" placeholder="Enter your email address" required>
                     <button type="submit">Subscribe</button>
                 </form>
-            </div>      
-                          
-        
-
-            <div>
-                <h3>Contact</h3>
-                <p>Email: support@timea.com</p>
-                <p>Phone: +713423885</p>
             </div>
 
+            
+    
+            <!-- Our Locations -->
+            <div>
+                <h3>Our Locations</h3>
+                <p><strong>NRB:</strong> Imara Daima, Embakasi south, Nairobi, Kenya</p>
+            </div>
+    
+            <!-- Help & Contact -->
+            <div>
+                <h3>Need Help? Contact Us</h3>
+                <p><strong>Imara Daima:</strong> 0713 423 885</p>
+                <p><strong>CBD:</strong> 0723 389 320</p>
+                <p><strong>Opening Hours:</strong><br>
+                    Mon – Fri: 8:00 AM – 6:00 PM<br>
+                    Sat & Sun: 8:00 AM – 4:00 PM
+                </p>
+                <p>Email: timeaclassic25@gmail.com</p>
+            </div>
+    
+            <!-- Quick Links -->
+            <div>
+                <h3>Quick Links</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <button><li><a href="{% url 'home' %}">Home</a></li></button> <br>
+                    <button><li><a href="{% url 'about' %}">About Us</a></li></button> <br>
+                    <button><li><a href="{% url 'contact' %}">Contact</a></li></button>
+                    {% comment %} <li><a href="{% url 'blog' %}">Blog</a></li> {% endcomment %}
+                </ul>
+            </div>
+    
+            <!-- Social Media -->
             <div class="social-media">
                 <h3>Follow us:</h3>
                 <a href="https://www.facebook.com/"><img src="{% static 'core/images/facebook.png' %}" alt="Facebook" height="30"></a>
                 <a href="https://www.x.com/"><img src="{% static 'core/images/twitter.png' %}" alt="Twitter" height="30"></a>
                 <a href="https://www.instagram.com/"><img src="{% static 'core/images/instagram.jpeg' %}" alt="Instagram" height="30"></a>
-                <a href="https://www.tiktok.com/"><img src="{% static 'core/images/tiktok.png' %}" alt="tiktok" height="30"></a>
+                <a href="https://www.tiktok.com/"><img src="{% static 'core/images/tiktok.png' %}" alt="TikTok" height="30"></a>
             </div>
-
+    
+            <!-- Footer Credit -->
             <div class="copyright">
                 <p>Designed and built by: <a href="https://www.linkedin.com/in/bryan-sine-53432b1b1/">SINE</a></p>
             </div>
+    
         </div>
     </section>
+    
 
     <footer class="last-footer">
         <div>

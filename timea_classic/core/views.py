@@ -5,6 +5,7 @@ from django.utils import timezone
 from .forms import UserProfileForm
 from django.core.cache import cache
 from django.contrib import messages
+from .models import NewsletterSubscriber
 from django.shortcuts import render, redirect
 from products.models import Category, Product
 from .forms import UserRegistrationForm, UserForm
@@ -124,6 +125,19 @@ def user_login(request):
         form = AuthenticationForm()
     return render(request, 'core/login.html', {'form': form})
 
+
+
+def subscribe_newsletter(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+
+        if NewsletterSubscriber.objects.filter(email=email).exists():
+            messages.info(request, 'You are already subscribed!')
+        else:
+            NewsletterSubscriber.objects.create(email=email)
+            messages.success(request, 'Thanks for subscribing!')
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def logout(request):
     logout(request)
