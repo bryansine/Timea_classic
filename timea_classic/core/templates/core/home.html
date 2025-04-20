@@ -919,7 +919,7 @@
                 <div class="product-item">
                     <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                     <h3>{{ product.name }}</h3>
-                    <p style="text-decoration: line-through;">Regular Price: Ksh..{{ product.price|add:"+300" }}</p>
+                    <p style="text-decoration: line-through;">Regular Price: Ksh.{{ product.price|add:"+300" }}</p>
                     <p style="color: red;">Discounted Price: Ksh.{{ product.price }}</p>
                     <p>You Save: Ksh.{{ product.price|add:"-"|add:product.price|add:"300" }}</p>
                     {% if product.is_in_stock %}
@@ -1055,7 +1055,7 @@
                 <a href="{% url 'refund' %}"><button>Read More</button></a>
             </div>
     
-            <!-- Delivery Info -->
+            <!-- Delivery Information -->
             <div class="delivery-info">
                 <h3>Delivery Info</h3>
                 <p>Next Day Countrywide - <strong style="color: cornflowerblue;">Ksh. 250.00</strong></p>
