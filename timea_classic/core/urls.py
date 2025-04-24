@@ -16,6 +16,8 @@ urlpatterns = [
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('subscribe/', subscribe_newsletter, name='subscribe_newsletter'),
     path('password/change/', views.change_password, name='change_password'),
+    # path('password/change/', views.change_password, name='change_password'),
+
 
     #password reset
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='core/password_reset.html'), name='password_reset'),
