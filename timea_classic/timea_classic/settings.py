@@ -122,6 +122,7 @@ DATABASES = {
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT'),
         'CONN_MAX_AGE': 600,
+        # "OPTIONS": {"MAX_CONNS": 5},
     }
 }
 
