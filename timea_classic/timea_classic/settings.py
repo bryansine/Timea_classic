@@ -112,19 +112,19 @@ CHANNEL_LAYERS = {
 
 
 
- # Database configuration
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
-        'CONN_MAX_AGE': 600,
-        # "OPTIONS": {"MAX_CONNS": 5},
-    }
-}
+#  # Database configuration
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('DB_NAME'),
+#         'USER': config('DB_USER'),
+#         'PASSWORD': config('DB_PASSWORD'),
+#         'HOST': config('DB_HOST'),
+#         'PORT': config('DB_PORT'),
+#         'CONN_MAX_AGE': 600,
+#         # "OPTIONS": {"MAX_CONNS": 5},
+#     }
+# }
 
 
 DATABASES = {
@@ -135,6 +135,8 @@ DATABASES = {
 }
 
 # https://docs.djangoproject.com/en/5.1/ref/settings/
+# https://docs.djangoproject.com/en/5.1/ref/settings/
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
