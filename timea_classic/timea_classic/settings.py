@@ -91,6 +91,8 @@ TEMPLATES = [
 ]
 
 # WSGI_APPLICATION = 'timea_classic.wsgi.application'
+# WSGI_APPLICATION = 'timea_classic.wsgi.application'
+
 
 ASGI_APPLICATION = 'timea_classic.asgi.application' 
 
