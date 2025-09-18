@@ -3,7 +3,7 @@ from .models import UserProfile
 from django.urls import reverse
 from django.utils import timezone
 from .forms import UserProfileForm
-from django.core.cache import cache
+# from django.core.cache import cache
 from django.contrib import messages
 from .models import NewsletterSubscriber
 from django.shortcuts import render, redirect
