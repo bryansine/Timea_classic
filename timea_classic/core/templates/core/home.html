@@ -917,7 +917,7 @@
             <div class="product-items">
                 {% for product in discounted_products|slice:":8" %}
                 <div class="product-item">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy"> <!-- Artificial inflation -->
                     <h3>{{ product.name }}</h3>
                     <p style="text-decoration: line-through;">Regular Price: Ksh.{{ product.price|add:"+300" }}</p>
                     <p style="color: red;">Discounted Price: Ksh.{{ product.price }}</p>
