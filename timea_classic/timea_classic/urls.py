@@ -15,7 +15,7 @@ urlpatterns = [
     path('orders/', include('orders.urls')),
     path('daraja/', include('daraja.urls')),
     
-    # path('accounts/', include('accounts.urls')),  # will this line if there's an issue with routing
+    # path('accounts/', include('accounts.urls')),
 ] 
 
 # Serve static and media files in development only
