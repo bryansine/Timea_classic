@@ -17,7 +17,7 @@ from daraja.utils import get_mpesa_access_token, generate_password, get_timestam
 
 @login_required
 def create_order(request):
-    """Handles order creation for both cart checkout and Buy It Now purchases."""
+    """will handle order creation for both cart checkout and Buy It Now purchases."""
     cart = request.user.cart
     buy_now_product_data = request.session.get('buy_now_product', None)
 
@@ -57,7 +57,7 @@ def create_order(request):
         # Determine shipping details based on selected option
         if shipping_option == 'pickup':
             shipping_option_name = 'Pick up from the Warehouse'
-            shipping_option_description = 'To pick up Saturday 8am-11am'
+            shipping_option_description = 'To pick up Saturday 8am-5pm'
             shipping_option_delivery_time = 'Saturday'
             shipping_cost = 0.00
         elif shipping_option == 'delivery':
