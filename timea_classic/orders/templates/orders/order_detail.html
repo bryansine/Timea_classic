@@ -208,11 +208,13 @@
             <p><strong>Shipping Cost:</strong> Ksh {{ order.shipping_cost }}</p>
             <p><strong>Subtotal Price:</strong> Ksh {{ order.subtotal_price }}</p>
             <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
+            <hr>
 
             <p><strong>Email:</strong> {{ order.email }}</p>
             <p><strong>First Name:</strong> {{ order.first_name }}</p>
             <p><strong>Last Name:</strong> {{ order.last_name }}</p>
             <p><strong>Address:</strong> {{ order.address }}</p>
+            
             {% if order.apartment %}
                 <p><strong>Apartment:</strong> {{ order.apartment }}</p>
             {% endif %}
