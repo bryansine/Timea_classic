@@ -1,0 +1,231 @@
+from .models import Cart, CartItem
+from django.core.cache import cache
+from products.models import Product, ProductVariant
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+
+# @login_required
+# def add_to_cart(request, product_id, variant_id=None):
+#     cart, created = Cart.objects.get_or_create(user=request.user)
+#     product = get_object_or_404(Product, id=product_id)
+#     variant = None
+#     quantity = int(request.POST.get('quantity', 1))
+
+#     if variant_id:
+#         variant = get_object_or_404(ProductVariant, id=variant_id)
+
+#     cart_item, created = CartItem.objects.get_or_create(
+#         cart=cart,
+#         product=product if not variant else None,
+#         variant=variant if variant else None,
+#     )
+#     if not created:
+#         cart_item.quantity += quantity
+#     else:
+#         cart_item.quantity = quantity
+#     cart_item.save()
+
+#     return redirect('cart:view')
+
+
+from django.shortcuts import get_object_or_404, redirect
+from products.models import Product, ProductVariant
+from .models import Cart, CartItem
+
+def add_to_cart(request, product_id, variant_id=None):
+    product = get_object_or_404(Product, id=product_id)
+    variant = None
+    quantity = int(request.POST.get('quantity', 1))
+
+    if variant_id:
+        variant = get_object_or_404(ProductVariant, id=variant_id)
+
+    # Check if the user is authenticated
+    if request.user.is_authenticated:
+        # Get or create a permanent cart for the logged-in user
+        cart, created = Cart.objects.get_or_create(user=request.user)
+
+        # Get or create the cart item
+        cart_item, item_created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product if not variant else None,
+            variant=variant
+        )
+        if not item_created:
+            cart_item.quantity += quantity
+        else:
+            cart_item.quantity = quantity
+        cart_item.save()
+
+    else:
+        # Handle the cart for anonymous users using the session
+        session_cart = request.session.get('cart', {})
+        
+        # Create a unique key for the product or variant
+        item_key = f'product_{product_id}'
+        if variant_id:
+            item_key = f'variant_{variant_id}'
+
+        # Update the quantity in the session
+        session_cart[item_key] = session_cart.get(item_key, 0) + quantity
+        
+        # Save the updated cart to the session
+        request.session['cart'] = session_cart
+
+    return redirect('cart:view')
+
+
+
+# def view_cart(request):
+#     cache_key = f"cart_{request.user.id}"
+#     cart_data = cache.get(cache_key)
+
+#     if not cart_data:
+#         cart = Cart.objects.filter(user=request.user).first()
+#         items = cart.items.all() if cart else []
+
+#         cart_items = [
+#             {
+#                 'item': item,
+#                 'item_name': item.product.name if item.product else item.variant.product.name
+#             }
+#             for item in items
+#         ]
+
+#         cart_data = {
+#             'cart': cart,
+#             'cart_items': cart_items
+#         }
+
+#         cache.set(cache_key, cart_data, timeout=60)
+
+#     return render(request, 'cart/view_cart.html', cart_data)
+
+# from .models import Cart, CartItem
+# from django.core.cache import cache
+# from products.models import Product, ProductVariant
+# from django.shortcuts import render, get_object_or_404, redirect
+
+# def view_cart(request):
+#     cart = None
+#     items = []
+
+#     # Check if the user is logged in
+#     if request.user.is_authenticated:
+#         # If logged in, use their user ID for the cache key
+#         cache_key = f"cart_{request.user.id}"
+#         cart_data = cache.get(cache_key)
+
+#         if not cart_data:
+#             # Look up the cart for the authenticated user
+#             cart = Cart.objects.filter(user=request.user).first()
+#             if cart:
+#                 items = cart.items.all()
+#     else:
+#         # For anonymous users, you would use a session-based cart here.
+#         # For now, let's assume they don't have a permanent cart.
+#         cache_key = None
+#         items = []
+
+#     # Prepare the cart items for the template
+#     cart_items = [
+#         {
+#             'item': item,
+#             'item_name': item.product.name if item.product else item.variant.product.name
+#         }
+#         for item in items
+#     ]
+
+#     context = {
+#         'cart': cart,
+#         'cart_items': cart_items
+#     }
+    
+#     # You can decide to cache the data for authenticated users here if you want
+#     if request.user.is_authenticated and 'cart_data' in locals():
+#         cache.set(cache_key, cart_data, timeout=60)
+
+#     return render(request, 'cart/view_cart.html', context)
+
+
+from django.shortcuts import render, get_object_or_404
+from products.models import Product, ProductVariant
+from .models import Cart, CartItem
+from django.core.cache import cache
+
+def view_cart(request):
+    cart = None
+    items = []
+
+    if request.user.is_authenticated:
+        # User is logged in, use their permanent cart
+        cache_key = f"cart_{request.user.id}"
+        cart_data = cache.get(cache_key)
+
+        if not cart_data:
+            cart = Cart.objects.filter(user=request.user).first()
+            if cart:
+                items = cart.items.all()
+    else:
+        # User is anonymous, use the session cart
+        session_cart = request.session.get('cart', {})
+        
+        # Manually create cart items from session data
+        for item_key, quantity in session_cart.items():
+            if item_key.startswith('product_'):
+                product_id = item_key.split('_')[1]
+                product = get_object_or_404(Product, id=product_id)
+                items.append({
+                    'product': product,
+                    'quantity': quantity
+                })
+            elif item_key.startswith('variant_'):
+                variant_id = item_key.split('_')[1]
+                variant = get_object_or_404(ProductVariant, id=variant_id)
+                items.append({
+                    'variant': variant,
+                    'quantity': quantity
+                })
+
+    # Prepare the cart items for the template
+    cart_items = [
+        {
+            'item': item.get('product') or item.get('variant'),
+            'quantity': item.get('quantity'),
+            'item_name': item.get('product').name if item.get('product') else item.get('variant').product.name
+        }
+        for item in items
+    ]
+
+    context = {
+        'cart': cart,
+        'cart_items': cart_items
+    }
+    
+    # Cache logic remains optional but is fine as is for logged-in users
+    if request.user.is_authenticated and 'cart_data' in locals():
+        cache.set(cache_key, context, timeout=60)
+
+    return render(request, 'cart/view_cart.html', context)
+
+
+@login_required
+def update_cart_item(request, item_id):
+    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    if request.method == "POST":
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity > 0:
+            cart_item.quantity = quantity
+            cart_item.save()
+        else:
+            cart_item.delete()
+    return redirect('cart:view')
+
+
+
+@login_required
+def remove_from_cart(request, item_id):
+    cart_item = get_object_or_404(CartItem, id=item_id)
+    if cart_item.cart.user == request.user:
+        cart_item.delete()
+    return redirect('cart:view')

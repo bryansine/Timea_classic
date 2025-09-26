@@ -10,7 +10,7 @@ from .models import Product, ProductVariant, Category
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
-@login_required
+# @login_required
 def product_list(request):
     categories = cache.get("categories")
     if not categories:
@@ -51,7 +51,7 @@ def product_list(request):
     return render(request, 'products/product_list.html', context)
 
 
-@login_required
+# @login_required
 def product_detail(request, product_id):
     """Fetches and displays a single product with caching and WhatsApp links."""
 
@@ -89,7 +89,7 @@ def product_detail(request, product_id):
         'product_whatsapp_url': product_whatsapp_url,
     })
 
-@login_required
+# @login_required
 def product_by_category(request, category_id):
     """Fetches products for a specific category using caching."""
     
@@ -103,7 +103,7 @@ def product_by_category(request, category_id):
 
     return render(request, 'products/product_list.html', {'products': products, 'category': category})
 
-@login_required
+# @login_required
 def product_search(request):
     query = request.GET.get('q', '').strip()
     min_price = request.GET.get('min_price')
@@ -150,7 +150,7 @@ def search_suggestions(request):
     return JsonResponse(suggestions, safe=False)
 
 
-@login_required
+# @login_required
 def add_variant_to_cart(request, product_id, variant_id):    
     product = get_object_or_404(Product, id=product_id)
     variant = get_object_or_404(ProductVariant, id=variant_id)
@@ -177,7 +177,7 @@ def add_variant_to_cart(request, product_id, variant_id):
 
 
 
-@login_required
+# @login_required
 def add_review(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     if request.method == 'POST':
