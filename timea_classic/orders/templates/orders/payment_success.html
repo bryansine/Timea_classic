@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,97 +7,211 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <title>Payment Success</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-        
-        h2 {
-            color: green;
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 20px;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6e9f0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
 
-        h3 { 
-            color: green;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-            margin-top: 20px;
-            font-weight: bold;
-            text-align: center;
+        .container {
+            background: white;
+            max-width: 32rem;
+            width: 100%;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            color: #10b981;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            text-decoration: none;
-            color: white;
-            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
         .btn-cart {
-            background-color: blue;
+            background-color: #3b82f6;
+            color: white;
         }
+
         .btn-shop {
-            background-color: green;
+            background-color: #10b981;
+            color: white;
+        }
+
+        .section-title {
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .info-value {
+            color: #1f2937;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎉 Payment Successful! 🎉</h2>
-        <p>Thank you for your purchase!</p>
-        <p>You can view your order details or check your cart.</p>
-        <p>Your order ID is: {{ order.id }}</p>
-        <p>You can track your order status on our <a href="{% url 'profile' %}">tracking page</a>.</p>
+        <div class="text-center mb-6">
+            <span class="success-icon">🎉</span>
+            <h2 class="text-2xl font-bold text-green-600 mt-4">Payment Successful!</h2>
+            <p class="text-gray-600 mt-2">Thank you for your purchase!</p>
+            <p class="text-gray-600">You can view your order details below or check your cart.</p>
+            <p class="text-gray-600">Your order ID is: <span class="font-semibold">{{ order.id }}</span></p>
+            <p class="text-gray-600">Track your order status on our <a href="{% url 'profile' %}" class="text-blue-600 hover:underline">tracking page</a>.</p>
+        </div>
 
-        <h3>Order Details:</h3>
-        {% for item in order.items.all %}
-            <p><strong>{{ item.product.name }}</strong> - Ksh {{ item.price }} x {{ item.quantity }}</p>
-        {% endfor %}
+        <div class="mb-6">
+            <h3 class="section-title">Order Details</h3>
+            {% for item in order.items.all %}
+                <div class="info-item">
+                    <span class="info-label">{{ item.product.name }}</span>
+                    <span class="info-value">Ksh {{ item.price }} x {{ item.quantity }}</span>
+                </div>
+            {% endfor %}
+            
+            <div class="info-item">
+                <span class="info-label">Shipping Option</span>
+                <span class="info-value">{{ order.shipping_option_name }} - {{ order.shipping_option_delivery_time }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Shipping Cost</span>
+                <span class="info-value">Ksh {{ order.shipping_cost }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Subtotal Price</span>
+                <span class="info-value">Ksh {{ order.subtotal_price }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Price</span>
+                <span class="info-value font-bold">Ksh {{ order.total_price }}</span>
+            </div>
+        </div>
 
-        <p><strong>Shipping Option:</strong> {{ order.shipping_option_name }} - {{ order.shipping_option_delivery_time }}</p>
-        <p><strong>Shipping Cost:</strong> Ksh {{ order.shipping_cost }}</p>
-        <p><strong>Subtotal Price:</strong> Ksh {{ order.subtotal_price }}</p>
-        <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
+        <div class="mb-6">
+            <h3 class="section-title">Shipping Information</h3>
+            <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ order.email }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Phone</span>
+                <span class="info-value">{{ order.phone_number }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">First Name</span>
+                <span class="info-value">{{ order.first_name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Last Name</span>
+                <span class="info-value">{{ order.last_name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Address</span>
+                <span class="info-value">{{ order.address }}</span>
+            </div>
+            {% if order.apartment %}
+                <div class="info-item">
+                    <span class="info-label">Apartment</span>
+                    <span class="info-value">{{ order.apartment }}</span>
+                </div>
+            {% endif %}
+            <div class="info-item">
+                <span class="info-label">ZIP Code</span>
+                <span class="info-value">{{ order.zip_code }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Town / City</span>
+                <span class="info-value">{{ order.town_city }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Closest Town</span>
+                <span class="info-value">{{ order.closest_town }}</span>
+            </div>
+        </div>
 
-        <h3>Shipping Information:</h3>
-        <p><strong>Email:</strong> {{ order.email }}</p>
-        <p><strong>Phone:</strong> {{ order.phone }}</p>
-        <p><strong>First Name:</strong> {{ order.first_name }}</p>
-        <p><strong>Last Name:</strong> {{ order.last_name }}</p>
-        <p><strong>Address:</strong> {{ order.address }}</p>
-        {% if order.apartment %}
-            <p><strong>Apartment:</strong> {{ order.apartment }}</p>
-        {% endif %}
-        <p><strong>ZIP Code:</strong> {{ order.zip_code }}</p>
-        <p><strong>Town / City:</strong> {{ order.town_city }}</p>
-        <p><strong>Closest Town:</strong> {{ order.closest_town }}</p>
+        <div class="mb-6">
+            <h3 class="section-title">Payment Details</h3>
+            <div class="info-item">
+                <span class="info-label">Payment Status</span>
+                <span class="info-value">{{ order.payment_status }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Order Status</span>
+                <span class="info-value">{{ order.status }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Order ID</span>
+                <span class="info-value">{{ order.id }}</span>
+            </div>
+            {% if order.order_notes %}
+                <div class="info-item">
+                    <span class="info-label">Order Notes</span>
+                    <span class="info-value">{{ order.order_notes }}</span>
+                </div>
+            {% endif %}
+        </div>
 
-        <h3>Payment Details:</h3>
-        <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
-        <p><strong>Order Status:</strong> {{ order.status }}</p>
-        <p><strong>Order ID:</strong> {{ order.id }}</p>
-        {% if order.order_notes %}
-            <p><strong>Order Notes:</strong> {{ order.order_notes }}</p>
-        {% endif %}
-
-        <a href="{% url 'cart:view' %}" class="btn btn-cart">🛒 View Cart</a>
-        <a href="{% url 'products:list' %}" class="btn btn-shop">Continue Shopping</a>
+        <div class="flex justify-center space-x-4">
+            <a href="{% url 'cart:view' %}" class="btn btn-cart">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                View Cart
+            </a>
+            <a href="{% url 'products:list' %}" class="btn btn-shop">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                Continue Shopping
+            </a>    
+        </div>
     </div>
 </body>
 </html>

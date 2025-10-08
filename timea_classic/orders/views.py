@@ -1,11 +1,13 @@
 import json
 import requests
+from decimal import Decimal
 from django.conf import settings
 from core.models import Promotion
 from django.utils import timezone
 from django.db import transaction
 from products.models import Product
 from django.contrib import messages
+from django.core.cache import cache
 from .models import Order, OrderItem
 from cart.models import Cart, CartItem
 from daraja.utils import get_mpesa_access_token
@@ -15,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
+    
 @login_required
 def create_order(request):
     """will handle order creation for both cart checkout and Buy It Now purchases."""
@@ -29,13 +32,11 @@ def create_order(request):
         buy_now_product = get_object_or_404(Product, id=buy_now_product_data['id'])
 
     if request.method == 'POST':
-        # Get existing fields
         shipping_address = request.POST.get('shipping_address')
         phone_number = request.POST.get('phone_number')
         selected_cart_items = request.POST.getlist('cart_items')
         shipping_option = request.POST.get('shipping_option')
 
-        # Get new shipping fields
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -45,8 +46,6 @@ def create_order(request):
         town_city = request.POST.get('town_city')
         closest_town = request.POST.get('closest_town')
         receive_emails = request.POST.get('receive_emails') == 'on'
-
-        # Get order notes
         order_notes = request.POST.get('order_notes')
 
         shipping_option_name = None
@@ -54,7 +53,6 @@ def create_order(request):
         shipping_option_delivery_time = None
         shipping_cost = 0.00
 
-        # Determine shipping details based on selected option
         if shipping_option == 'pickup':
             shipping_option_name = 'Pick up from the Warehouse'
             shipping_option_description = 'To pick up Saturday 8am-5pm'
@@ -104,7 +102,6 @@ def create_order(request):
                 del request.session['buy_now_product']
             else:
                 selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items]
-                cart_items_to_remove = []
 
                 for item in cart.items.filter(id__in=selected_cart_item_ids):
                     price = item.product.price if item.product else item.variant.price
@@ -115,9 +112,6 @@ def create_order(request):
                         quantity=item.quantity,
                         price=price
                     )
-                    cart_items_to_remove.append(item.id)
-
-                CartItem.objects.filter(id__in=cart_items_to_remove).delete()
 
         return redirect('orders:order_detail', order_id=order.id)
 
@@ -135,6 +129,8 @@ def create_order(request):
         'buy_now_product': buy_now_product,
         'popups': popups,
     })
+
+
     
 @login_required
 def order_detail(request, order_id):
@@ -276,16 +272,33 @@ def check_payment_status(request, order_id):
 def payment_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    if order.payment_status == "Paid":
-        return render(request, 'orders/payment_success.html', {'order': order})
-
     if order.payment_status == "Pending":
         order.payment_status = "Paid"
         order.save()
+                
+        user_cart = request.user.cart
+        order_items = order.items.all()
+        
+        product_ids_to_remove = []
+        variant_ids_to_remove = []
+        
+        for item in order_items:
+            if item.product:
+                product_ids_to_remove.append(item.product.id)
+            if item.variant:
+                variant_ids_to_remove.append(item.variant.id)
+        
+        user_cart.items.filter(product__id__in=product_ids_to_remove, variant__isnull=True).delete()
+        
+        user_cart.items.filter(variant__id__in=variant_ids_to_remove).delete()
+        
+        cache_key = f"cart_{request.user.id}"
+        cache.delete(cache_key)
 
     return render(request, 'orders/payment_success.html', {'order': order})
 
 
+@login_required
 def payment_failed(request):
     return render(request, 'orders/payment_failed.html')
 

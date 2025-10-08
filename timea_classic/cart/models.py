@@ -21,6 +21,10 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name if self.product else self.variant.product.name} x {self.quantity}"
-
+    
+    @property
+    def total_price(self):
+        return (self.product.price if self.product else self.variant.price) * self.quantity
+    
     def total_price(self):
         return (self.product.price if self.product else self.variant.price) * self.quantity

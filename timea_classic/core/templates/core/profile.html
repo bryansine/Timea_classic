@@ -4,63 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile - Timea</title>
-    <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+    <title>My Profile - Babyshop</title>
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
-</head>
-<body>
     <style>
+        :root {
+            --primary-color: #A3D4FF; /* Soft Baby Blue */
+            --secondary-color: #FFB3C1; /* Soft Baby Pink */
+            --accent-color: #38C7A5; /* Mint/Teal for Actions */
+            --text-color: #343a40;
+            --light-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e9ecef;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f7fc;
-            color: #333;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
         }
 
         header {
-            background-color: #0056b3;
+            background-color: var(--primary-color);
             padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .navbar {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 30px;
         }
 
         .navbar-link {
-            color: white;
+            color: var(--text-color);
             text-decoration: none;
-            font-size: 1.2rem;
-            padding: 10px;
-            transition: background 0.3s;
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 6px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .navbar-link:hover {
-            background-color: #003d80;
-            border-radius: 4px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
         }
 
-        /* Profile Section */
-        .profile-section {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            max-width: 900px;
+        main {
+            max-width: 1100px;
             margin: 40px auto;
+            padding: 0 20px;
         }
 
-        .profile-container {
+        .profile-section, .profile-orders {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        /* Profile Header */
+        .profile-header {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
         }
-
+        
         .profile-header h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
             margin: 0;
-            font-size: 2rem;
+            font-weight: 700;
         }
 
         .profile-email {
@@ -68,224 +88,184 @@
             color: #777;
         }
 
+        /* Profile Info List */
         .profile-info {
             width: 100%;
-            margin-top: 20px;
         }
 
         .profile-info h3 {
             font-size: 1.5rem;
-            margin-bottom: 10px;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-weight: 600;
         }
 
         .profile-info ul {
             list-style-type: none;
             padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 40px;
         }
 
         .profile-info li {
+            width: calc(50% - 20px);
             margin-bottom: 10px;
             font-size: 1rem;
+            display: flex;
+        }
+        
+        .profile-info li strong {
+            font-weight: 600;
+            width: 120px; 
+            margin-right: 10px;
         }
 
+        /* Actions */
         .profile-actions {
             margin-top: 30px;
-            display: flex;
-            gap: 20px;
-        }
-
-        .action-btn {
-            padding: 12px 20px;
-            background-color: #0056b3;
-            color: white;
-            font-size: 1.1rem;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .action-btn:hover {
-            background-color: #003d80;
-        }
-
-        /* Orders Section */
-        .profile-orders {
-            margin-top: 40px;
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-orders h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .orders-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .order-item {
-            width: calc(33.33% - 20px);
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
-            min-width: 250px;
-        }
-        /* orders styles */
-        .order-item h3 {
-            font-size: 1.3rem;
-            color: #0056b3;
-            margin-bottom: 10px;
-        }
-
-        .order-item p {
-            font-size: 1rem;
-            color: #555;
-            margin-bottom: 8px;
-        }
-
-        .order-detail-link {
-            display: block;
-            margin-top: 15px;
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .order-detail-link:hover {
-            text-decoration: underline;
-        }
-
-        .order-item h3 {
-            font-size: 1.5rem;
-            color: #0056b3;
-        }
-
-        .order-item p {            
-            font-size: 1rem;            
-            color: #555;            
-        }
-
-        .status {
-            font-weight: bold;
-        }   
-
-        .status.pending {
-            color: orange;
-        }
-
-        .status.completed {
-            color: green;
-        }
-
-        .status.cancelled {
-            color: red;
-        }
-
-        .order-detail-link { 
-            color: #0056b3;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .order-detail-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .order-item {
-                width: calc(50% - 20px);
-            }
-        }
-
-        @media (max-width: 576px) {
-            .order-item {
-                width: 100%;
-            }
-        }
-
-        /* Footer */
-        .footer {
-            background-color: #0056b3;
-            color: white;
-            padding: 0 0;
-        }
-
-        .footer-container {
-            display: flex;
-            justify-content: space-around;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .footer-container div {
-            width: 30%;
-        }
-
-        .footer-container h4 {
-            font-size: 1.3rem;
-        }
-
-        .footer-container p {
-            font-size: 1rem;
-        }
-
-        .social-media {
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-color);
             display: flex;
             gap: 15px;
         }
 
-        .social-link {
+        .action-btn {
+            padding: 12px 25px;
+            background-color: var(--accent-color);
             color: white;
-            text-decoration: none;
-            font-size: 1.1rem;
-            transition: color 0.3s;
-        }
-
-        .social-link:hover {
-            color: #ffc107;
-        }
-
-        .copyright {
-            text-align: center;
-            margin-top: 20px;
             font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s;
         }
 
-        /* Back actions container */
-        .back-actions {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
+        .action-btn:hover {
+            background-color: #2da182;
+            transform: translateY(-1px);
         }
 
-        /* Styling the  button */
-        .btn {
+        /* Orders Section */
+        .profile-orders h2 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .orders-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .order-item {
+            background-color: var(--light-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .order-item h3 {
+            font-size: 1.3rem;
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .order-item p {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .status {
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }   
+
+        .status.pending {
+            color: #fff;
+            background-color: #ffc107;
+        }
+
+        .status.processing {
+            color: #fff;
+            background-color: #007bff;
+        }
+
+        .status.shipped {
+            color: #fff;
+            background-color: #17a2b8;
+        }
+
+        .status.delivered {
+            color: #fff;
+            background-color: var(--success-color);
+        }
+
+        .status.cancelled {
+            color: #fff;
+            background-color: #dc3545;
+        }
+
+        .order-detail-link { 
             display: inline-block;
-            text-align: center;
-            padding: 12px 24px;
-            font-size: 16px;
+            margin-top: 10px;
+            color: var(--primary-color);
             font-weight: 600;
             text-decoration: none;
-            border-radius: 8px;
-            transition: background-color 0.3s, transform 0.3s;
-            cursor: pointer;
+            transition: color 0.2s;
         }
 
-        .btn:hover {
-            background-color: #2980b9;
+        .order-detail-link:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        /* Bottom Action */
+        .back-actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #79a3d4;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .profile-info li {
+                width: 100%;
+            }
+            .profile-header h2 {
+                font-size: 2rem;
+            }
+            .navbar {
+                gap: 15px;
+            }
         }
     </style>
+</head>
+<body>
 
-   <header>
+    <header>
         <nav class="navbar">
             <a href="{% url 'home' %}" class="navbar-link">Home</a>
             <a href="{% url 'products:list' %}" class="navbar-link">Products</a>
@@ -295,81 +275,50 @@
     </header> 
 
     <main>
-        <!-- Profile Section -->
         <section class="profile-section">
-            <div class="profile-container">
-                <div class="profile-header">
-                    <h2>Welcome, {{ user.username }}</h2>
-                    <p class="profile-email">Email: {{ user.email }}</p>
-                </div>
+            <div class="profile-header">
+                <h2>Welcome, {{ user.username|title }}</h2>
+                <p class="profile-email">Member since {{ user.date_joined|date:"M d, Y" }}</p>
+            </div>
 
-                <div class="profile-info">
-                    <h3>Personal Information</h3>
-                    <ul>
-                        <li><strong>Username:</strong> {{ user.username }}</li>
-                        <li><strong>Full Name:</strong> {{ user.first_name }} {{ user.last_name }}</li>
-                        <li><strong>Email:</strong> {{ user.email }}</li>
-                        <li><strong>Date Joined:</strong> {{ user.date_joined|date:"M d, Y" }}</li>
-                        <li><strong>Phone Number:</strong> {{ user.userprofile.phone_number|default:"Not provided" }}</li>
-                        <li><strong>Address:</strong> {{ user.userprofile.address|default:"Not provided" }}</li>
-                    </ul>
-                </div>
-
-                <div class="profile-actions">
-                    <button class="action-btn" onclick="window.location.href='{% url 'profile_edit' %}'">Edit Profile</button> 
-                    <button class="action-btn" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button> 
-                </div>
+            <div class="profile-info">
+                <h3>Personal & Contact Details</h3>
+                <ul>
+                    <li><strong>Full Name:</strong> {{ user.first_name }} {{ user.last_name }}</li>
+                    <li><strong>Username:</strong> {{ user.username }}</li>
+                    <li><strong>Email:</strong> {{ user.email }}</li>
+                    <li><strong>Phone Number:</strong> {{ user.userprofile.phone_number|default:"Add now" }}</li>
+                    <li><strong>Address:</strong> {{ user.userprofile.address|default:"Add delivery address" }}</li>
+                </ul>
+            </div>
+            <div class="profile-actions">
+                <button class="action-btn" onclick="window.location.href='{% url 'profile_edit' %}'">✏️ Edit Profile</button>
+                <button class="action-btn" onclick="window.location.href='{% url 'change_password' %}'">🔑 Change Password</button>
             </div>
         </section>
 
-        <!-- Orders Section -->
         <section class="profile-orders">
-            <h2>Your Orders</h2>
+            <h2>Your Recent Orders</h2>
             <div class="orders-list">
                 {% for order in user.orders.all %}
                     <div class="order-item">
                         <h3>Order #{{ order.id }}</h3>
-                        <p>Status: <span class="status {{ order.status|lower }}">{{ order.status }}</span></p>
+                        <p>Total: **Ksh.{{ order.total_price }}**</p>
                         <p>Placed on: {{ order.created_at|date:"M d, Y" }}</p>
-                        <p>Total Amount: Ksh.{{ order.total_price }}</p>
-                        <p>Payment Status: {{ order.payment_status }}</p>
-                        <a href="{% url 'orders:order_detail' order.id %}" class="order-detail-link">View More Details</a>
+                        <p>Status: <span class="status {{ order.status|lower }}">{{ order.status|title }}</span></p>
+                        <p>Payment: {{ order.payment_status }}</p>
+                        <a href="{% url 'orders:order_detail' order.id %}" class="order-detail-link">View Details</a>
                     </div>
                 {% empty %}
-                    <p>No orders placed yet.</p>
+                    <p>You haven't placed any orders yet. Start shopping now!</p>
                 {% endfor %}
             </div>
         </section>
 
     </main>
     <div class="back-actions">
-        <a href="{% url 'cart:view' %}" class="btn btn-primary">Back to cart</a>
+        <a href="{% url 'products:list' %}" class="btn btn-primary">Continue Shopping</a>
     </div>
 
-    {% comment %} <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div>
-                <h4>About Us</h4>
-                <p>Timea Classic is a baby shop that offers the best products for your little ones.</p>
-            </div>
-            <div>
-                <h4>Contact</h4>
-                <p>Phone: +254 713423885</p>
-                <p>Email: support@timeaclassic.com</p>
-            </div>
-            <div>
-                <h4>Follow Us</h4>
-                <div class="social-media">
-                    <a href="#" class="social-link">Facebook</a>
-                    <a href="#" class="social-link">Instagram</a>
-                    <a href="#" class="social-link">Twitter</a>
-                </div>
-            </div>
-        </div>
-        <div class="copyright">
-            <p>&copy; 2025 Timea Classic. All Rights Reserved.</p>
-        </div>
-    </footer> {% endcomment %}
-</body>
+    </body>
 </html>

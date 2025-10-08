@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from products.models import Product, ProductVariant
 from django.utils import timezone
+from decimal import Decimal
 
 
 class Order(models.Model):
@@ -27,7 +28,6 @@ class Order(models.Model):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     order_notes = models.TextField(blank=True, null=True)
 
-
     # Shipping Fields
     shipping_option_name = models.CharField(max_length=255, blank=True, null=True)
     shipping_option_description = models.TextField(blank=True, null=True)
@@ -44,13 +44,14 @@ class Order(models.Model):
     town_city = models.CharField(max_length=100, default='Nairobi')
     closest_town = models.CharField(max_length=100, default='Nairobi') 
     receive_emails = models.BooleanField(default=False)
-
+    
     def __str__(self):
         return f"Order #{self.id} - {self.status}"
 
     @property
     def total_price(self):
-        return sum(item.total_price for item in self.items.all()) + self.shipping_cost
+        # The total price is now simply the subtotal plus shipping cost
+        return self.subtotal_price + self.shipping_cost
 
     @property
     def subtotal_price(self):

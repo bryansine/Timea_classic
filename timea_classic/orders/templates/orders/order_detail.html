@@ -6,44 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <title>Order Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        /* General Styling */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
         body {
             font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            color: #333;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6e9f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            color: #1f2937;
         }
 
         .order-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 36rem;
+            width: 100%;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
 
-        h2 {
-            font-size: 22px;
+        .section-title {
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #333;
+            color: #1f2937;
+            border-bottom: 2px solid #f97316;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
             text-align: center;
-            border-bottom: 3px solid #ff7b54;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        /* Order Items */
-        .order-items {
-            margin-bottom: 20px;
-        }
-
-        .order-items h3 {
-            font-size: 18px;
-            font-weight: 500;
-            color: #ff7b54;
         }
 
         .order-items ul {
@@ -51,134 +45,118 @@
             padding: 0;
         }
 
-        .order-items li {
-            background: #fdf2ec;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+        .order-item {
+            background: #fff7ed;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .order-items li strong {
-            color: #444;
-        }
-
-        /* Order Summary */
-        .order-summary {
-            background: #fff6f2;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: inset 0 0 5px rgba(255, 123, 84, 0.2);
-        }
-
-        .order-summary h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #ff7b54;
-            margin-bottom: 10px;
-        }
-
-        .order-summary p {
-            font-size: 16px;
-            margin-bottom: 8px;
-            color: #555;
-        }
-
-        /* Payment & Status */
-        .order-status p {
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 15px;
-            text-align: center;
-            color: #ff7b54;
-        }
-
-        /* Buttons */
-        .order-actions {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            margin-top: 20px;
+            font-size: 0.875rem;
+        }
+
+        .order-item strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .order-summary {
+            background: #fef3c7;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.875rem;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .summary-value {
+            color: #1f2937;
+        }
+
+        .order-status {
+            text-align: center;
+            margin-bottom: 1.5rem;
         }
 
         .btn {
-            display: inline-block;
-            width: 100%;
-            max-width: 250px;
-            padding: 12px;
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
             color: white;
-            border-radius: 8px;
-            transition: 0.3s;
-            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: 100%;
+            max-width: 16rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .btn-primary {
-            background-color: #ff7b54;
+            background-color: #f97316;
         }
 
         .btn-primary:hover {
-            background-color: #e66a3f;
+            background-color: #ea580c;
         }
 
         .btn-secondary {
-            background-color: #6c757d;
+            background-color: #6b7280;
         }
 
         .btn-secondary:hover {
-            background-color: #545b62;
+            background-color: #4b5563;
         }
 
-        /* Mobile Responsiveness */
+        .btn-warning {
+            background-color: #facc15;
+            color: #1f2937;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            border-radius: 0.375rem;
+        }
+
+        .btn-warning:hover {
+            background-color: #eab308;
+        }
+
         @media (max-width: 768px) {
             .order-container {
-                width: 95%;
-                padding: 20px;
+                padding: 1.5rem;
             }
 
             .btn {
-                width: 90%;
+                max-width: 100%;
             }
         }
-
-        .order-items li form {
-            display: inline-block;
-            margin-left: 10px; 
-        }
-
-        .order-items li .btn-warning {
-            background-color: #ffc107; 
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: #333;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .order-items li .btn-warning:hover {
-            background-color: #ffca2c; 
-        }
-
     </style>
 </head>
 <body>
     <div class="order-container">
-        <h2>Order #{{ order.id }} - Status: {{ order.status }}</h2>
+        <h2 class="section-title">Order #{{ order.id }} - Status: {{ order.status }}</h2>
 
-        <div class="order-items">
-            <h3>Items in Your Order</h3>
+        <div class="order-items mb-6">
+            <h3 class="text-lg font-semibold text-orange-500 mb-4">Items in Your Order</h3>
             <ul>
                 {% for item in order.items.all %}
-                    <li>
+                    <li class="order-item">
                         <strong>
                             {% if item.product %}
                                 {{ item.product.name }}
@@ -187,59 +165,92 @@
                             {% else %}
                                 Unknown Item
                             {% endif %}
-                        </strong> - {{ item.quantity }} x Ksh {{ item.price }}
-
+                        </strong>
+                        <span>{{ item.quantity }} x Ksh {{ item.price }}</span>
                         {% if order.items.count == 1 and order.buy_now_product %}
-                            <form action="{% url 'orders:initiate_payment' order.id %}" method="post" style="display:inline;">
+                            <form action="{% url 'orders:initiate_payment' order.id %}" method="post" class="inline-block ml-4">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-warning btn-sm">Buy It Now</button>
+                                <button type="submit" class="btn btn-warning">Buy It Now</button>
                             </form>
                         {% endif %}
                     </li>
                 {% empty %}
-                    <p>No items in this order.</p>
+                    <p class="text-center text-gray-600">No items in this order.</p>
                 {% endfor %}
             </ul>
         </div>
 
         <div class="order-summary">
-            <h3>Order Summary</h3>
-            <p><strong>Shipping Option:</strong> {{ order.shipping_option_name }} - {{ order.shipping_option_delivery_time }}</p>
-            <p><strong>Shipping Cost:</strong> Ksh {{ order.shipping_cost }}</p>
-            <p><strong>Subtotal Price:</strong> Ksh {{ order.subtotal_price }}</p>
-            <p><strong>Total Price:</strong> Ksh {{ order.total_price }}</p>
-            <hr>
-
-            <p><strong>Email:</strong> {{ order.email }}</p>
-            <p><strong>First Name:</strong> {{ order.first_name }}</p>
-            <p><strong>Last Name:</strong> {{ order.last_name }}</p>
-            <p><strong>Address:</strong> {{ order.address }}</p>
-            
+            <h3 class="text-lg font-semibold text-orange-500 mb-4">Order Summary</h3>
+            <div class="summary-item">
+                <span class="summary-label">Shipping Option</span>
+                <span class="summary-value">{{ order.shipping_option_name }} - {{ order.shipping_option_delivery_time }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Shipping Cost</span>
+                <span class="summary-value">Ksh {{ order.shipping_cost }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Subtotal Price</span>
+                <span class="summary-value">Ksh {{ order.subtotal_price }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Total Price</span>
+                <span class="summary-value font-bold">Ksh {{ order.total_price }}</span>
+            </div>
+            <hr class="my-4 border-gray-300">
+            <div class="summary-item">
+                <span class="summary-label">Email</span>
+                <span class="summary-value">{{ order.email }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">First Name</span>
+                <span class="summary-value">{{ order.first_name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Last Name</span>
+                <span class="summary-value">{{ order.last_name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Address</span>
+                <span class="summary-value">{{ order.address }}</span>
+            </div>
             {% if order.apartment %}
-                <p><strong>Apartment:</strong> {{ order.apartment }}</p>
+                <div class="summary-item">
+                    <span class="summary-label">Apartment</span>
+                    <span class="summary-value">{{ order.apartment }}</span>
+                </div>
             {% endif %}
-            <p><strong>ZIP Code:</strong> {{ order.zip_code }}</p>
-            <p><strong>Town / City:</strong> {{ order.town_city }}</p>
-            <p><strong>Closest Town:</strong> {{ order.closest_town }}</p>
-
-            <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
+            <div class="summary-item">
+                <span class="summary-label">ZIP Code</span>
+                <span class="summary-value">{{ order.zip_code }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Town / City</span>
+                <span class="summary-value">{{ order.town_city }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Closest Town</span>
+                <span class="summary-value">{{ order.closest_town }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Payment Status</span>
+                <span class="summary-value">{{ order.payment_status }}</span>
+            </div>
         </div>
 
         <div class="order-status">
             {% if order.payment_status == "Pending" and not order.buy_now_product %}
                 <form action="{% url 'orders:initiate_payment' order.id %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">
-                        Place Order & Pay
-                    </button>
+                    <button type="submit" class="btn btn-primary">Place Order & Pay</button>
                 </form>
             {% elif order.payment_status == "Paid" %}
-                <p><strong style="color: green;">Payment Successful!</strong></p>
+                <p class="text-green-600 font-semibold">Payment Successful!</p>
             {% endif %}
         </div>
-        
-        
-        <div class="order-actions">
+
+        <div class="order-actions flex flex-col items-center gap-4">
             <a href="{% url 'cart:view' %}" class="btn btn-secondary">Back to Cart</a>
         </div>
     </div>

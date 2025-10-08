@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     #apps
     'core',
     'products',
-    'cart',
+    # 'cart',
+    'cart.apps.CartConfig',
     'orders',  
     'chat',
     'daraja',
@@ -187,7 +188,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # logging directories
 LOGIN_URL = '/login/'  
 LOGOUT_URL = '/logout/' 
-LOGIN_REDIRECT_URL = '/products/'
+# LOGIN_REDIRECT_URL = '/products/'
+LOGIN_REDIRECT_URL = '/profile/'
 # LOGOUT_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 

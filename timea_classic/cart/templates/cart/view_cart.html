@@ -173,41 +173,54 @@
     </header>
 
     <main>
-        {% if cart.items.all %}
+        {% if cart_items %}
         <div class="cart-container">
-            {% for item in cart.items.all %}
+            {% for item_data in cart_items %}
             <div class="cart-item">
-                <img src="{% if item.variant and item.variant.image %}{{ item.variant.image.url }}{% else %}{{ item.product.image.url }}{% endif %}" alt="{{ item.product.name }}">
+                
+                {% with item=item_data.item %}
+                
+                <img src="{% if item.image %}{{ item.image.url }}{% elif item.product.image %}{{ item.product.image.url }}{% endif %}" alt="{{ item_data.item_name }}">
                 <div class="item-details">
                     <p class="item-name">
-                        {% if item.product %}
-                            {{ item.product.name }}
-                        {% elif item.variant %}
-                            {{ item.variant.product.name }} - {{ item.variant.color_name }}
+                        {{ item_data.item_name }}
+                    </p>
+
+                    <p class="item-price">Ksh 
+                        {% if request.user.is_authenticated %}
+                            {{ item.total_price }}
                         {% else %}
-                            Unknown Product
+                            {% if item.price %}
+                                {{ item.price|floatformat:2 }} 
+                            {% elif item.product.price %}
+                                {{ item.product.price|floatformat:2 }}
+                            {% endif %}
                         {% endif %}
                     </p>
-                    <p class="item-price">Ksh {{ item.total_price }}</p>
+
                     <div class="btn-container">
+                        {% if request.user.is_authenticated %}
                         <form method="post" action="{% url 'cart:update_cart_item' item.id %}">
                             {% csrf_token %}
-                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                            <input type="number" name="quantity" value="{{ item_data.quantity }}" min="1">
                             <button type="submit" class="btn">Update</button>
                         </form>
                         <a href="{% url 'cart:remove' item.id %}" class="btn btn-remove">Remove</a>
+                        {% else %}
+                        <span class="login-prompt">Log in to modify your cart.</span>
+                        {% endif %}
                     </div>
                 </div>
+                
+                {% endwith %}
+                
                 <div class="btn-container">
                     <a href="{% url 'orders:create_order_from_cart' %}" class="btn">Checkout</a>
-                    {% comment %} <a href="#" class="btn">Order Now</a> {% endcomment %}
-                    {% comment %} <a href="#" class="btn">Order Now</a> {% endcomment %}
-                    
-
                 </div>
             </div>
             {% endfor %}
         </div>
+        
         {% else %}
         <p class="empty-cart">Your cart is empty.</p>
         {% endif %}

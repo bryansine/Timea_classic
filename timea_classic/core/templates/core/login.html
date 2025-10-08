@@ -135,6 +135,9 @@
         <h2>Login</h2>
         <form method="post">
             {% csrf_token %}
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
             <div class="form-group">
                 <label for="id_username">Username</label>
                 <input type="text" name="username" id="id_username" placeholder="Enter your username" required>
@@ -147,8 +150,13 @@
         </form>
         <p>
             Forgot your password? <a href="{% url 'password_reset' %}">Reset it here</a><br>
-            Don't have an account? <a href="{% url 'register' %}">Sign up here</a>
+            Don't have an account? 
+            <a href="{% url 'register' %}{% if next %}?next={{ next }}{% endif %}">Sign up here</a>
         </p>
+        {% comment %} <p>
+            Forgot your password? <a href="{% url 'password_reset' %}">Reset it here</a><br>
+            Don't have an account? <a href="{% url 'register' %}">Sign up here</a>
+        </p> {% endcomment %}
     </div>
 </body>
 </html>

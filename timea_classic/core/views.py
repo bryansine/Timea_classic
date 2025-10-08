@@ -16,6 +16,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 
 
+
 def about(request):
     return render(request, 'core/about.html')
 
@@ -108,11 +109,18 @@ def register(request):
             user.set_password(form.cleaned_data['password'])
             user.save()
             login(request, user)
+            
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            
             return redirect('products:list')
     else:
         form = UserRegistrationForm()
-    
-    return render(request, 'core/register.html', {'form': form})
+        
+    next_url = request.GET.get('next')
+    return render(request, 'core/register.html', {'form': form, 'next': next_url})
+
 
 def user_login(request):
     if request.method == 'POST':
@@ -120,11 +128,17 @@ def user_login(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            
             return redirect('products:list')
     else:
         form = AuthenticationForm()
-    return render(request, 'core/login.html', {'form': form})
-
+        
+    next_url = request.GET.get('next')
+    return render(request, 'core/login.html', {'form': form, 'next': next_url})
 
 
 def subscribe_newsletter(request):
