@@ -206,7 +206,6 @@ def initiate_payment(request, order_id):
 
 
 def stk_push_payment(order):
-    """Function to initiate M-Pesa STK Push"""
     phone_number = order.phone_number
     amount = order.total_price 
 

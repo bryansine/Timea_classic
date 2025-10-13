@@ -6,7 +6,6 @@ from django.views.decorators.csrf import csrf_exempt
 from .utils import get_mpesa_access_token, get_timestamp, generate_password
 
 def mpesa_token_view(request):
-    # Get the access token
     token = get_mpesa_access_token()
     return JsonResponse({"access_token": token})
 
@@ -16,7 +15,6 @@ def stk_push(request):
         phone_number = request.POST.get("phone_number") 
         amount = request.POST.get("amount")
 
-        # Use your credentials from the sandbox
         access_token = get_mpesa_access_token()
         endpoint = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
 

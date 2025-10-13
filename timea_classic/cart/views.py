@@ -43,10 +43,6 @@ def add_to_cart(request, product_id, variant_id=None):
     return redirect('cart:view')
 
 
-from django.shortcuts import render, get_object_or_404
-from products.models import Product, ProductVariant
-from .models import Cart, CartItem
-from django.core.cache import cache
 
 def view_cart(request):
     cart = None

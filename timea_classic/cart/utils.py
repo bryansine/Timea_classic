@@ -1,8 +1,6 @@
-# cart/utils.py
-
-from products.models import Product, ProductVariant
 from .models import Cart, CartItem
 from django.shortcuts import get_object_or_404
+from products.models import Product, ProductVariant
 
 def merge_carts(request, user):
     """
@@ -45,6 +43,5 @@ def merge_carts(request, user):
 
             cart_item.save()
 
-        # 4. Clear the session cart after successful merge
         del request.session['cart']
-        request.session.modified = True # Ensure the session is marked as changed
+        request.session.modified = True

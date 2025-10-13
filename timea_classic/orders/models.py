@@ -1,8 +1,8 @@
+from decimal import Decimal
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 from products.models import Product, ProductVariant
-from django.utils import timezone
-from decimal import Decimal
 
 
 class Order(models.Model):
@@ -50,7 +50,6 @@ class Order(models.Model):
 
     @property
     def total_price(self):
-        # The total price is now simply the subtotal plus shipping cost
         return self.subtotal_price + self.shipping_cost
 
     @property
