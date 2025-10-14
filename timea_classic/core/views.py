@@ -66,7 +66,7 @@ def home(request):
         'middle_home': 'middle_banners',
         'bottom_home': 'bottom_banners',
     }
-
+      # banners logic
     banners = {}
     for location, context_name in banner_locations.items():
         banners[context_name] = Promotion.objects.filter(
@@ -76,7 +76,7 @@ def home(request):
             end_date__gte=now,
             location=location
         )
-
+        # popups logic
     popups = Promotion.objects.filter(
         promotion_type='popup',
         is_active=True,
