@@ -76,7 +76,7 @@ def home(request):
             end_date__gte=now,
             location=location
         )
-    
+        # popup logic
     popups = Promotion.objects.filter(
         promotion_type='popup',
         is_active=True,
