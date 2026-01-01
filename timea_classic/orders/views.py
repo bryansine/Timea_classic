@@ -129,8 +129,6 @@ def create_order(request):
         'buy_now_product': buy_now_product,
         'popups': popups,
     })
-
-
     
 @login_required
 def order_detail(request, order_id):
@@ -138,7 +136,6 @@ def order_detail(request, order_id):
 
     context = {'order': order}
     return render(request, 'orders/order_detail.html', context)
-
 
 @login_required
 def create_order_from_cart(request):
@@ -203,7 +200,6 @@ def initiate_payment(request, order_id):
 
     messages.error(request, response_data.get("errorMessage", "Payment initiation failed."))
     return redirect('orders:order_detail', order_id=order.id)
-
 
 def stk_push_payment(order):
     phone_number = order.phone_number

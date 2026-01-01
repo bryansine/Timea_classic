@@ -53,8 +53,6 @@ def product_list(request):
 
 # @login_required
 def product_detail(request, product_id):
-    """Fetches and displays a single product with caching and WhatsApp links."""
-
     cache_key = f"product_{product_id}"
     product = cache.get(cache_key)
 
