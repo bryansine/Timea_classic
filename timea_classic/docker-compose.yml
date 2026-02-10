@@ -1,14 +1,12 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=timea_classic
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=timea_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secretpass
 
   web:
     build: .
@@ -18,13 +16,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - POSTGRES_NAME=timea_classic
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - DATABASE_URL=postgres://admin:secretpass@db:5432/timea_db
     depends_on:
       - db
 
 volumes:
   postgres_data:
-
-  timea_classic
