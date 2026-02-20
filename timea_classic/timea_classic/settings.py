@@ -30,7 +30,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 # Add the CSRF_TRUSTED_ORIGINS setting.
 CSRF_TRUSTED_ORIGINS = [
-    # 'https://localhost:8000',
+    'https://localhost:8000',
     'http://127.0.0.1:8000',
     'https://localhost:8000',
 ]
@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #apps
     'core',
     'products',
     # 'cart',
