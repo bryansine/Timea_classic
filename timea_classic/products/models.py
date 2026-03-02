@@ -73,7 +73,6 @@ class ProductVariant(models.Model):
     def is_in_stock(self):
         return self.stock_quantity > 0
 
-# 🚀 CACHE INVALIDATION WHEN PRODUCTS CHANGE
 @receiver(post_save, sender=Product)
 @receiver(post_delete, sender=Product)
 def clear_product_cache(sender, instance, **kwargs):
