@@ -28,7 +28,6 @@ class Product(models.Model):
     category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    #new field
     tags = models.CharField(max_length=255, blank=True, null=True)
 
 
