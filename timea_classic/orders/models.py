@@ -34,6 +34,7 @@ class Order(models.Model):
     shipping_option_delivery_time = models.CharField(max_length=100, blank=True, null=True)
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
+    # More Shipping Fields
     email = models.EmailField(default='example@example.com')
     first_name = models.CharField(max_length=100, default='First Name')
     last_name = models.CharField(max_length=100, default='Last Name')
