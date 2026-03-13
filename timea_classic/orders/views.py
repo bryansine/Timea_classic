@@ -260,8 +260,6 @@ def check_payment_status(request, order_id):
     else:
         return JsonResponse({"status": "pending", "message": "Payment is still processing."})
 
-
-
 @login_required
 def payment_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -291,11 +289,9 @@ def payment_success(request, order_id):
 
     return render(request, 'orders/payment_success.html', {'order': order})
 
-
 @login_required
 def payment_failed(request):
     return render(request, 'orders/payment_failed.html')
-
 
 @login_required
 def buy_now(request, product_id):
