@@ -118,7 +118,6 @@ def product_search(request):
     if query:
         products = products.filter(name__icontains=query)
 
-    # Sorting logic
     if sort_by == 'price_asc':
         products = products.order_by('price')
     elif sort_by == 'price_desc':
