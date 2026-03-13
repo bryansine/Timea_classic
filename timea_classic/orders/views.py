@@ -20,7 +20,6 @@ from daraja.utils import get_mpesa_access_token, generate_password, get_timestam
     
 @login_required
 def create_order(request):
-    """will handle order creation for both cart checkout and Buy It Now purchases."""
     cart = request.user.cart
     buy_now_product_data = request.session.get('buy_now_product', None)
 
