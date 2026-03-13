@@ -299,7 +299,6 @@ def payment_failed(request):
 
 @login_required
 def buy_now(request, product_id):
-    """Handles Buy Now flow by redirecting user to order creation page with a specific product"""
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == "POST":
