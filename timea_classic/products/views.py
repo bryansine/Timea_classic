@@ -147,6 +147,7 @@ def search_suggestions(request):
     return JsonResponse(suggestions, safe=False)
 
 
+# @login_required
 def add_variant_to_cart(request, product_id, variant_id):    
     product = get_object_or_404(Product, id=product_id)
     variant = get_object_or_404(ProductVariant, id=variant_id)
