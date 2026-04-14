@@ -20,6 +20,7 @@
                 <th>Total Price</th>
             </tr>
             {% for item in cart_items %}
+            {% comment %}   {} for item in cart_items {% for item in cart_items %} {% endcomment %}
 
             <tr>
                 <td>{{ item.product.name }}</td>
