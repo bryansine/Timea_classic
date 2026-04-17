@@ -7,6 +7,7 @@
 <body>
     <h1>Room: {{ chat_room_name }}</h1>  <div id="chatMessages" style="border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px;"></div>
     <input id="chatInput" type="text" placeholder="Type a message..." style="width: 100%; padding: 10px;">
+    {% comment %} console.error("Room name is not defined. Check your template context."); {% endcomment %}
 
     <script>
         const roomName = "{{ chat_room_name|escapejs }}";
@@ -45,6 +46,7 @@
                 }
             });
         } else {
+            console.error("Room name is not defined. Check your template context.");
             console.error("Room name is not defined. Check your template context.");
         }
     </script>
