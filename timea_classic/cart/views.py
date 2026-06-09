@@ -9,6 +9,8 @@ def add_to_cart(request, product_id, variant_id=None):
     variant = None
     quantity = int(request.POST.get('quantity', 1))
 
+    # quantity = int(request.POST.get('quantity', 1))
+
     if variant_id:
         variant = get_object_or_404(ProductVariant, id=variant_id)
 
