@@ -1,0 +1,15 @@
+# Virtual Environments
+myvenv/
+venv/
+
+# Environment Variables
+.env
+timea_classic/.env
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Databases and Local Media
+db.sqlite3
+timea_classic/media/
