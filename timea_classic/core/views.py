@@ -16,7 +16,6 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 
 
-
 def about(request):
     return render(request, 'core/about.html')
 
@@ -27,7 +26,6 @@ def contact(request):
 
 def refund(request):
     return render(request, 'core/refund.html')
-
 
 
 def home(request):
@@ -93,13 +91,11 @@ def home(request):
         'flash_sale_products': flash_sale_products,
         'expiry_time': expiry_time,
         **banners,
-        # 'top_banners': <QuerySet of top banners>,
-        # 'middle_banners': <QuerySet of middle banners>,
-        # 'bottom_banners': <QuerySet of bottom banners>,
         'popups': popups,
     }
 
     return render(request, 'core/home.html', context)
+
 
 def register(request):
     if request.method == 'POST':
@@ -108,7 +104,9 @@ def register(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
             user.save()
-            login(request, user)
+            
+            # FIXED: Explicitly tell Django to use the standard authentication backend path
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             
             next_url = request.POST.get('next') or request.GET.get('next')
             if next_url:
@@ -127,7 +125,9 @@ def user_login(request):
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user)
+            
+            # FIXED: Explicitly tell Django to use the standard authentication backend path
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             
             next_url = request.POST.get('next') or request.GET.get('next')
             if next_url:
@@ -153,9 +153,12 @@ def subscribe_newsletter(request):
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
+
 def logout(request):
-    logout(request)
+    from django.contrib.auth import logout as auth_logout
+    auth_logout(request)
     return redirect('home')
+
 
 @login_required
 def profile_view(request):
@@ -180,6 +183,7 @@ def profile_view(request):
     }
     return render(request, 'core/profile.html', context)
 
+
 @login_required
 def profile_edit(request):
     user_form = UserForm(instance=request.user)
@@ -201,6 +205,7 @@ def profile_edit(request):
         'profile_form': profile_form,
     }
     return render(request, 'core/profile_edit.html', context)
+
 
 @login_required
 def change_password(request):

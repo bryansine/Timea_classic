@@ -104,7 +104,7 @@ To set up the project locally, follow these steps:
 7.  Create a Super User:
   ```python manage.py createsuperuser```
 8.  Start the Development Server:
- ``` python3 manage.py runserver```
+ ``` python3 manage.py runserver 8002```
 
 
 ## Contributing

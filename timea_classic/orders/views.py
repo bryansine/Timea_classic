@@ -20,10 +20,15 @@ from daraja.utils import get_mpesa_access_token, generate_password, get_timestam
     
 @login_required
 def create_order(request):
-    cart = request.user.cart
+    # Safe multi-cart fetch
+    cart = Cart.objects.filter(user=request.user).order_by('-created_at').first()
     buy_now_product_data = request.session.get('buy_now_product', None)
 
-    if not cart.items.exists() and not buy_now_product_data:
+    # Handle cases where cart doesn't exist yet
+    if not cart and not buy_now_product_data:
+        return redirect('cart:view')
+
+    if cart and not cart.items.exists() and not buy_now_product_data:
         return redirect('cart:view')
 
     buy_now_product = None
@@ -138,12 +143,12 @@ def order_detail(request, order_id):
 
 @login_required
 def create_order_from_cart(request):
-    cart = request.user.cart 
-    if not cart.items.exists():
+    # Safe multi-cart fetch
+    cart = Cart.objects.filter(user=request.user).order_by('-created_at').first()
+    if not cart or not cart.items.exists():
         return redirect('cart:view')
     
     return render(request, 'orders/create_order.html', {'cart': cart})
-
 
 
 @login_required
@@ -215,7 +220,6 @@ def stk_push_payment(order):
     return response.json()
 
 
-
 @csrf_exempt
 def mpesa_callback(request):
     try:
@@ -249,7 +253,6 @@ def payment_waiting(request, order_id):
     return render(request, 'orders/payment_waiting.html', {'order': order})
 
 
-
 def check_payment_status(request, order_id):
     order = get_object_or_404(Order, id=order_id)
 
@@ -268,21 +271,23 @@ def payment_success(request, order_id):
         order.payment_status = "Paid"
         order.save()
                 
-        user_cart = request.user.cart
-        order_items = order.items.all()
+        # Safe multi-cart fetch for cleaning up items post-payment
+        user_cart = Cart.objects.filter(user=request.user).order_by('-created_at').first()
         
-        product_ids_to_remove = []
-        variant_ids_to_remove = []
-        
-        for item in order_items:
-            if item.product:
-                product_ids_to_remove.append(item.product.id)
-            if item.variant:
-                variant_ids_to_remove.append(item.variant.id)
-        
-        user_cart.items.filter(product__id__in=product_ids_to_remove, variant__isnull=True).delete()
-        
-        user_cart.items.filter(variant__id__in=variant_ids_to_remove).delete()
+        if user_cart:
+            order_items = order.items.all()
+            
+            product_ids_to_remove = []
+            variant_ids_to_remove = []
+           
+            for item in order_items:
+                if item.product:
+                    product_ids_to_remove.append(item.product.id)
+                if item.variant:
+                    variant_ids_to_remove.append(item.variant.id)
+            
+            user_cart.items.filter(product__id__in=product_ids_to_remove, variant__isnull=True).delete()
+            user_cart.items.filter(variant__id__in=variant_ids_to_remove).delete()
         
         cache_key = f"cart_{request.user.id}"
         cache.delete(cache_key)
@@ -304,5 +309,4 @@ def buy_now(request, product_id):
             'price': str(product.price),
         }
         return redirect('orders:create_order')
-
     return redirect('products:detail', product_id=product.id)

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'core',
     'products',
     # 'cart',
@@ -53,9 +54,15 @@ INSTALLED_APPS = [
     'chat',
     'daraja',
     'django_daraja',
+    
+    # Allauth apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     ]
 
-
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -66,6 +73,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'timea_classic.urls'
@@ -85,6 +94,12 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 # WSGI_APPLICATION = 'timea_classic.wsgi.application'
@@ -151,6 +166,7 @@ DATABASES = {
 }
 
 
+
 # https://docs.djangoproject.com/en/5.1/ref/settings/
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -207,6 +223,28 @@ LOGIN_REDIRECT_URL = '/profile/'
 # LOGOUT_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+
+# Authentication Redirects
+LOGIN_REDIRECT_URL = '/checkout/'  # Where to go after a successful Google login
+LOGOUT_REDIRECT_URL = '/'
+
+
+
+# Allauth tweaks for seamless e-commerce UX
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_EMAIL_VERIFICATION = 'none' # Don't block checkout with confirmation emails
+# SOCIALACCOUNT_AUTO_SIGNUP = True   # Automatically create a Django user from Google data without extra forms
+
+
+# Modernized Allauth configurations (Replaces deprecated keys)
+ACCOUNT_LOGIN_METHODS = {'email'}  # Replaces ACCOUNT_AUTHENTICATION_METHOD
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

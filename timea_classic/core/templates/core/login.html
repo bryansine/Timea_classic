@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,10 +56,22 @@
             flex-direction: column;
         }
 
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
         .form-container form input {
             width: 100%;
             padding: 12px;
-            margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
@@ -80,6 +93,7 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 10px;
             transition: all 0.3s ease;
         }
 
@@ -87,11 +101,59 @@
             background-color: #45a049;
         }
 
+        /* Social Divider Styling */
+        .social-login-divider {
+            margin: 25px 0 20px 0;
+            text-align: center;
+            border-top: 1px solid #eee;
+            line-height: 0.1em;
+        }
+
+        .social-login-divider span {
+            background: #fff;
+            padding: 0 10px;
+            color: #aaa;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Google Button Styling */
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            background-color: #fff;
+            color: #757575;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            font-weight: 600;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-google:hover {
+            background-color: #f7f9fa;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            color: #333;
+        }
+
+        .btn-google img {
+            width: 18px;
+            height: 18px;
+        }
+
         .form-container p {
-            margin-top: 15px;
+            margin-top: 20px;
             text-align: center;
             font-size: 14px;
             color: #555;
+            line-height: 1.6;
         }
 
         .form-container a {
@@ -105,7 +167,6 @@
             color: #3e8e41;
         }
 
-        /* Responsive Design */
         @media (max-width: 480px) {
             .form-container {
                 padding: 20px;
@@ -114,32 +175,19 @@
             .form-container h2 {
                 font-size: 20px;
             }
-
-            .form-container form input {
-                padding: 10px;
-                font-size: 14px;
-            }
-
-            .form-container form button {
-                font-size: 14px;
-            }
-
-            .form-container p {
-                font-size: 12px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h2>Login</h2>
+        
         <form method="post">
             {% csrf_token %}
-            {% if next %}
-                <input type="hidden" name="next" value="{{ next }}">
-            {% endif %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            
             <div class="form-group">
-                <label for="id_username">Username</label>
+                <label for="id_username">Username or Email</label>
                 <input type="text" name="username" id="id_username" placeholder="Enter your username" required>
             </div>
             <div class="form-group">
@@ -148,15 +196,23 @@
             </div>
             <button type="submit">Login</button>
         </form>
+
+        <div class="social-login-divider">
+            <span>or</span>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <a href="{% provider_login_url 'google' next=request.GET.next|default:'/profile/' %}" class="btn-google">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                Continue with Google
+            </a>
+        </div>
+
         <p>
             Forgot your password? <a href="{% url 'password_reset' %}">Reset it here</a><br>
             Don't have an account? 
-            <a href="{% url 'register' %}{% if next %}?next={{ next }}{% endif %}">Sign up here</a>
+            <a href="{% url 'register' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">Sign up here</a>
         </p>
-        {% comment %} <p>
-            Forgot your password? <a href="{% url 'password_reset' %}">Reset it here</a><br>
-            Don't have an account? <a href="{% url 'register' %}">Sign up here</a>
-        </p> {% endcomment %}
     </div>
 </body>
 </html>

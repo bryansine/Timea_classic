@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +20,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 20px 0;
         }
 
         .form-container {
@@ -55,10 +57,22 @@
             flex-direction: column;
         }
 
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
         .form-container form input {
             width: 100%;
             padding: 12px;
-            margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
@@ -71,6 +85,23 @@
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
         }
 
+        /* Checkbox wrapper adjustments */
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 5px 0 15px 0;
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-top: 3px;
+        }
+
         .form-container form button {
             padding: 12px 20px;
             background-color: #4CAF50;
@@ -80,6 +111,7 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 5px;
             transition: all 0.3s ease;
         }
 
@@ -87,11 +119,59 @@
             background-color: #45a049;
         }
 
+        /* Social Divider Styling */
+        .social-login-divider {
+            margin: 25px 0 20px 0;
+            text-align: center;
+            border-top: 1px solid #eee;
+            line-height: 0.1em;
+        }
+
+        .social-login-divider span {
+            background: #fff;
+            padding: 0 10px;
+            color: #aaa;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Google Button Styling */
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            background-color: #fff;
+            color: #757575;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            font-weight: 600;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-google:hover {
+            background-color: #f7f9fa;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            color: #333;
+        }
+
+        .btn-google img {
+            width: 18px;
+            height: 18px;
+        }
+
         .form-container p {
-            margin-top: 15px;
+            margin-top: 20px;
             text-align: center;
             font-size: 14px;
             color: #555;
+            line-height: 1.6;
         }
 
         .form-container a {
@@ -113,101 +193,84 @@
             .form-container h2 {
                 font-size: 20px;
             }
-
-            .form-container form input {
-                padding: 10px;
-                font-size: 14px;
-            }
-
-            .form-container form button {
-                font-size: 14px;
-            }
-
-            .form-container p {
-                font-size: 12px;
-            }
         }
 
-        /* Error Messages */
+        /* Error & Alert Messages */
         ul.messages {
             list-style-type: none;
             padding: 0;
-            margin: 0;
+            margin: 0 auto 15px auto;
+            max-width: 400px;
             background-color: #f44336;
             color: white;
             text-align: center;
             border-radius: 5px;
-            margin-bottom: 10px;
         }
 
         ul.messages li {
             padding: 10px;
-            margin-bottom: 5px;
-        }
-
-        /* Alert Messages */
-       .alert-success {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .alert-danger {
-            background-color: #f44336;
-            color: white;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            text-align: center;
         }
 
         .error {
             color: #f44336;
-            font-size: 14px;
+            font-size: 13px;
             margin-top: 5px;
+            font-weight: 500;
         }
-
     </style>
 </head>
 <body>
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    <div class="form-container">
-        <h2>Create Your Account</h2>
-        <form method="post">
-            {% csrf_token %}
-            {% if next %}
-                <input type="hidden" name="next" value="{{ next }}">
-            {% endif %}
-            {% for field in form %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="error">{{ field.errors|striptags }}</div>
-                    {% endif %}
-                </div>
+    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
             {% endfor %}
-            <button type="submit">Sign Up</button>
-        </form>
+        </ul>
+        {% endif %}
 
-        <label for="receive_emails">
-            I would like to receive exclusive emails with discounts and product information
-            <input type="checkbox" id="receive_emails" name="receive_emails" style="vertical-align: middle;">
-        </label>
-        
-        <p>
-            Already have an account? <a href="{% url 'login' %}">Login here</a><br>
-            Forgot your password? <a href="{% url 'password_reset' %}">Reset it here</a>
-        </p>
+        <div class="form-container">
+            <h2>Create Your Account</h2>
+            
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="error">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <label class="checkbox-group" for="receive_emails">
+                    <input type="checkbox" id="receive_emails" name="receive_emails">
+                    I would like to receive exclusive emails with discounts and product information
+                </label>
+
+                <button type="submit">Sign Up</button>
+            </form>
+
+            <div class="social-login-divider">
+                <span>or</span>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <a href="{% provider_login_url 'google' next=request.GET.next|default:'/profile/' %}" class="btn-google">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                    Sign up with Google
+                </a>
+            </div>
+    </a>
+</div>
+
+            <p>
+                Already have an account? 
+                <a href="{% url 'login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">Login here</a><br>
+                Forgot your password? <a href="{% url 'password_reset' %}">Reset it here</a>
+            </p>
+        </div>
     </div>
-</body>
-</html>
