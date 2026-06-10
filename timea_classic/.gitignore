@@ -3,6 +3,13 @@ myvenv/
 .envmyvenv/
 
 timea_classic/media/*
+
 .env
+
 timea_classic/.env
 
+venv/
+
+*.pyc
+
+db.sqlite3
