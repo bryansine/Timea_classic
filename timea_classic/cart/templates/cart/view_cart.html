@@ -7,7 +7,7 @@
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <title>🛒 </title>
+    <title>🛒 My Cart</title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -82,7 +82,7 @@
         }
 
         .cart-item:hover {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
         }
 
         .cart-item img {
@@ -112,6 +112,7 @@
         .btn-container {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         .btn {
@@ -122,6 +123,8 @@
             font-size: 0.9rem;
             text-decoration: none;
             transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
 
         .btn:hover {
@@ -136,29 +139,85 @@
             background-color: #a71d2a;
         }
 
+        .login-prompt {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
         .empty-cart {
             text-align: center;
             font-size: 1.2rem;
             color: #777;
+            margin-top: 40px;
         }
 
-        footer {
-            text-align: center;
-            margin-top: 30px;
+        /* Bottom Control Panel Styles */
+        .cart-actions-panel {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkout-options-wrapper {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-checkout {
+            background-color: #007bff;
+        }
+
+        .btn-guest-checkout {
+            background-color: #28a745;
+        }
+        .btn-guest-checkout:hover {
+            background-color: #218838;
+        }
+
+        .btn-login-checkout {
+            background-color: #6c757d;
+        }
+        .btn-login-checkout:hover {
+            background-color: #5a6268;
         }
 
         .continue-shopping {
-            background-color: #28a745;
-            color: white;
+            background-color: transparent;
+            color: #007bff;
             padding: 12px 20px;
             font-size: 1rem;
             border-radius: 30px;
             text-decoration: none;
-            transition: background-color 0.3s ease;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            border: 2px solid #007bff;
         }
 
         .continue-shopping:hover {
-            background-color: #218838;
+            background-color: #007bff;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        input[type="number"] {
+            width: 60px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -167,7 +226,7 @@
         <h2><i class="fas fa-shopping-cart"></i> Cart </h2>
         <nav id="profile-nav">
             <a href="{% url 'profile' %}" class="profile-btn">
-                <img src="{% static 'core/images/profile.png' %}">
+                <img src="{% static 'core/images/profile.png' %}" alt="Profile">
             </a>
         </nav>
     </header>
@@ -200,35 +259,44 @@
 
                     <div class="btn-container">
                         {% if request.user.is_authenticated %}
-                        <form method="post" action="{% url 'cart:update_cart_item' item.id %}">
+                        <form method="post" action="{% url 'cart:update_cart_item' item.id %}" style="display: flex; gap: 8px;">
                             {% csrf_token %}
                             <input type="number" name="quantity" value="{{ item_data.quantity }}" min="1">
                             <button type="submit" class="btn">Update</button>
                         </form>
                         <a href="{% url 'cart:remove' item.id %}" class="btn btn-remove">Remove</a>
                         {% else %}
-                        <span class="login-prompt">Log in to modify your cart.</span>
+                        <span class="login-prompt">Quantity: {{ item_data.quantity }} (Log in to modify)</span>
                         {% endif %}
                     </div>
                 </div>
                 
                 {% endwith %}
-                
-                <div class="btn-container">
-                    <a href="{% url 'orders:create_order_from_cart' %}" class="btn">Checkout</a>
-                </div>
             </div>
             {% endfor %}
         </div>
+
+        <div class="cart-actions-panel">
+            <a href="{% url 'products:list' %}" class="continue-shopping"><i class="fas fa-arrow-left"></i> Continue Shopping</a>
+            
+            <div class="checkout-control-block">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'orders:create_order_from_cart' %}" class="btn btn-checkout">Proceed to Checkout <i class="fas fa-arrow-right"></i></a>
+                {% else %}
+                    <div class="checkout-options-wrapper">
+                        <a href="{% url 'orders:guest_checkout' %}" class="btn btn-guest-checkout">Checkout as Guest <i class="fas fa-bolt"></i></a>
+                        <a href="{% url 'login' %}?next={% url 'orders:create_order_from_cart' %}" class="btn btn-login-checkout">Login to Checkout</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
         
         {% else %}
-        <p class="empty-cart">Your cart is empty.</p>
+            <p class="empty-cart">Your cart is empty.</p>
+            <footer>
+                <a href="{% url 'products:list' %}" class="continue-shopping">Start Shopping</a>
+            </footer>
         {% endif %}
     </main>
-    
-
-    <footer>
-        <a href="{% url 'products:list' %}" class="continue-shopping">Continue Shopping</a>
-    </footer>
 </body>
 </html>

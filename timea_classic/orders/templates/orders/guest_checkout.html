@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Checkout - Timea Classic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', Arial, sans-serif; background-color: #f7f9fa; color: #333; min-height: 100vh; padding: 40px 20px; }
+        .checkout-container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 450px; gap: 30px; }
+        @media (max-width: 900px) { .checkout-container { grid-template-columns: 1fr; } }
+        
+        /* Card Styles */
+        .checkout-card { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h2 { font-size: 22px; margin-bottom: 20px; color: #222; font-weight: 600; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        
+        /* Form Styling */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        .form-group label { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 6px; }
+        .form-group input, .form-group textarea { padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; transition: border 0.3s; width: 100%; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #4CAF50; }
+        .help-text { font-size: 12px; color: #777; margin-top: 4px; }
+        .errorlist { color: #f44336; font-size: 13px; list-style: none; margin-top: 5px; font-weight: 500; }
+
+        /* Order Summary Item Styling */
+        .summary-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .item-details { display: flex; flex-direction: column; }
+        .item-name { font-weight: 600; font-size: 15px; color: #444; }
+        .item-meta { font-size: 13px; color: #777; margin-top: 2px; }
+        .item-price { font-weight: 600; color: #222; font-size: 15px; }
+        
+        /* Pricing breakdown */
+        .totals-section { margin-top: 20px; }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; }
+        .total-row.grand-total { border-top: 2px dashed #ddd; padding-top: 15px; margin-top: 15px; font-size: 18px; font-weight: 700; color: #4CAF50; }
+        
+        /* Submit Button */
+        .btn-submit { display: block; width: 100%; padding: 14px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.3s; text-align: center; margin-top: 20px; }
+        .btn-submit:hover { background-color: #45a049; }
+        
+        /* Messages indicator */
+        .messages { list-style: none; margin-bottom: 20px; background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 4px; color: #856404; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="checkout-container">
+        <div class="checkout-card">
+            <h2>Shipping & M-Pesa Details</h2>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="messages">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                        {{ form.first_name }}
+                        {{ form.first_name.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                        {{ form.last_name }}
+                        {{ form.last_name.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email Address</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.phone_number.id_for_label }}">M-Pesa Phone Number</label>
+                    {{ form.phone_number }}
+                    <span class="help-text">{{ form.phone_number.help_text }}</span>
+                    {{ form.phone_number.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.shipping_address.id_for_label }}">Delivery Address / Location Details</label>
+                    {{ form.shipping_address }}
+                    {{ form.shipping_address.errors }}
+                </div>
+
+                <button type="submit" class="btn-submit">Pay with M-Pesa STK Push</button>
+            </form>
+        </div>
+
+        <div class="checkout-card" style="height: fit-content;">
+            <h2>Order Summary</h2>
+            
+            {% for item in cart_items %}
+                <div class="summary-item">
+                    <div class="item-details">
+                        <span class="item-name">
+                            {% if item.product %}{{ item.product.name }}{% else %}{{ item.variant.product.name }}{% endif %}
+                        </span>
+                        <span class="item-meta">
+                            Qty: {{ item.quantity }} × KSh {{ item.price }}
+                            {% if item.variant %} | Color: {{ item.variant.color_name }}{% endif %}
+                        </span>
+                    </div>
+                    <div class="item-price">
+                        KSh {% widthratio item.price 1 item.quantity %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="totals-section">
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>Calculated at next step</span>
+                </div>
+                <div class="total-row">
+                    <span>Shipping</span>
+                    <span>Calculated at next step</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Total Amount</span>
+                    <span>Processing...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

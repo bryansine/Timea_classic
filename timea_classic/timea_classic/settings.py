@@ -223,12 +223,9 @@ LOGIN_REDIRECT_URL = '/profile/'
 # LOGOUT_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-
 # Authentication Redirects
 LOGIN_REDIRECT_URL = '/checkout/'  # Where to go after a successful Google login
 LOGOUT_REDIRECT_URL = '/'
-
-
 
 # Allauth tweaks for seamless e-commerce UX
 # ACCOUNT_AUTHENTICATION_METHOD = 'email'
@@ -236,7 +233,6 @@ LOGOUT_REDIRECT_URL = '/'
 # ACCOUNT_USERNAME_REQUIRED = False
 # ACCOUNT_EMAIL_VERIFICATION = 'none' # Don't block checkout with confirmation emails
 # SOCIALACCOUNT_AUTO_SIGNUP = True   # Automatically create a Django user from Google data without extra forms
-
 
 # Modernized Allauth configurations (Replaces deprecated keys)
 ACCOUNT_LOGIN_METHODS = {'email'}  # Replaces ACCOUNT_AUTHENTICATION_METHOD

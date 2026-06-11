@@ -17,7 +17,136 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
-    
+
+
+
+
+import uuid
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.contrib.auth import login
+from products.models import Product, ProductVariant
+from .forms import GuestCheckoutForm
+from .models import Order, OrderItem
+
+def guest_checkout_view(request):
+    if request.user.is_authenticated:
+        return redirect('orders:checkout')
+
+    # 1. Parse the session-based cart exactly like your cart architecture
+    session_cart = request.session.get('cart', {})
+    if not session_cart:
+        messages.warning(request, "Your cart is empty.")
+        return redirect('products:list')
+
+    cart_items = []
+
+    for item_key, quantity in session_cart.items():
+        if item_key.startswith('product_'):
+            product_id = item_key.split('_')[1]
+            product = get_object_or_404(Product, id=product_id)
+            # Match offer logic pricing
+            price = product.discount_price if product.discount_price else product.price
+            
+            cart_items.append({
+                'product': product,
+                'variant': None,
+                'quantity': quantity,
+                'price': price
+            })
+            
+        elif item_key.startswith('variant_'):
+            variant_id = item_key.split('_')[1]
+            variant = get_object_or_404(ProductVariant, id=variant_id)
+            price = variant.product.discount_price if variant.product.discount_price else variant.product.price
+
+            cart_items.append({
+                'product': None,
+                'variant': variant,
+                'quantity': quantity,
+                'price': price
+            })
+
+    # 2. Process Form Data
+    if request.method == 'POST':
+        form = GuestCheckoutForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data['phone_number']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            shipping_address = form.cleaned_data['shipping_address']
+
+            # Account collision check (preventing inactive overrides on active accounts)
+            if User.objects.filter(email=email, is_active=True).exists():
+                messages.info(request, "An account with this email exists. Please sign in or use Google login.")
+                return redirect(f"{reverse('login')}?next={request.path}")
+
+            # Create or fetch the inactive ghost persona account
+            username = email.split('@')[0] + '_' + str(uuid.uuid4())[:4]
+            ghost_user, created = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    'username': username,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'is_active': True,
+                }
+            )
+            if created:
+                ghost_user.set_unusable_password()
+                ghost_user.save()
+
+            # Create the persistent core Order matching your specific model fields
+            order = Order.objects.create(
+                user=ghost_user,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                phone_number=phone,
+                shipping_address=shipping_address,
+                address=shipping_address,       # Fulfills your default field requirement
+                status='Pending',
+                payment_status='Pending'
+            )
+
+            # Build database OrderItems
+            for item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item['product'],
+                    variant=item['variant'], 
+                    price=item['price'],
+                    quantity=item['quantity']
+                )
+
+            # Authorize the active request pipeline context under this ghost user
+            # login(request, ghost_user, backend='django.contrib.auth.backends.ModelBackend')
+            # login(request, ghost_user, backend='allauth.account.auth_backends.AuthenticationBackend')
+            login(request, ghost_user, backend='django.contrib.auth.backends.ModelBackend')
+            # Wipe session cart arrays
+            request.session['cart'] = {}
+
+            if 'checkout_order_id' in request.session: del request.session['checkout_order_id']
+            if 'checkout_phone_number' in request.session: del request.session['checkout_phone_number']
+
+            return redirect('orders:initiate_payment', order_id=order.id)
+    else:
+        form = GuestCheckoutForm()
+
+    context = {
+        'form': form,
+        'cart_items': cart_items,
+    }
+    return render(request, 'orders/guest_checkout.html', context)
+
+
+
+
+
+
 @login_required
 def create_order(request):
     # Safe multi-cart fetch
@@ -143,7 +272,6 @@ def order_detail(request, order_id):
 
 @login_required
 def create_order_from_cart(request):
-    # Safe multi-cart fetch
     cart = Cart.objects.filter(user=request.user).order_by('-created_at').first()
     if not cart or not cart.items.exists():
         return redirect('cart:view')
