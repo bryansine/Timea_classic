@@ -387,8 +387,9 @@
         </a>
     </header>
     
+    
 
-    <nav>
+    {% comment %} <nav>
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="{% url 'cart:view' %}">Cart</a></li>
@@ -396,6 +397,20 @@
             <li><a href="{% url 'contact' %}">Contact</a></li>
             <li class="logout">
                 <p>Hello, {{ user.username }} <a href="/">Logout</a></p>
+            </li>
+        </ul>
+    </nav> {% endcomment %}
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="{% url 'cart:view' %}">Cart</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+            <li class="logout">
+                <p>
+                    Hello, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %} 
+                    <a href="{% url 'account_logout' %}">Logout</a>
+                </p>
             </li>
         </ul>
     </nav>
