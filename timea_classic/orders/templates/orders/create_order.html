@@ -301,31 +301,31 @@
             <h2>Billing & Delivery Info</h2>
             <form method="POST" action="{% url 'orders:create_order' %}">
                 {% csrf_token %}
-
+            
                 <label for="email">Email address *</label>
-                <input type="email" id="email" name="email" required>
-
+                <input type="email" id="email" name="email" value="{{ user_data.email|default:'' }}" required>
+            
                 <label for="phone_number">Phone Number:</label>
                 <input type="text" id="phone_number" name="phone_number" required>
-
+            
                 <label for="first_name">First name *</label>
-                <input type="text" id="first_name" name="first_name" required>
-
+                <input type="text" id="first_name" name="first_name" value="{{ user_data.first_name|default:'' }}" required>
+            
                 <label for="last_name">Last name *</label>
-                <input type="text" id="last_name" name="last_name" required>
-
+                <input type="text" id="last_name" name="last_name" value="{{ user_data.last_name|default:'' }}" required>
+            
                 <label for="address">Address : House, Road, Estate Name (P.O Box not accepted) *</label>
                 <textarea id="address" name="address" required></textarea>
-
+            
                 <label for="apartment">Apartment (optional)</label>
                 <input type="text" id="apartment" name="apartment">
-
+            
                 <label for="zip_code">ZIP Code *</label>
                 <input type="text" id="zip_code" name="zip_code" required>
-
+            
                 <label for="town_city">Town / City *</label>
                 <input type="text" id="town_city" name="town_city" required>
-
+            
                 <label for="closest_town">Select Closest Town (Eg Thika) *</label>
                 <select id="closest_town" name="closest_town" required>
                     <option value="">Select an option...</option>
@@ -439,17 +439,17 @@
                     <option value="Makutano">Makutano</option>
                     <option value="Chogoria">Chogoria</option>
                 </select> <br>
-
+            
                 <label for="order_notes">Additional Information (Optional):</label>
                 <textarea id="order_notes" name="order_notes" placeholder="Any special instructions..."></textarea>
-
+            
                 <label for="receive_emails">
                     I would like to receive exclusive emails with discounts and product information
                     <input type="checkbox" id="receive_emails" name="receive_emails" style="vertical-align: middle;">
                 </label>
-    
+            
                 {% include 'orders/shipping_options.html' %}
-
+            
                 {% if buy_now_product %}
                     <h3>Buying Now</h3>
                     <div class="cart-item">
@@ -482,7 +482,7 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-    
+            
                 <button type="submit" style="background-color:#28a745; color:white; padding:10px; margin-top:10px;">
                     Place Order
                 </button>

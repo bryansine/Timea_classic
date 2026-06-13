@@ -147,6 +147,15 @@ def guest_checkout_view(request):
 
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.utils import timezone
+from .models import Order, OrderItem  # Adjust imports based on your real setup
+from cart.models import Cart
+from products.models import Product  # Adjust imports based on your real setup
+from core.models import Promotion  # Adjust imports based on your real setup
+
 @login_required
 def create_order(request):
     # Safe multi-cart fetch
@@ -247,7 +256,7 @@ def create_order(request):
                     )
 
         return redirect('orders:order_detail', order_id=order.id)
-
+    # --- GET REQUEST CONFIGURATION ---
     now = timezone.now()
     popups = Promotion.objects.filter(
         promotion_type='popup',
@@ -257,10 +266,32 @@ def create_order(request):
         location='create_order_page',
     )
 
+    # 💡 THE ADVANCED AUTOFILLED ENGINE: Pulls from both standard profiles and Social Account tokens
+    email_val = request.user.email or ''
+    first_name_val = request.user.first_name or ''
+    last_name_val = request.user.last_name or ''
+
+    if request.user.is_authenticated:
+        # Check if this user has a connected Google Social Account
+        social_account = request.user.socialaccount_set.filter(provider='google').first()
+        if social_account:
+            # Extract the raw profile metadata sent directly from Google's servers
+            google_data = social_account.extra_data
+            email_val = email_val or google_data.get('email', '')
+            first_name_val = first_name_val or google_data.get('given_name', '')
+            last_name_val = last_name_val or google_data.get('family_name', '')
+
+    user_initial_data = {
+        'email': email_val,
+        'first_name': first_name_val,
+        'last_name': last_name_val,
+    }
+
     return render(request, 'orders/create_order.html', {
         'cart': cart,
         'buy_now_product': buy_now_product,
         'popups': popups,
+        'user_data': user_initial_data,  # Passed context parameters down to the DOM
     })
     
 @login_required
