@@ -105,7 +105,6 @@ def register(request):
             user.set_password(form.cleaned_data['password'])
             user.save()
             
-            # FIXED: Explicitly tell Django to use the standard authentication backend path
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             
             next_url = request.POST.get('next') or request.GET.get('next')
@@ -126,7 +125,6 @@ def user_login(request):
         if form.is_valid():
             user = form.get_user()
             
-            # FIXED: Explicitly tell Django to use the standard authentication backend path
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             
             next_url = request.POST.get('next') or request.GET.get('next')

@@ -15,7 +15,6 @@ import dj_database_url
 from decouple import config
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -104,8 +103,6 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # WSGI_APPLICATION = 'timea_classic.wsgi.application'
-# WSGI_APPLICATION = 'timea_classic.wsgi.application'
-
 
 ASGI_APPLICATION = 'timea_classic.asgi.application' 
 
@@ -221,26 +218,18 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/' 
 # LOGIN_REDIRECT_URL = '/products/'
 LOGIN_REDIRECT_URL = '/profile/'
-# LOGOUT_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Authentication Redirects
-LOGIN_REDIRECT_URL = '/checkout/'  # Where to go after a successful Google login
+LOGIN_REDIRECT_URL = '/checkout/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Allauth tweaks for seamless e-commerce UX
-# ACCOUNT_AUTHENTICATION_METHOD = 'email'
-# ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_USERNAME_REQUIRED = False
-# ACCOUNT_EMAIL_VERIFICATION = 'none' # Don't block checkout with confirmation emails
-# SOCIALACCOUNT_AUTO_SIGNUP = True   # Automatically create a Django user from Google data without extra forms
-
-# Modernized Allauth configurations (Replaces deprecated keys)
-ACCOUNT_LOGIN_METHODS = {'email'}  # Replaces ACCOUNT_AUTHENTICATION_METHOD
+# Modernized Allauth configurations
+ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
-
+ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
 
 
@@ -252,7 +241,7 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
-            'prompt': 'select_account',  # 💡 THIS FORCES THE EMAIL SELECTION BOX EVERY TIME
+            'prompt': 'select_account',
         },
         'OAUTH_PKCE_ENABLED': True,
     }
@@ -266,7 +255,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # SESSION_COOKIE_AGE = 3600  # 1 hour (time in seconds)
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
 
 
 # Security Settings in production 

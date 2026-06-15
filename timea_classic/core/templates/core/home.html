@@ -770,7 +770,6 @@
             background-color: #0056b3;
         }
 
-        /* Responsive Popup */
         @media (max-width: 768px) {
             .popup {
                 width: 90%;
@@ -828,7 +827,22 @@
             <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href=" {% url 'contact' %} ">Contact</a></li>
         </ul>
-    </nav>
+    </nav> 
+    {% if messages %}
+    <div class="messages-container" style="max-width: 1200px; margin: 15px auto; padding: 0 20px;">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="padding: 12px; margin-bottom: 10px; border-radius: 6px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; font-family: sans-serif;">
+                
+                {% if "Successfully signed in as" in message.message %}
+                    Successfully signed in as {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}.
+                {% else %}
+                    {{ message }}
+                {% endif %}
+
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
     <!-- Hero Section -->
     <section class="hero" style="background-image: url('{% static 'core/images/hollowknight.jpeg' %}'); background-size: cover; background-position: center;">
@@ -878,14 +892,6 @@
             {% endfor %}
         </section>      
         
-            {% comment %} {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            </div>
-            {% endif %} {% endcomment %}
-    
         <div class="home-sections">
             <section class="category-section">
                 <h2 class="recent-products-heading">New Arrivals</h2>
@@ -1129,7 +1135,7 @@
 
     <footer class="last-footer">
         <div>
-            <p>&copy; 2025 Timea-classic. All rights reserved.</p>
+            <p>&copy; 2026 Timea-classic. All rights reserved.</p>
         </div>
     </footer>
     

@@ -499,7 +499,16 @@
             <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href="{% url 'contact' %}">Contact</a></li>
             <li class="logout">
-                <p>Hello, {{ user.username }} <a href="/">Logout</a></p>
+                <p style="display: inline; margin: 0;">
+                    Hello, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}
+                    
+                    <form method="POST" action="{% url 'account_logout' %}" style="display: inline; margin-left: 5px;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 0; font: inherit; text-decoration: underline; display: inline;">
+                            Logout
+                        </button>
+                    </form>
+                </p>
             </li>
         </ul>
     </nav>
@@ -635,7 +644,7 @@
                         <h4>Reviews</h4>
                         {% for review in product.reviews.all %}
                             <div class="review">
-                                <p><strong>{{ review.user.username }}</strong> - Rating: {{ review.rating }}</p>
+                                <p><strong>{% if review.user.first_name %}{{ review.user.first_name }}{% else %}{{ review.user.username }}{% endif %}</strong> - Rating: {{ review.rating }}</p>
                                 <p>{{ review.comment }}</p>
                                 <p><em>{{ review.created_at }}</em></p>
                             </div>
@@ -682,7 +691,7 @@
 
 
     <footer>
-        <p>&copy; 2025 Timea-classic. All rights reserved.</p>
+        <p>&copy; 2026 Timea-classic. All rights reserved.</p>
     </footer>
 
     <script>

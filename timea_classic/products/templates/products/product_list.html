@@ -386,7 +386,7 @@
             <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" width="200" loading="lazy">
         </a>
     </header>
-    
+
     
 
     {% comment %} <nav>
@@ -400,20 +400,27 @@
             </li>
         </ul>
     </nav> {% endcomment %}
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="{% url 'cart:view' %}">Cart</a></li>
-            <li><a href="{% url 'profile' %}">Profile</a></li>
-            <li><a href="{% url 'contact' %}">Contact</a></li>
-            <li class="logout">
-                <p>
-                    Hello, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %} 
-                    <a href="{% url 'account_logout' %}">Logout</a>
-                </p>
-            </li>
-        </ul>
-    </nav>
+<nav>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="{% url 'products:list' %}">Products</a></li>
+        <li><a href="{% url 'cart:view' %}">Cart</a></li>
+        <li><a href="{% url 'profile' %}">Profile</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li class="logout">
+            <p style="display: inline; margin: 0;">
+                Hello, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}
+                
+                <form method="POST" action="{% url 'account_logout' %}" style="display: inline; margin-left: 5px;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 0; font: inherit; text-decoration: underline; display: inline;">
+                        Logout
+                    </button>
+                </form>
+            </p>
+        </li>
+    </ul>
+</nav>
 
     <div class="categories-buttons">
         <h2>Categories</h2>
@@ -523,7 +530,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2025 Timea-classic. All rights reserved.</p>
+        <p>&copy; 2026 Timea-classic. All rights reserved.</p>
     </footer>
     {% include 'chat/chat_snippet.html' %}
 

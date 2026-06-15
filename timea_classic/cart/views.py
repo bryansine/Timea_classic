@@ -46,17 +46,17 @@ def add_to_cart(request, product_id, variant_id=None):
 
 def view_cart(request):
     cart = None
-    raw_items = []
     cart_items = []
 
     if request.user.is_authenticated:
         cache_key = f"cart_{request.user.id}"
-        cart_data = cache.get(cache_key)
+        cached_context = cache.get(cache_key)
 
-        if not cart_data:
-            cart = Cart.objects.filter(user=request.user).first()
-            if cart:
-                raw_items = cart.items.all()
+        if cached_context:
+            return render(request, 'cart/view_cart.html', cached_context)
+
+        cart = Cart.objects.filter(user=request.user).first()
+        raw_items = cart.items.all() if cart else []
         
         cart_items = [
             {
@@ -66,6 +66,14 @@ def view_cart(request):
             }
             for item in raw_items
         ]
+
+        context = {
+            'cart': cart,
+            'cart_items': cart_items
+        }
+        
+        cache.set(cache_key, context, timeout=60)
+        return render(request, 'cart/view_cart.html', context)
 
     else:
         session_cart = request.session.get('cart', {})
@@ -90,17 +98,11 @@ def view_cart(request):
                     'item_name': variant.product.name
                 })
 
-
-    context = {
-        'cart': cart,
-        'cart_items': cart_items
-    }
-    
-    if request.user.is_authenticated and 'cart_data' in locals():
-        cache.set(cache_key, context, timeout=60)
-
-    return render(request, 'cart/view_cart.html', context)
-
+        context = {
+            'cart': cart,
+            'cart_items': cart_items
+        }
+        return render(request, 'cart/view_cart.html', context)
 
 @login_required
 def update_cart_item(request, item_id):
