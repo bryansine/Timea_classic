@@ -215,14 +215,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # logging directories
 LOGIN_URL = '/login/'  
-LOGOUT_URL = '/logout/' 
-# LOGIN_REDIRECT_URL = '/products/'
-LOGIN_REDIRECT_URL = '/profile/'
+LOGOUT_URL = '/logout/'
+
+LOGIN_REDIRECT_URL = '/products/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Authentication Redirects
-LOGIN_REDIRECT_URL = '/checkout/'
-LOGOUT_REDIRECT_URL = '/'
 
 # Modernized Allauth configurations
 ACCOUNT_LOGIN_METHODS = {'email'}

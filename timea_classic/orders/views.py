@@ -14,7 +14,6 @@ from .forms import GuestCheckoutForm
 from django.contrib.auth import login
 from cart.models import Cart, CartItem
 from django.contrib.auth.models import User
-from daraja.utils import get_mpesa_access_token
 from django.http import HttpResponse, JsonResponse
 from products.models import Product, ProductVariant
 from django.views.decorators.csrf import csrf_exempt
@@ -433,15 +432,18 @@ def payment_success(request, order_id):
 def payment_failed(request):
     return render(request, 'orders/payment_failed.html')
 
-@login_required
-def buy_now(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
 
-    if request.method == "POST":
-        request.session['buy_now_product'] = {
-            'id': product.id,
-            'name': product.name,
-            'price': str(product.price),
-        }
-        return redirect('orders:create_order')
-    return redirect('products:detail', product_id=product.id)
+def buy_now(request, product_id):
+    product = get_object_or_404(Product, id=product_id)    
+    request.session['buy_now_product'] = {
+        'id': product.id,
+        'name': product.name,
+        'price': str(product.price),
+    }
+    
+    if not request.user.is_authenticated:
+        login_url = reverse('login')
+        checkout_url = reverse('orders:create_order')
+        return redirect(f"{login_url}?next={checkout_url}")
+        
+    return redirect('orders:create_order')
