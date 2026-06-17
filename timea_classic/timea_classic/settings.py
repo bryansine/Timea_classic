@@ -26,7 +26,6 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
-
 # Add the CSRF_TRUSTED_ORIGINS setting.
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8000',
@@ -244,6 +243,12 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+
+
+ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
+
+# Disable allauth's automatic flash messages
+ACCOUNT_MESSAGES = False
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

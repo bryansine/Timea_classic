@@ -790,46 +790,39 @@
         }
     </style>
 
-    <header class="main-header">
-        <h1>Timea-classic</h1>
-        <a href="/" class="logo-link">
-            <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" class="logo-img" loading="lazy">
-        </a>
-    
-        <div class="header-info">
-            <div class="support-desk">
-                <p>Support Desk: <strong style="color: cornflowerblue;">+254 713 42 38 85</strong></p>
-            </div>
-            <div class="delivery">
-                <p>Delivery: <strong style="color: cornflowerblue;">Next Day Countrywide</strong></p>
+    <!-- Nav Section -->
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="{% url 'products:list' %}">Products</a></li>
+            <li><a href="{% url 'cart:view' %}">Cart</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href=" {% url 'contact' %} ">Contact</a></li>
+        </ul>
+    </nav>
+
+    <header style="background-color: #1a1a1a; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
+        
+        <div class="brand-section" style="display: flex; align-items: center; gap: 20px;">
+            <span class="brand-title" style="font-size: 24px; font-weight: bold; font-family: sans-serif;">Timea-classic</span>
+            <div class="logo-container" style="background-color: #fff; padding: 5px 10px; border-radius: 4px;">
+                <img src="/static/images/logo.png" alt="babyshop" style="height: 30px; display: block;"> 
             </div>
         </div>
-    
-        <section class="about">
-            <a href="{% url 'about' %}" class="about-btn">About Us</a>
-        </section>        
-    
-        <section class="auth">
-            <form action="{% url 'register' %}" method="get">
-                <button type="submit" class="auth-btn">Sign up</button>
-            </form>
-            <form action="{% url 'login' %}" method="get">
-                <button type="submit" class="auth-btn">Sign in</button>
-            </form>
-        </section>
 
+        <div class="info-section" style="text-align: center; font-size: 13px; font-family: sans-serif;">
+            <p style="margin: 0 0 5px 0;">Delivery: <span style="color: #4a90e2;">Next Day Countrywide</span></p>
+            <p style="margin: 0;">Support Desk: <span style="color: #4a90e2;">+254 713 42 38 85</span></p>
+        </div>
 
-        {% comment %} <section class="about">
-            <a href="{% url 'about' %}" class="about-btn">About Us</a>
-        </section>        
-        
-        <section class="auth">
-            <a href="{% url 'register' %}" class="auth-btn" style="text-decoration: none; display: inline-block;">Sign up</a>
-            <a href="{% url 'login' %}" class="auth-btn" style="text-decoration: none; display: inline-block;">Sign in</a>
-        </section>
-         {% endcomment %}
+        <div class="actions-section" style="display: flex; gap: 15px; align-items: center;">
+            <a href="{% url 'about' %}" class="about-btn" style="text-decoration: none; background-color: #2a2d32; color: #fff; padding: 8px 16px; border-radius: 4px; font-size: 13px; font-family: sans-serif; font-weight: 600; text-transform: uppercase;">About Us</a>
+            <a href="{% url 'register' %}" class="auth-btn" style="text-decoration: none; background-color: #2a2d32; color: #fff; padding: 8px 16px; border-radius: 4px; font-size: 13px; font-family: sans-serif; font-weight: 600; text-transform: uppercase;">Sign Up</a>
+            <a href="{% url 'login' %}" class="auth-btn" style="text-decoration: none; background-color: #2a2d32; color: #fff; padding: 8px 16px; border-radius: 4px; font-size: 13px; font-family: sans-serif; font-weight: 600; text-transform: uppercase;">Sign In</a>
+        </div>
+
     </header>
-    
+
     <!-- Hero Section -->
     <section class="hero" style="background-image: url('{% static 'core/images/hollowknight.jpeg' %}'); background-size: cover; background-position: center;">
         <div class="hero-content" style="color: white;">
@@ -876,54 +869,7 @@
                     </a>
                 </div>
             {% endfor %}
-        </section>
-        
-        
-       
-        {% comment %} <div class="messages-container" style="max-width: 500px; width: 100%; margin: 20px auto; padding: 0 15px; position: relative; z-index: 1000;">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" style="padding: 10px 18px; margin-bottom: 10px; border-radius: 8px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    
-                    <span style="margin-right: 15px; font-weight: 500;">
-                        {% if "Successfully signed in as" in message.message %}
-                            Successfully signed in as {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}.
-                        {% else %}
-                            {{ message }}
-                        {% endif %}
-                    </span>
-    
-                    <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #155724; font-size: 18px; cursor: pointer; font-weight: bold; line-height: 1; padding: 0; margin-left: auto;">&times;</button>
-                </div>
-            {% endfor %}
-        </div> {% endcomment %}
-
-
-
-        {% if messages %}
-    <div class="messages-container" style="max-width: 500px; width: 100%; margin: 20px auto; padding: 0 15px; position: relative; z-index: 1000;">
-        {% for message in messages %}
-            
-            {% if "Successfully signed in as" in message.message and not user.is_authenticated %}
-                {% else %}
-                <div class="alert alert-{{ message.tags }}" style="padding: 10px 18px; margin-bottom: 10px; border-radius: 8px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    
-                    <span style="margin-right: 15px; font-weight: 500;">
-                        {% if "Successfully signed in as" in message.message %}
-                            Successfully signed in as {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}.
-                        {% else %}
-                            {{ message }}
-                        {% endif %}
-                    </span>
-    
-                    <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #155724; font-size: 18px; cursor: pointer; font-weight: bold; line-height: 1; padding: 0; margin-left: auto;">&times;</button>
-                </div>
-            {% endif %}
-
-        {% endfor %}
-    </div>
-{% endif %}
-
-
+        </section>      
         
             {% comment %} {% if messages %}
             <div class="messages">
@@ -1302,23 +1248,286 @@
         {% endfor %}
     </script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const messages = document.querySelectorAll('.messages-container .alert');
-            
-            messages.forEach(function(message) {
-                setTimeout(function() {
-                    message.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-                    message.style.opacity = "0";
-                    message.style.transform = "translateY(-10px)";
-                    
-                    setTimeout(function() {
-                        message.remove();
-                    }, 600);
-                }, 4000);
-            });
-        });
-    </script>
-
 </body>
 </html>
+
+
+
+
+<header class="main-header">
+    <h1>Timea-classic</h1>
+    <a href="/" class="logo-link">
+        <img src="{% static 'core/images/logo.png' %}" alt="Timea-classic logo" class="logo-img" loading="lazy">
+    </a>
+
+    <div class="header-info">
+        <div class="support-desk">
+            <p>Support Desk: <strong style="color: cornflowerblue;">+254 713 42 38 85</strong></p>
+        </div>
+        <div class="delivery">
+            <p>Delivery: <strong style="color: cornflowerblue;">Next Day Countrywide</strong></p>
+        </div>
+    </div>
+
+    <section class="about">
+        <a href="{% url 'about' %}" class="about-btn">About Us</a>
+    </section>        
+
+    <section class="auth">
+        <form action="{% url 'register' %}" method="get">
+            <button type="submit" class="auth-btn">Sign up</button>
+        </form>
+        <form action="{% url 'login' %}" method="get">
+            <button type="submit" class="auth-btn">Sign in</button>
+        </form>
+    </section>
+</header>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-container form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-container form input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+        }
+
+        .form-container form button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-container form button:hover {
+            background-color: #45a049;
+        }
+
+        /* Social Divider Styling */
+        .social-login-divider {
+            margin: 25px 0 20px 0;
+            text-align: center;
+            border-top: 1px solid #eee;
+            line-height: 0.1em;
+        }
+
+        .social-login-divider span {
+            background: #fff;
+            padding: 0 10px;
+            color: #aaa;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Google Button Styling */
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            background-color: #fff;
+            color: #757575;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            font-weight: 600;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-google:hover {
+            background-color: #f7f9fa;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            color: #333;
+        }
+
+        .btn-google img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-container p {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .form-container a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-container a:hover {
+            color: #3e8e41;
+        }
+
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-container h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Login</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            
+            <div class="form-group">
+                <label for="id_username">Username or Email</label>
+                <input type="text" name="username" id="id_username" placeholder="Enter your username" required>
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <input type="password" name="password" id="id_password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="social-login-divider">
+            <span>or</span>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <a href="{% provider_login_url 'google' next=request.GET.next %}" class="btn-google">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                Continue with Google
+            </a>
+        </div>
+
+        <p>
+            Forgot your password? <a href="{% url 'password_reset' %}">Reset it here</a><br>
+            Don't have an account? 
+            <a href="{% url 'register' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">Sign up here</a>
+        </p>
+    </div>
+</body>
+</html>
+
