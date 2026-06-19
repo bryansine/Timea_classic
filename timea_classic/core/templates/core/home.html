@@ -1186,7 +1186,7 @@
         <strong id="chatStatus" style="opacity: 0.9;">We're offline</strong> <br>
         <p style="opacity: 0.7; font-size: 0.8em; margin-top: 2px;">Leave a message</p>
     </button>
-    <div id="chatBox" style="display: none; position: fixed; bottom: 60px; right: 20px; width: 300px; height: 400px; background: white; border: 1px solid #ccc; padding: 10px; flex-direction: column; display: none;">
+    <div id="chatBox" style="display: none; position: fixed; bottom: 60px; right: 20px; width: 300px; height: 400px; background: white; border: 1px solid #ccc; padding: 10px; flex-direction: column; z-index: 1000;">
         <div id="chatMessages" style="height: 350px; overflow-y: auto; border-bottom: 1px solid #ccc; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; padding: 10px;"></div>
         <div style="padding: 10px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 8px;">
             <input id="chatInput" type="text" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em;" placeholder="Type your message...">
@@ -1218,13 +1218,25 @@
     
             chatSocket.onopen = function() {
                 console.log('Connected to WebSocket');
-                chatStatus.textContent = "Chat with us"; // Change button text when online
+                chatStatus.textContent = "Chat with us";
             };
     
             chatSocket.onmessage = function(e) {
                 const data = JSON.parse(e.data);
                 const messageDiv = document.createElement('div');
-                messageDiv.textContent = data.message;
+                const currentUsername = "{{ request.user.username }}";
+                
+                // Styling bubbles dynamically based on who sent it
+                if (data.username === currentUsername) {
+                    messageDiv.textContent = "You: " + data.message;
+                    messageDiv.style.textAlign = "right";
+                    messageDiv.style.color = "#007bff";
+                } else {
+                    messageDiv.textContent = data.username + ": " + data.message;
+                    messageDiv.style.textAlign = "left";
+                    messageDiv.style.color = "#333";
+                }
+                
                 chatMessages.appendChild(messageDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             };
@@ -1235,16 +1247,13 @@
     
             chatSocket.onclose = function(e) {
                 console.log('Chat socket closed:', e.code, e.reason);
-                chatStatus.textContent = "We're offline"; // Revert button text when offline
+                chatStatus.textContent = "We're offline";
             };
     
+            // 🎯 Cleaned: Only ONE listener that lets the socket handle rendering via onmessage
             chatInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && this.value.trim() !== '') {
                     chatSocket.send(JSON.stringify({'message': this.value.trim()}));
-                    const messageDiv = document.createElement('div');
-                    messageDiv.textContent = "You: " + this.value.trim();
-                    chatMessages.appendChild(messageDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
                     this.value = '';
                 }
             });
@@ -1252,10 +1261,6 @@
             sendButton.addEventListener('click', () => {
                 if (chatInput.value.trim() !== '') {
                     chatSocket.send(JSON.stringify({'message': chatInput.value.trim()}));
-                    const messageDiv = document.createElement('div');
-                    messageDiv.textContent = "You: " + chatInput.value.trim();
-                    chatMessages.appendChild(messageDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
                     chatInput.value = '';
                 }
             });

@@ -35,8 +35,9 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
     'channels',
-    
+        
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -120,7 +121,6 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
 
 
 #  # Database configuration
@@ -290,6 +290,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #         }
 #     }
 # }
+
 
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
