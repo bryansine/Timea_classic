@@ -4,17 +4,70 @@
     <title>Support Room: {{ chat_room_name }}</title>
     {% load static %}
 </head>
-<body style="font-family: system-ui, sans-serif; background-color: #f4f6f9; padding: 20px;">
+<body style="font-family: system-ui, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px;">
 
-    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        <h1 style="font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">
-            Active Support Chat with User: <span style="color: #007bff;">{{ chat_room_name }}</span>
-        </h1>  
+    <div style="display: flex; max-width: 1200px; margin: 0 auto; gap: 20px; height: 85vh;">
         
-        <div id="chatMessages" style="border: 1px solid #ddd; border-radius: 6px; height: 350px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #fafafa;"></div>
-        
-        <div style="margin-top: 15px;">
-            <input id="chatInput" type="text" placeholder="Type a reply to the customer and press Enter..." style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px;">
+        <div style="flex: 7; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <h1 style="font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; color: #333;">
+                Active Support Chat with User: <span style="color: #007bff;">{{ chat_room_name }}</span>
+            </h1>  
+            
+            <div id="chatMessages" style="border: 1px solid #ddd; border-radius: 6px; flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #fafafa; margin-bottom: 15px;"></div>
+            
+            <div>
+                <input id="chatInput" type="text" placeholder="Type a reply to the customer and press Enter..." style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px;">
+            </div>
+        </div>
+
+        <div style="flex: 3; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+            
+            <div style="border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">
+                <h3 style="margin-top: 0; color: #1a1a1a;">👤 Customer Info</h3>
+                <p style="margin: 5px 0; font-size: 14px;"><strong>Username:</strong> {{ customer.username }}</p>
+                <p style="margin: 5px 0; font-size: 14px;"><strong>Email:</strong> {{ customer.email|default:"None" }}</p>
+                <p style="margin: 5px 0; font-size: 14px;"><strong>Joined:</strong> {{ customer.date_joined|date:"d M Y" }}</p>
+            </div>
+
+            <div>
+                <h3 style="margin-top: 0; color: #1a1a1a; display: flex; justify-content: space-between; align-items: center;">
+                    🛍️ Recent Orders
+                    <span style="font-size: 12px; background: #007bff; color: white; padding: 2px 8px; border-radius: 10px;">{{ orders|length }}</span>
+                </h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                    {% for order in orders %}
+                        <div style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; background: #fdfdfd; font-size: 13px;">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 4px; flex-wrap: wrap;">
+                                <strong style="color: #007bff; font-size: 14px;">Order #{{ order.id }}</strong>
+                                
+                                <div style="display: flex; gap: 4px;">
+                                    <span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold;
+                                        {% if order.payment_status == 'Paid' %} background: #d4edda; color: #155724;
+                                        {% else %} background: #fff3cd; color: #856404; {% endif %}">
+                                        {{ order.payment_status|upper }}
+                                    </span>
+            
+                                    <span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; background: #e2e3e5; color: #383d41;">
+                                        {{ order.status|upper }}
+                                    </span>
+                                </div>
+                            </div>
+            
+                            <p style="margin: 4px 0; color: #555;"><strong>Date:</strong> {{ order.created_at|date:"d M Y H:i" }}</p>
+                            <p style="margin: 4px 0; color: #555;"><strong>Phone:</strong> {{ order.phone_number|default:"Not provided" }}</p>
+                            
+                            <p style="margin: 6px 0 0 0; color: #1a1a1a; font-weight: bold; font-size: 14px; border-top: 1px dashed #eee; padding-top: 6px;">
+                                Total: <span style="color: #28a745;">KSh {{ order.total_price }}</span>
+                            </p>
+                        </div>
+                    {% empty %}
+                        <p style="color: #999; font-size: 13px; text-align: center; margin-top: 20px;">This user hasn't placed any orders yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -27,20 +80,15 @@
                 'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
             );
 
-            chatSocket.onopen = function() {
-                console.log('Admin successfully linked to customer channel.');
-            };
+            chatSocket.onopen = function() { console.log('Admin connected with live contexts dashboard.'); };
 
             chatSocket.onmessage = function(e) {
                 const data = JSON.parse(e.data);
                 const messageDiv = document.createElement('div');
-                
-                // If it's the admin or anyone else, display the structural sender tags
                 messageDiv.textContent = data.username + ": " + data.message;
                 
-                // Style slightly differently so the agent can see distinctions
                 if (data.username === "{{ request.user.username }}") {
-                    messageDiv.style.color = "#28a745"; // Green text for logged-in agent replies
+                    messageDiv.style.color = "#28a745"; 
                     messageDiv.style.fontWeight = "bold";
                 } else {
                     messageDiv.style.color = "#333";
@@ -55,13 +103,10 @@
 
             document.querySelector('#chatInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && this.value.trim() !== '') {
-                    // 🎯 Sends cleanly to group; onmessage handles rendering it seamlessly
                     chatSocket.send(JSON.stringify({'message': this.value.trim()}));
                     this.value = '';
                 }
             });
-        } else {
-            console.error("Room name is not defined.");
         }
     </script>
 </body>
