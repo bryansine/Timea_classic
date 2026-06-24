@@ -60,6 +60,7 @@ def home(request):
     # Fetch banners and pop-ups
     now = timezone.now()
     banner_locations = {
+        'title_home': 'title_banners',
         'top_home': 'top_banners',
         'middle_home': 'middle_banners',
         'bottom_home': 'bottom_banners',

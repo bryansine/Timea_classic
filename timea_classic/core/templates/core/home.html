@@ -577,6 +577,44 @@
             margin-left: 5px;
             
         }
+
+
+
+
+
+
+        #title-banners {
+            overflow: hidden;
+        }
+
+
+
+        #title-banners .banner {
+            max-width: 840px;
+            max-height: 900px;
+            margin-top: 5px;
+
+        }
+
+        #title-banners .banner img {
+            aspect-ratio: 1170 / 280;   /* 1. Controls the BOX shape */
+            width: 100%;
+            height: auto;
+            object-fit: cover;          /* 2. Controls how image fills that box */
+            object-position: top   /* 3. Controls WHICH part of image shows */
+            display:bottom;
+        }
+
+
+
+
+
+
+
+
+
+
+
         /* Banners Section  */
         .banners {
             display: flex;
@@ -684,6 +722,7 @@
                 transform: translateX(100%);
             }
         }
+        
 
         /* Popup Styles  */
         .popup {
@@ -817,18 +856,22 @@
                 <button type="submit" class="auth-btn">Sign in</button>
             </form>
         </section>
-
-
-        {% comment %} <section class="about">
-            <a href="{% url 'about' %}" class="about-btn">About Us</a>
-        </section>        
-        
-        <section class="auth">
-            <a href="{% url 'register' %}" class="auth-btn" style="text-decoration: none; display: inline-block;">Sign up</a>
-            <a href="{% url 'login' %}" class="auth-btn" style="text-decoration: none; display: inline-block;">Sign in</a>
-        </section>
-         {% endcomment %}
     </header>
+
+    <section id="title-banners" class="banners">
+        {% for banner in title_banners %} 
+            <div class="banner">
+                <a href="{{ banner.url }}">
+                    <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+                    {% if banner.content %}
+                        <p>
+                            <div class="scroll-text">{{ banner.content }} &nbsp; • &nbsp; {{ banner.content }} &nbsp; • &nbsp; {{ banner.content }}</div>
+                        </p>
+                    {% endif %}
+                </a>
+            </div>
+        {% endfor %}
+    </section>
     
     <!-- Hero Section -->
     <section class="hero" style="background-image: url('{% static 'core/images/hollowknight.jpeg' %}'); background-size: cover; background-position: center;">
@@ -1165,7 +1208,6 @@
                 <a href="https://www.tiktok.com/@winmoi0?_t=ZM-8zzg2zBQ8UK&_r=1"><img src="{% static 'core/images/tiktok.png' %}" alt="TikTok" height="30"></a>
             </div>
     
-            <!-- Footer Credit -->
             <div class="copyright">
                 <p>Designed and built by: <a href="https://www.linkedin.com/in/bryan-sine-53432b1b1/">SINE</a></p>
             </div>
@@ -1181,20 +1223,59 @@
     </footer>
     
     {% if user.is_authenticated %}
-    <button id="chatButton" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-        💬 
-        <strong id="chatStatus" style="opacity: 0.9;">We're offline</strong> <br>
-        <p style="opacity: 0.7; font-size: 0.8em; margin-top: 2px;">Leave a message</p>
+    <button id="chatButton" style="position: fixed; bottom: 25px; right: 25px; z-index: 1000; background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; border-radius: 50px; padding: 12px 24px; box-shadow: 0 4px 16px rgba(0,123,255,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; font-family: system-ui, sans-serif; transition: transform 0.2s ease, background 0.3s;">
+        <span id="chatStatusDot" style="width: 8px; height: 8px; background-color: #28a745; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #28a745; animation: pulse 2s infinite;"></span>
+        <span style="font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">Chat Support</span>
     </button>
-    <div id="chatBox" style="display: none; position: fixed; bottom: 60px; right: 20px; width: 300px; height: 400px; background: white; border: 1px solid #ccc; padding: 10px; flex-direction: column; z-index: 1000;">
-        <div id="chatMessages" style="height: 350px; overflow-y: auto; border-bottom: 1px solid #ccc; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; padding: 10px;"></div>
-        <div style="padding: 10px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 8px;">
-            <input id="chatInput" type="text" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em;" placeholder="Type your message...">
-            <button id="sendButton" style="background-color: #007bff; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; transition: background-color 0.3s ease;">
-                Send
+    
+    <div id="chatBox" style="display: none; position: fixed; bottom: 90px; right: 25px; width: 360px; height: 500px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); flex-direction: column; z-index: 1000; overflow: hidden; font-family: system-ui, sans-serif;">
+        
+        <div style="background: #1a1a1a; color: white; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; background: #007bff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">T</div>
+                <div>
+                    <h4 style="margin: 0; font-size: 14px; font-weight: 600;">Timea Classic Support</h4>
+                    <p id="chatStatusText" style="margin: 0; font-size: 11px; color: #a0a0a0;">We're online to help</p>
+                </div>
+            </div>
+            <button id="closeChat" style="background: none; border: none; color: #888; font-size: 20px; cursor: pointer; padding: 0 5px;">&times;</button>
+        </div>
+    
+        <div id="chatMessages" style="flex-grow: 1; overflow-y: auto; padding: 20px; background: #f8f9fa; display: flex; flex-direction: column; gap: 14px;">
+            
+            <div style="align-self: flex-end; max-width: 75%;">
+                <div style="background: #007bff; color: white; padding: 10px 14px; border-radius: 16px 16px 4px 16px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 4px rgba(0,123,255,0.15);">
+                    Hi, I'd like to check my order status.
+                </div>
+                <span style="font-size: 10px; color: #999; margin-top: 4px; display: block; text-align: right; padding-right: 2px;">14:32</span>
+            </div>
+    
+            <div style="align-self: flex-start; max-width: 75%;">
+                <div style="background: white; color: #333; padding: 10px 14px; border-radius: 16px 16px 16px 4px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #eaeaea;">
+                    Hello! Let me check that for you right now. Could you please share your order number?
+                </div>
+                <span style="font-size: 10px; color: #999; margin-top: 4px; display: block; padding-left: 2px;">14:33</span>
+            </div>
+    
+        </div>
+    
+        <div style="padding: 12px 16px; background: white; border-top: 1px solid #eee; display: flex; align-items: center; gap: 10px;">
+            <input id="chatInput" type="text" style="flex-grow: 1; padding: 10px 14px; border: 1px solid #e0e0e0; border-radius: 24px; font-size: 13px; outline: none; background: #fdfdfd; transition: border-color 0.2s;" placeholder="Type your message...">
+            <button id="sendButton" style="background-color: #007bff; color: white; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 8px rgba(0,123,255,0.2);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
     </div>
+    
+    <style>
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(40, 167, 69, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+        #chatButton:hover { transform: translateY(-2px); background: linear-gradient(135deg, #0056b3, #004085); }
+        #chatInput:focus { border-color: #007bff; background: white; }
+    </style>
     
     <script>
         const chatButton = document.getElementById('chatButton');
@@ -1223,22 +1304,30 @@
     
             chatSocket.onmessage = function(e) {
                 const data = JSON.parse(e.data);
-                const messageDiv = document.createElement('div');
-                const currentUsername = "{{ request.user.username }}";
+                const messageContainer = document.getElementById('chatMessages');
                 
-                // Styling bubbles dynamically based on who sent it
-                if (data.username === currentUsername) {
-                    messageDiv.textContent = "You: " + data.message;
-                    messageDiv.style.textAlign = "right";
-                    messageDiv.style.color = "#007bff";
+                const wrapper = document.createElement('div');
+                wrapper.style.maxWidth = "75%";
+                
+                if (data.username === "{{ request.user.username }}") {
+                    wrapper.style.alignSelf = "flex-end";
+                    wrapper.innerHTML = `
+                        <div style="background: #007bff; color: white; padding: 10px 14px; border-radius: 16px 16px 4px 16px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 4px rgba(0,123,255,0.15);">
+                            ${data.message}
+                        </div>
+                    `;
                 } else {
-                    messageDiv.textContent = data.username + ": " + data.message;
-                    messageDiv.style.textAlign = "left";
-                    messageDiv.style.color = "#333";
+                    wrapper.style.alignSelf = "flex-start";
+                    wrapper.innerHTML = `
+                        <div style="background: white; color: #333; padding: 10px 14px; border-radius: 16px 16px 16px 4px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #eaeaea;">
+                            <strong style="font-size: 11px; display:block; color: #007bff; margin-bottom: 2px;">${data.username}</strong>
+                            ${data.message}
+                        </div>
+                    `;
                 }
-                
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+                messageContainer.appendChild(wrapper);
+                messageContainer.scrollTop = messageContainer.scrollHeight;
             };
     
             chatSocket.onerror = function(error) {
@@ -1250,7 +1339,6 @@
                 chatStatus.textContent = "We're offline";
             };
     
-            // 🎯 Cleaned: Only ONE listener that lets the socket handle rendering via onmessage
             chatInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && this.value.trim() !== '') {
                     chatSocket.send(JSON.stringify({'message': this.value.trim()}));
@@ -1269,6 +1357,7 @@
         }
     </script>
 {% endif %}
+
 
     <script>
         {% for product in flash_sale_products %}
