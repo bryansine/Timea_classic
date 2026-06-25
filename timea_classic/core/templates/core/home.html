@@ -583,7 +583,12 @@
 
 
 
-        #title-banners {
+
+
+
+
+
+        {% comment %} #title-banners {
             overflow: hidden;
         }
 
@@ -597,18 +602,41 @@
         }
 
         #title-banners .banner img {
-            aspect-ratio: 1170 / 280;   /* 1. Controls the BOX shape */
+            aspect-ratio: 1170 / 280;
             width: 100%;
             height: auto;
-            object-fit: cover;          /* 2. Controls how image fills that box */
-            object-position: top   /* 3. Controls WHICH part of image shows */
+            object-fit: cover;
+            object-position: top;
             display:bottom;
+        } {% endcomment %}
+
+
+
+        #title-banners {
+            overflow: hidden;
+            font-size: 0;
+            line-height: 0;
         }
-
-
-
-
-
+        
+        #title-banners .banner {
+            overflow: hidden;
+            display: block;
+        }
+        
+        #title-banners .banner a {
+            display: block;
+            width:100%;
+        }
+        
+        #title-banners .banner img {
+            aspect-ratio: 1170 / 60;
+            width: 90%;
+            height: auto;
+            object-fit: cover;
+            object-position: top;
+            display: block;
+            vertical-align: top;
+        }
 
 
 
