@@ -578,71 +578,6 @@
             
         }
 
-
-
-
-
-
-
-
-
-
-
-        {% comment %} #title-banners {
-            overflow: hidden;
-        }
-
-
-
-        #title-banners .banner {
-            max-width: 840px;
-            max-height: 900px;
-            margin-top: 5px;
-
-        }
-
-        #title-banners .banner img {
-            aspect-ratio: 1170 / 280;
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-            object-position: top;
-            display:bottom;
-        } {% endcomment %}
-
-
-
-        #title-banners {
-            overflow: hidden;
-            font-size: 0;
-            line-height: 0;
-        }
-        
-        #title-banners .banner {
-            overflow: hidden;
-            display: block;
-        }
-        
-        #title-banners .banner a {
-            display: block;
-            width:100%;
-        }
-        
-        #title-banners .banner img {
-            aspect-ratio: 1170 / 60;
-            width: 90%;
-            height: auto;
-            object-fit: cover;
-            object-position: top;
-            display: block;
-            vertical-align: top;
-        }
-
-
-
-
-
-
         /* Banners Section  */
         .banners {
             display: flex;
@@ -749,6 +684,42 @@
             to {
                 transform: translateX(100%);
             }
+        }
+
+        /*title_baners*/
+        #title-banners {
+            overflow: visible;
+            font-size: 0;
+            line-height: 0;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #title-banners .banner {
+            overflow: hidden;
+            display: block;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #title-banners .banner a {
+            display: block;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #title-banners .banner img {
+            width: 100%;
+            height: auto;
+            display: block;
+            vertical-align: top;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .hero {
+            margin-top: 0;
         }
         
 
@@ -1310,12 +1281,32 @@
         const chatBox = document.getElementById('chatBox');
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
-        const chatStatus = document.getElementById('chatStatus');
         const sendButton = document.getElementById('sendButton');
+        
+        // Target modern text elements
+        const chatStatusText = document.getElementById('chatStatusText');
+        const chatStatusDot = document.getElementById('chatStatusDot');
+        const closeChat = document.getElementById('closeChat');
     
+        // 🔄 Clear hardcoded HTML placeholder bubbles on initial page paint
+        chatMessages.innerHTML = '';
+    
+        // 👁️ Toggle window view state
         chatButton.addEventListener('click', () => {
             chatBox.style.display = chatBox.style.display === 'none' ? 'flex' : 'none';
+            if (chatBox.style.display === 'flex') {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                chatInput.focus();
+            }
         });
+    
+        // 🗙 Close widget completely via header cross click
+        if (closeChat) {
+            closeChat.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevents instant container re-trigger bubbling
+                chatBox.style.display = 'none';
+            });
+        }
     
         const roomName = "{{ chat_room_name|escapejs }}";
         console.log("Room Name:", roomName);
@@ -1326,62 +1317,78 @@
             );
     
             chatSocket.onopen = function() {
-                console.log('Connected to WebSocket');
-                chatStatus.textContent = "Chat with us";
+                console.log('Connected to WebSocket pipeline');
+                if (chatStatusText) chatStatusText.textContent = "We're online to help";
+                if (chatStatusDot) {
+                    chatStatusDot.style.backgroundColor = "#28a745";
+                    chatStatusDot.style.boxShadow = "0 0 8px #28a745";
+                }
             };
     
             chatSocket.onmessage = function(e) {
                 const data = JSON.parse(e.data);
-                const messageContainer = document.getElementById('chatMessages');
                 
                 const wrapper = document.createElement('div');
                 wrapper.style.maxWidth = "75%";
+                wrapper.style.display = "flex";
+                wrapper.style.flexDirection = "column";
                 
+                // 🎨 Append premium, clean chat text bubbles dynamically based on identity context
                 if (data.username === "{{ request.user.username }}") {
                     wrapper.style.alignSelf = "flex-end";
+                    wrapper.style.alignItems = "flex-end";
                     wrapper.innerHTML = `
-                        <div style="background: #007bff; color: white; padding: 10px 14px; border-radius: 16px 16px 4px 16px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 4px rgba(0,123,255,0.15);">
+                        <div style="background: #007bff; color: white; padding: 10px 14px; border-radius: 16px 16px 4px 16px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 4px rgba(0,123,255,0.15); word-break: break-word;">
                             ${data.message}
                         </div>
                     `;
                 } else {
                     wrapper.style.alignSelf = "flex-start";
+                    wrapper.style.alignItems = "flex-start";
                     wrapper.innerHTML = `
-                        <div style="background: white; color: #333; padding: 10px 14px; border-radius: 16px 16px 16px 4px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #eaeaea;">
+                        <div style="background: white; color: #333; padding: 10px 14px; border-radius: 16px 16px 16px 4px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #eaeaea; word-break: break-word;">
                             <strong style="font-size: 11px; display:block; color: #007bff; margin-bottom: 2px;">${data.username}</strong>
                             ${data.message}
                         </div>
                     `;
                 }
             
-                messageContainer.appendChild(wrapper);
-                messageContainer.scrollTop = messageContainer.scrollHeight;
+                chatMessages.appendChild(wrapper);
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Anchor scrolling view to base trace
             };
     
             chatSocket.onerror = function(error) {
-                console.error('WebSocket error:', error);
+                console.error('WebSocket encountered an issue:', error);
             };
     
             chatSocket.onclose = function(e) {
-                console.log('Chat socket closed:', e.code, e.reason);
-                chatStatus.textContent = "We're offline";
+                console.log('Chat socket dropped out framework loop:', e.code, e.reason);
+                if (chatStatusText) chatStatusText.textContent = "We're offline";
+                if (chatStatusDot) {
+                    chatStatusDot.style.backgroundColor = "#dc3545"; // Soft crimson red for offline trace
+                    chatStatusDot.style.boxShadow = "0 0 8px #dc3545";
+                }
             };
     
+            // 🚀 Unified Send Logic Block
+            function dispatchMessage() {
+                const messageText = chatInput.value.trim();
+                if (messageText !== '') {
+                    chatSocket.send(JSON.stringify({'message': messageText}));
+                    chatInput.value = '';
+                }
+            }
+    
             chatInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && this.value.trim() !== '') {
-                    chatSocket.send(JSON.stringify({'message': this.value.trim()}));
-                    this.value = '';
+                if (e.key === 'Enter') { 
+                    dispatchMessage(); 
                 }
             });
     
-            sendButton.addEventListener('click', () => {
-                if (chatInput.value.trim() !== '') {
-                    chatSocket.send(JSON.stringify({'message': chatInput.value.trim()}));
-                    chatInput.value = '';
-                }
-            });
+            sendButton.addEventListener('click', dispatchMessage);
+            
         } else {
-            console.log("Room name not available. User might not be logged in.");
+            console.log("Room token unavailable. Registration state error.");
         }
     </script>
 {% endif %}
