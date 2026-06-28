@@ -1283,15 +1283,12 @@
         const chatInput = document.getElementById('chatInput');
         const sendButton = document.getElementById('sendButton');
         
-        // Target modern text elements
         const chatStatusText = document.getElementById('chatStatusText');
         const chatStatusDot = document.getElementById('chatStatusDot');
         const closeChat = document.getElementById('closeChat');
     
-        // 🔄 Clear hardcoded HTML placeholder bubbles on initial page paint
         chatMessages.innerHTML = '';
     
-        // 👁️ Toggle window view state
         chatButton.addEventListener('click', () => {
             chatBox.style.display = chatBox.style.display === 'none' ? 'flex' : 'none';
             if (chatBox.style.display === 'flex') {
@@ -1300,10 +1297,9 @@
             }
         });
     
-        // 🗙 Close widget completely via header cross click
         if (closeChat) {
             closeChat.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevents instant container re-trigger bubbling
+                e.stopPropagation();
                 chatBox.style.display = 'none';
             });
         }
@@ -1333,7 +1329,6 @@
                 wrapper.style.display = "flex";
                 wrapper.style.flexDirection = "column";
                 
-                // 🎨 Append premium, clean chat text bubbles dynamically based on identity context
                 if (data.username === "{{ request.user.username }}") {
                     wrapper.style.alignSelf = "flex-end";
                     wrapper.style.alignItems = "flex-end";
@@ -1354,7 +1349,7 @@
                 }
             
                 chatMessages.appendChild(wrapper);
-                chatMessages.scrollTop = chatMessages.scrollHeight; // Anchor scrolling view to base trace
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             };
     
             chatSocket.onerror = function(error) {
@@ -1365,12 +1360,11 @@
                 console.log('Chat socket dropped out framework loop:', e.code, e.reason);
                 if (chatStatusText) chatStatusText.textContent = "We're offline";
                 if (chatStatusDot) {
-                    chatStatusDot.style.backgroundColor = "#dc3545"; // Soft crimson red for offline trace
+                    chatStatusDot.style.backgroundColor = "#dc3545";
                     chatStatusDot.style.boxShadow = "0 0 8px #dc3545";
                 }
             };
     
-            // 🚀 Unified Send Logic Block
             function dispatchMessage() {
                 const messageText = chatInput.value.trim();
                 if (messageText !== '') {
