@@ -278,15 +278,6 @@ def order_detail(request, order_id):
     return render(request, 'orders/order_detail.html', context)
 
 @login_required
-def create_order_from_cart(request):
-    cart = Cart.objects.filter(user=request.user).order_by('-created_at').first()
-    if not cart or not cart.items.exists():
-        return redirect('cart:view')
-    
-    return render(request, 'orders/create_order.html', {'cart': cart})
-
-
-@login_required
 def initiate_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
