@@ -12,6 +12,7 @@ urlpatterns = [
     path('chat/', include('chat.urls')),  
     path('accounts/', include('allauth.urls')),
     # path('checkout/', include('checkout.urls')),
+    # path('checkout/', include('checkout.urls')),
     path('orders/', include('orders.urls')),
     path('daraja/', include('daraja.urls')),
     ] 
