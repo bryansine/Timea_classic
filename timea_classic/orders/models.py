@@ -21,6 +21,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
+    mpesa_checkout_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
     buy_now_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
