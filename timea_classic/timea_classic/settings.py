@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
 INSTALLED_APPS = [
     'daphne',
     'channels',
-        
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'chat',
     'daraja',
     'django_daraja',
+    'rest_framework',
+    'rest_framework_simplejwt',
     
     # Allauth apps
     'allauth',
@@ -76,8 +78,26 @@ MIDDLEWARE = [
     
 ]
 
-ROOT_URLCONF = 'timea_classic.urls'
 
+# Configure REST Framework to use JWT by default
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+# Customize JWT settings
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+
+ROOT_URLCONF = 'timea_classic.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

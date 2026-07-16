@@ -438,3 +438,41 @@ def buy_now(request, product_id):
         return redirect(f"{login_url}?next={checkout_url}")
         
     return redirect('orders:create_order')
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+class ProtectedOrderDashboard(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        content = {
+            'message': f'Welcome {request.user.username}! You have accessed secure order data.'
+        }
+        return Response(content)
+    
+    
+# orders/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import Order
+from .serializers import OrderSerializer
+
+class UserOrderListView(APIView):
+    # Lock this view down so only authenticated users can call it
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # The Magic Line: Filter orders where the 'user' field matches the logged-in user!
+        orders = Order.objects.filter(user=request.user)
+        
+        # Serialize the filtered list of orders (many=True handles a list of records)
+        serializer = OrderSerializer(orders, many=True)
+        
+        # Return the serialized JSON data
+        return Response({
+            "username": request.user.username,
+            "orders": serializer.data
+        })
