@@ -52,7 +52,6 @@ class ProductViewsIntegrationTest(TestCase):
 
     def test_pagination_logic(self):
         """Test that list view splits products into separate pages correctly."""
-        # Create 30 more products to guarantee pagination is triggered (33 total)
         for i in range(30):
             Product.objects.create(
                 name=f"Extra Product {i}", category=self.clothes, price=500.00, image="ex.jpg"
