@@ -4,7 +4,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from orders.models import Order
-# Import the function we want to test:
 from orders.views import stk_push_payment
 
 class MpesaCallbackIntegrationTest(TestCase):
@@ -32,8 +31,6 @@ class MpesaCallbackIntegrationTest(TestCase):
         )
         
         # For testing total price in our initiation function:
-        # (Assuming your order has a way of returning/storing total_price, 
-        # let's mock or add a mock property if order doesn't physically store it)
         if not hasattr(self.order, 'total_price'):
             self.order.total_price = 1000.00
         
@@ -57,7 +54,6 @@ class MpesaCallbackIntegrationTest(TestCase):
         # 2. Call the function with our test order
         result = stk_push_payment(self.order)
 
-        # 3. Assertions
         # Check that the network request was actually made once
         mock_post.assert_called_once()
         
