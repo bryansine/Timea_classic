@@ -1,0 +1,146 @@
+{% extends 'tenancy/dashboard/base_merchant.html' %}
+
+{% block title %}Chat with {{ chat_room_name }} - {{ tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-layout { display: flex; height: calc(100vh - 120px); background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow: hidden; }
+    .customer-list { width: 280px; border-right: 1px solid #e1e6eb; background: #fafbfc; overflow-y: auto; }
+    .customer-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f0f2f5; color: #333; text-decoration: none; }
+    .customer-item:hover, .customer-item.active { background: #eef4f9; }
+    .customer-avatar { width: 36px; height: 36px; border-radius: 50%; background: #3498db; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px; }
+    
+    /* Center Chat Stream */
+    .chat-main { flex-grow: 1; display: flex; flex-direction: column; background: #fdfefe; }
+    .chat-header { padding: 15px 25px; border-bottom: 1px solid #e1e6eb; font-weight: bold; background: #fff; display: flex; justify-content: space-between; align-items: center; }
+    .chat-messages { flex-grow: 1; padding: 20px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; }
+    .msg-bubble { max-width: 65%; padding: 10px 15px; border-radius: 8px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+    .msg-customer { background: #fff; border: 1px solid #e1e6eb; align-self: flex-start; }
+    .msg-merchant { background: #007bff; color: #fff; align-self: flex-end; }
+    .chat-input-area { padding: 15px 20px; background: #fff; border-top: 1px solid #e1e6eb; display: flex; gap: 10px; }
+    .chat-input-area input { flex-grow: 1; padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.95rem; outline: none; }
+    .chat-input-area button { padding: 0 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    
+    /* Right Order History Pane */
+    .order-sidebar { width: 320px; border-left: 1px solid #e1e6eb; background: #fff; overflow-y: auto; padding: 20px; }
+    .order-card { border: 1px solid #e1e6eb; border-radius: 6px; padding: 12px; margin-bottom: 12px; background: #fafbfc; }
+    .status-badge { display: inline-block; padding: 3px 8px; font-size: 0.75rem; font-weight: bold; border-radius: 12px; }
+    .status-Pending { background: #ffeaa7; color: #d63031; }
+    .status-Paid { background: #badc58; color: #6ab04c; }
+    .status-Delivered { background: #eccc68; color: #ff7f50; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+    <div class="customer-list">
+        <div style="padding: 20px; font-weight: bold; border-bottom: 1px solid #e1e6eb; background: #fff;">Active Channels</div>
+        {% for cust in customers %}
+            <a href="{% url 'tenancy:merchant_chat_room' tenant.slug cust.username %}" class="customer-item {% if cust.username == chat_room_name %}active{% endif %}">
+                <div class="customer-avatar">{{ cust.username|slice:":2"|upper }}</div>
+                <div style="font-weight: 600;">{{ cust.username }}</div>
+            </a>
+        {% endfor %}
+    </div>
+
+    <div class="chat-main">
+        <div class="chat-header">
+            <div><i class="fas fa-circle" style="color: #2ecc71; font-size: 0.7rem; margin-right: 5px;"></i> Channel: <strong>{{ chat_room_name }}</strong></div>
+        </div>
+        
+        <div class="chat-messages" id="chat-log">
+            {% for msg in chat_history %}
+                <div class="msg-bubble {% if msg.sender.is_staff or msg.sender == tenant.owner %}msg-merchant{% else %}msg-customer{% endif %}">
+                    <strong>{{ msg.sender.username }}:</strong> {{ msg.message }}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="chat-message-input" placeholder="Type an encrypted message back to {{ chat_room_name }}...">
+            <button id="chat-message-submit">Send <i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="order-sidebar">
+        <h3 style="margin-top:0;"><i class="fas fa-user-id"></i> Customer Profile</h3>
+        <p><strong>Username:</strong> {{ customer.username }}</p>
+        <p><strong>Email:</strong> {{ customer.email|default:"No email set" }}</p>
+        <hr style="border:0; border-top: 1px solid #eee; margin: 15px 0;">
+        
+        <h3><i class="fas fa-history"></i> Recent Store Orders</h3>
+        {% for order in orders %}
+            <div class="order-card">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <strong>Order #{{ order.id }}</strong>
+                    <span class="status-badge status-{{ order.payment_status }}">{{ order.payment_status }}</span>
+                </div>
+                <div style="font-size:0.85rem; color:#555; margin-bottom:5px;">Fulfilment: <strong>{{ order.status }}</strong></div>
+                <div style="font-size:0.85rem; color:#7f8c8d;">Placed on: {{ order.created_at|date:"M d, Y" }}</div>
+                <div style="margin-top:5px; border-top:1px dashed #ddd; padding-top:5px; font-size:0.85rem;">
+                    {% for item in order.items.all %}
+                        • {{ item.quantity }}x {{ item.product.name }}<br>
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <p style="color:#95a5a6; font-size:0.9rem;">This user hasn't completed any orders yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const roomName = "{{ chat_room_name }}";
+    // Construct websocket endpoint route securely dynamically
+    const chatSocket = new WebSocket(
+        (window.location.protocol === 'https:' ? 'wss://' : 'ws://')
+        + window.location.host
+        + '/ws/chat/'
+        + roomName
+        + '/'
+    );
+
+    // Auto scroll chat window down to bottom on page load
+    const chatLog = document.querySelector('#chat-log');
+    chatLog.scrollTop = chatLog.scrollHeight;
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const currentMerchant = "{{ request.user.username }}";
+        
+        // Form dynamically structured clean message bubble layout matching backend username key
+        const bubbleClass = (data.username === currentMerchant) ? 'msg-merchant' : 'msg-customer';
+        
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg-bubble ${bubbleClass}`;
+        msgDiv.innerHTML = `<strong>${data.username}:</strong> ${data.message}`;
+        
+        chatLog.appendChild(msgDiv);
+        chatLog.scrollTop = chatLog.scrollHeight; // maintain frame focus tracking
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat routing room channel closed unexpectedly');
+    };
+
+    document.querySelector('#chat-message-input').focus();
+    document.querySelector('#chat-message-input').onkeyup = function(e) {
+        if (e.keyCode === 13) {  // enter key capture keyframe tracking
+            document.querySelector('#chat-message-submit').click();
+        }
+    };
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        if(message.trim() === '') return;
+        
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        messageInputDom.value = '';
+    };
+</script>
+{% endblock %}

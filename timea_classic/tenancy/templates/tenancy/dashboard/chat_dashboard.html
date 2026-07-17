@@ -1,0 +1,41 @@
+{% extends 'tenancy/dashboard/base_merchant.html' %}
+
+{% block title %}Support Desk - {{ tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-layout { display: flex; height: calc(100vh - 120px); background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow: hidden; }
+    .customer-list { width: 300px; border-right: 1px solid #e1e6eb; background: #fafbfc; overflow-y: auto; }
+    .customer-list-header { padding: 20px; font-weight: bold; font-size: 1.1rem; color: #2c3e50; border-bottom: 1px solid #e1e6eb; background: #fff; }
+    .customer-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f0f2f5; color: #333; text-decoration: none; transition: 0.2s; }
+    .customer-item:hover { background: #f0f4f8; }
+    .customer-avatar { width: 40px; height: 40px; border-radius: 50%; background: #3498db; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px; }
+    .chat-window-placeholder { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #95a5a6; background: #fdfefe; }
+    .chat-window-placeholder i { font-size: 4rem; margin-bottom: 15px; color: #bdc3c7; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+    <div class="customer-list">
+        <div class="customer-list-header">Active Conversations</div>
+        {% for customer in customers %}
+            <a href="{% url 'tenancy:merchant_chat_room' tenant.slug customer.username %}" class="customer-item">
+                <div class="customer-avatar">{{ customer.username|slice:":2"|upper }}</div>
+                <div>
+                    <div style="font-weight: 600;">{{ customer.username }}</div>
+                    <div style="font-size: 0.85rem; color: #7f8c8d;">Click to open channel</div>
+                </div>
+            </a>
+        {% empty %}
+            <div style="padding: 20px; text-align: center; color: #95a5a6;">No registered customers found.</div>
+        {% endfor %}
+    </div>
+
+    <div class="chat-window-placeholder">
+        <i class="fas fa-comments-alt"></i>
+        <h2>Support Desk Messaging Hub</h2>
+        <p>Select a customer workspace from the list to handle active WebSocket message streams.</p>
+    </div>
+</div>
+{% endblock %}

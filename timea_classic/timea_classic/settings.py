@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'cart.apps.CartConfig',
     'orders',  
     'chat',
+    'tenancy',
     'daraja',
     'django_daraja',
     'rest_framework',

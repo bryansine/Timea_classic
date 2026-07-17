@@ -11,9 +11,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     path('', include('core.urls')),
+    path('', include('tenancy.urls')),
     path('products/', include('products.urls')),
     path('cart/', include('cart.urls')),
-    path('chat/', include('chat.urls')),  
+    path('chat/', include('chat.urls')),
     path('accounts/', include('allauth.urls')),
     # path('checkout/', include('checkout.urls')),
     # path('checkout/', include('checkout.urls')),

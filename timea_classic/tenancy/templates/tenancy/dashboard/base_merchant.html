@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Merchant Dashboard{% endblock %} - Timea Classic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; display: flex; height: 100vh; background: #f4f6f9; }
+        .sidebar { width: 250px; background: #1e2229; color: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar-header { padding: 20px; text-align: center; background: #1a1d24; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #2d323e; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #a3afc2; text-decoration: none; transition: 0.2s; }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: #2d323e; color: #fff; }
+        .sidebar-menu i { margin-right: 10px; width: 20px; text-align: center; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .navbar { height: 60px; background: #fff; border-bottom: 1px solid #e1e6eb; display: flex; align-items: center; justify-content: flex-end; padding: 0 30px; }
+        .content-body { padding: 30px; flex-grow: 1; overflow-y: auto; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <i class="fas fa-store"></i> Merchant Panel
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'tenancy:merchant_overview' tenant.slug %}" class="{% if request.resolver_match.url_name == 'merchant_overview' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Overview
+                    </a>
+                </li>
+                <li>
+                    <a href="#"><i class="fas fa-shopping-bag"></i> Managed Orders</a>
+                </li>
+                <li>
+                    <a href="#"><i class="fas fa-boxes"></i> My Products</a>
+                </li>
+                <li>
+                    <a href="{% url 'tenancy:merchant_chat_dashboard' tenant.slug %}" class="{% if 'chat' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-comments"></i> Support Live Chat
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div style="padding: 20px; background: #1a1d24; font-size: 0.9rem; text-align: center; color: #7f8c8d;">
+            Timea Classic SaaS v1.0
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="navbar">
+            <div>
+                <i class="fas fa-user-circle"></i> Logged in as: <strong>{{ request.user.username }}</strong>
+            </div>
+        </div>
+        <div class="content-body">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

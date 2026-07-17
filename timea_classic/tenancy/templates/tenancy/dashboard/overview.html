@@ -1,0 +1,24 @@
+{% extends 'tenancy/dashboard/base_merchant.html' %}
+
+{% block title %}Overview - {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<div style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <h1 style="margin-top: 0; color: #2c3e50;">Welcome to {{ tenant.name }} Workspace</h1>
+    <p style="color: #7f8c8d; font-size: 1.1rem;">
+        This is your custom operational dashboard. From here, you can manage your shop metrics, process client orders, and run real-time support without using the platform management console.
+    </p>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <div style="background: #eef2f7; padding: 20px; border-radius: 6px; border-left: 5px solid #3498db;">
+            <h3 style="margin: 0 0 10px 0; color: #3498db;"><i class="fas fa-comments"></i> Support Live Chat</h3>
+            <p style="margin: 0; font-size: 0.9rem; color: #555;">Live chat integration is ready to capture incoming consumer queries.</p>
+        </div>
+        <div style="background: #eef2f7; padding: 20px; border-radius: 6px; border-left: 5px solid #2ecc71;">
+            <h3 style="margin: 0 0 10px 0; color: #2ecc71;"><i class="fas fa-shopping-bag"></i> Order History</h3>
+            <p style="margin: 0; font-size: 0.9rem; color: #555;">Review custom placement tracks, shipping data, and settlement parameters.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
