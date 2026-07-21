@@ -28,18 +28,13 @@
             </div>
             <ul class="sidebar-menu">
                 <li>
-                    <a href="{% url 'tenancy:merchant_overview' tenant.slug %}" class="{% if request.resolver_match.url_name == 'merchant_overview' %}active{% endif %}">
-                        <i class="fas fa-tachometer-alt"></i> Overview
+                    <a href="{% url 'tenancy:merchant_overview' tenant.slug %}" class="nav-item">
+                        <i class="fas fa-chart-line"></i> Overview
                     </a>
-                </li>
-                <li>
-                    <a href="#"><i class="fas fa-shopping-bag"></i> Managed Orders</a>
-                </li>
-                <li>
-                    <a href="#"><i class="fas fa-boxes"></i> My Products</a>
-                </li>
-                <li>
-                    <a href="{% url 'tenancy:merchant_chat_dashboard' tenant.slug %}" class="{% if 'chat' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'tenancy:merchant_orders' tenant.slug %}" class="nav-item">
+                        <i class="fas fa-box"></i> Managed Orders
+                    </a>
+                    <a href="{% url 'tenancy:merchant_chat_dashboard' tenant.slug %}" class="nav-item">
                         <i class="fas fa-comments"></i> Support Live Chat
                     </a>
                 </li>
