@@ -1,0 +1,86 @@
+{% extends 'tenancy/dashboard/base_merchant.html' %}
+
+{% block content %}
+<div style="padding: 25px; max-width: 800px; margin: 0 auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h1 style="font-size: 1.8rem; margin: 0; color: #1a1a1a;">{{ title }}</h1>
+        <a href="{% url 'tenancy:merchant_products' tenant.slug %}" style="color: #4a5568; text-decoration: none; font-weight: 600;">
+            ← Back to Products
+        </a>
+    </div>
+
+    <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="grid-column: span 2;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Product Name *</label>
+                    {{ form.name }}
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Category *</label>
+                    {{ form.category }}
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Brand</label>
+                    {{ form.brand }}
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Price (KES) *</label>
+                    {{ form.price }}
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Discount Price (KES)</label>
+                    {{ form.discount_price }}
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Stock Quantity *</label>
+                    {{ form.stock_quantity }}
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Product Image</label>
+                    {{ form.image }}
+                </div>
+
+                <div style="grid-column: span 2;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Description</label>
+                    {{ form.description }}
+                </div>
+
+                <div style="grid-column: span 2; display: flex; gap: 25px; background: #f7fafc; padding: 15px; border-radius: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        {{ form.on_offer }} On Offer
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        {{ form.flash_sale }} Flash Sale
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        {{ form.featured }} Featured Item
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; text-align: right;">
+                <button type="submit" style="background: #27ae60; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">
+                    Save Product
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<style>
+    /* Clean fallback form field styling */
+    .form-control { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box; }
+    .form-control-file { padding: 5px 0; }
+</style>
+{% endblock %}

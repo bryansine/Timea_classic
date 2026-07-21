@@ -1,0 +1,76 @@
+{% extends 'tenancy/dashboard/base_merchant.html' %}
+
+{% block content %}
+<div style="padding: 25px; max-width: 1100px; margin: 0 auto;">
+    
+    <div style="margin-bottom: 25px;">
+        <h1 style="font-size: 1.8rem; margin: 0; color: #1a1a1a;"> Product Categories</h1>
+        <p style="color: #666; margin-top: 5px;">Manage product categories available for your store catalog.</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="background: #d4edda; color: #155724; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 25px;">
+        
+        <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content;">
+            <h3 style="margin-top: 0; color: #2d3748; font-size: 1.2rem;">Add New Category</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4a5568;">Category Name *</label>
+                    {{ form.name }}
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4a5568;">Description</label>
+                    {{ form.description }}
+                </div>
+                <button type="submit" style="width: 100%; background: #27ae60; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    Create Category
+                </button>
+            </form>
+        </div>
+
+        <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; color: #2d3748; font-size: 1.2rem; margin-bottom: 15px;">Existing Categories</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #edf2f7; text-align: left; color: #718096;">
+                        <th style="padding: 10px;">ID</th>
+                        <th style="padding: 10px;">Category Name</th>
+                        <th style="padding: 10px;">Description</th>
+                        <th style="padding: 10px; text-align: center;">Products</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cat in categories %}
+                    <tr style="border-bottom: 1px solid #edf2f7;">
+                        <td style="padding: 12px 10px; color: #a0aec0;">#{{ cat.id }}</td>
+                        <td style="padding: 12px 10px; font-weight: 600; color: #2d3748;">{{ cat.name }}</td>
+                        <td style="padding: 12px 10px; color: #718096; font-size: 0.85rem;">{{ cat.description|truncatewords:10|default:"No description" }}</td>
+                        <td style="padding: 12px 10px; text-align: center; font-weight: bold; color: #3182ce;">
+                            {{ cat.products.count }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="padding: 20px; text-align: center; color: #a0aec0;">No categories added yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .form-control { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box; }
+</style>
+{% endblock %}

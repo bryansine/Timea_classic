@@ -1,0 +1,23 @@
+{% extends 'tenancy/dashboard/base_merchant.html' %}
+
+{% block content %}
+<div style="padding: 25px; max-width: 500px; margin: 50px auto;">
+    
+    <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #e53e3e; margin-bottom: 15px;"></i>
+        <h2 style="margin: 0; color: #2d3748;">Delete Product?</h2>
+        <p style="color: #718096; margin-top: 10px;">Are you sure you want to delete <strong>"{{ product.name }}"</strong>? This action cannot be undone.</p>
+
+        <form method="POST" style="margin-top: 25px; display: flex; justify-content: center; gap: 15px;">
+            {% csrf_token %}
+            <a href="{% url 'tenancy:merchant_products' tenant.slug %}" style="background: #edf2f7; color: #4a5568; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                Cancel
+            </a>
+            <button type="submit" style="background: #e53e3e; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                Yes, Delete
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

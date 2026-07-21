@@ -1,0 +1,95 @@
+{% extends 'tenancy/dashboard/base_merchant.html' %}
+
+{% block content %}
+<div style="padding: 25px; max-width: 1000px; margin: 0 auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div>
+            <h1 style="font-size: 1.8rem; margin: 0; color: #1a1a1a;">🎨 Variants for: {{ product.name }}</h1>
+            <p style="color: #666; margin-top: 5px;">Manage color options, custom prices, and stock per variant.</p>
+        </div>
+        <a href="{% url 'tenancy:merchant_products' tenant.slug %}" style="color: #4a5568; text-decoration: none; font-weight: 600;">
+            ← Back to Products
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="background: #d4edda; color: #155724; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 25px;">
+        
+        <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content;">
+            <h3 style="margin-top: 0; color: #2d3748; font-size: 1.1rem;">Add Variant Option</h3>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #4a5568; font-size: 0.85rem;">Color / Option Name *</label>
+                    {{ form.color_name }}
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #4a5568; font-size: 0.85rem;">Variant Price (KES) *</label>
+                    {{ form.price }}
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #4a5568; font-size: 0.85rem;">Stock Quantity *</label>
+                    {{ form.stock_quantity }}
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #4a5568; font-size: 0.85rem;">Variant Image</label>
+                    {{ form.image }}
+                </div>
+                <button type="submit" style="width: 100%; background: #3182ce; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    Add Variant
+                </button>
+            </form>
+        </div>
+
+        <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; color: #2d3748; font-size: 1.1rem; margin-bottom: 15px;">Active Product Variants</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #edf2f7; text-align: left; color: #718096;">
+                        <th style="padding: 10px;">Variant</th>
+                        <th style="padding: 10px;">Price</th>
+                        <th style="padding: 10px;">Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for variant in variants %}
+                    <tr style="border-bottom: 1px solid #edf2f7; vertical-align: middle;">
+                        <td style="padding: 12px 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                {% if variant.image %}
+                                    <img src="{{ variant.image.url }}" alt="{{ variant.color_name }}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px;">
+                                {% endif %}
+                                <strong style="color: #2d3748;">{{ variant.color_name }}</strong>
+                            </div>
+                        </td>
+                        <td style="padding: 12px 10px; font-weight: 600;">KES {{ variant.price|floatformat:2 }}</td>
+                        <td style="padding: 12px 10px; font-weight: 600; color: {% if variant.stock_quantity > 0 %}#2b6cb0{% else %}#c53030{% endif %};">
+                            {{ variant.stock_quantity }} units
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" style="padding: 20px; text-align: center; color: #a0aec0;">No variants added for this product yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .form-control { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box; }
+    .form-control-file { padding: 4px 0; }
+</style>
+{% endblock %}

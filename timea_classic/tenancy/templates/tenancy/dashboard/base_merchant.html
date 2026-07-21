@@ -26,34 +26,71 @@
             <div class="sidebar-header">
                 <i class="fas fa-store"></i> Merchant Panel
             </div>
-            <ul class="sidebar-menu">
+            <ul class="sidebar-menu" style="list-style: none; padding: 0; margin: 0;">
                 <li>
-                    <a href="{% url 'tenancy:merchant_overview' tenant.slug %}" class="nav-item">
+                    <a href="{% url 'tenancy:merchant_overview' tenant.slug %}" class="nav-item {% if request.resolver_match.url_name == 'merchant_overview' %}active{% endif %}">
                         <i class="fas fa-chart-line"></i> Overview
                     </a>
-                    <a href="{% url 'tenancy:merchant_orders' tenant.slug %}" class="nav-item">
+                </li>
+                <li>
+                    <a href="{% url 'tenancy:merchant_orders' tenant.slug %}" class="nav-item {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-box"></i> Managed Orders
                     </a>
-                    <a href="{% url 'tenancy:merchant_chat_dashboard' tenant.slug %}" class="nav-item">
+                </li>
+                <li>
+                    <a href="{% url 'tenancy:merchant_products' tenant.slug %}" class="nav-item {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-tags"></i> My Products
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'tenancy:merchant_categories' tenant.slug %}" class="nav-item {% if 'categor' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-folder"></i> Categories
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'tenancy:merchant_chat_dashboard' tenant.slug %}" class="nav-item {% if 'chat' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-comments"></i> Support Live Chat
                     </a>
                 </li>
             </ul>
         </div>
-        <div style="padding: 20px; background: #1a1d24; font-size: 0.9rem; text-align: center; color: #7f8c8d;">
+
+        <div style="padding: 20px; background: #1a1d24; font-size: 0.85rem; text-align: center; color: #7f8c8d; border-top: 1px solid #2d3748;">
             Timea Classic SaaS v1.0
         </div>
     </div>
 
     <div class="main-content">
-        <div class="navbar">
-            <div>
-                <i class="fas fa-user-circle"></i> Logged in as: <strong>{{ request.user.username }}</strong>
+        
+        <div class="navbar" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: #ffffff; border-bottom: 1px solid #e2e8f0;">
+            
+            <div style="font-size: 0.95rem; color: #4a5568; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-store" style="color: #718096;"></i> 
+                <span>{{ tenant.name }}</span>
             </div>
+
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 0.9rem; color: #2d3748; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-user-circle" style="font-size: 1.15rem; color: #4a5568;"></i> 
+                    Logged in as: <strong style="color: #1a202c;">{{ request.user.username }}</strong>
+                </div>
+
+                <span style="color: #cbd5e0;">|</span>
+
+                <form method="POST" action="{% url 'logout' %}" style="margin: 0; display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#e53e3e'; this.style.color='#ffffff';" onmouseout="this.style.background='#fff5f5'; this.style.color='#e53e3e';">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+
         </div>
+
         <div class="content-body">
             {% block content %}{% endblock %}
         </div>
+
     </div>
 
     {% block extra_js %}{% endblock %}
