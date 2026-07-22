@@ -1,5 +1,5 @@
 from django import forms
-from products.models import Product, Category
+from products.models import Product, Category, ProductVariant
 
 class MerchantProductForm(forms.ModelForm):
     class Meta:
@@ -23,9 +23,6 @@ class MerchantProductForm(forms.ModelForm):
             'featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         
-# tenancy/forms.py
-from django import forms
-from products.models import Product, Category, ProductVariant
 
 class CategoryForm(forms.ModelForm):
     class Meta:
