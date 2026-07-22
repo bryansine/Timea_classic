@@ -6,7 +6,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
         <div>
             <h1 style="font-size: 1.8rem; margin: 0; color: #1a1a1a;"> Managed Orders</h1>
-            <p style="color: #666; margin-top: 5px;">Track customer purchases and manage fulfillment status in real-time.</p>
+            <p style="color: #666; margin-top: 5px;">Track customer purchases and manage Order Status in real-time.</p>
         </div>
     </div>
 
@@ -25,7 +25,7 @@
             </div>
             <div style="flex: 1;">
                 <select name="status" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem;">
-                    <option value="">All Fulfillment Statuses</option>
+                    <option value="">All Order Statuses</option>
                     {% for status in status_choices %}
                         <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status }}</option>
                     {% endfor %}
@@ -48,7 +48,7 @@
                     <th style="padding: 12px 10px;">Customer</th>
                     <th style="padding: 12px 10px;">Items Ordered</th>
                     <th style="padding: 12px 10px;">Payment</th>
-                    <th style="padding: 12px 10px;">Fulfillment Status</th>
+                    <th style="padding: 12px 10px;">Order Status</th>
                     <th style="padding: 12px 10px;">Date</th>
                     <th style="padding: 12px 10px; text-align: center;">Actions</th>
                 </tr>

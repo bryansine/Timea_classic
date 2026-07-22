@@ -18,6 +18,12 @@ urlpatterns = [
     path('dashboard/<slug:tenant_slug>/categories/', views.merchant_categories, name='merchant_categories'),
     path('dashboard/<slug:tenant_slug>/products/<int:product_id>/variants/', views.merchant_product_variants, name='merchant_product_variants'),
     
+    path('dashboard/<slug:tenant_slug>/categories/', views.merchant_categories, name='merchant_categories'),
+    path('dashboard/<slug:tenant_slug>/categories/<int:category_id>/delete/', views.delete_category, name='delete_category'),
+    
     path('dashboard/<slug:tenant_slug>/orders/', views.merchant_orders, name='merchant_orders'),
     path('dashboard/<slug:tenant_slug>/orders/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
+    
+    path('dashboard/<slug:tenant_slug>/products/<int:product_id>/variants/', views.merchant_product_variants, name='merchant_product_variants'),
+    path('dashboard/<slug:tenant_slug>/products/<int:product_id>/variants/<int:variant_id>/delete/', views.delete_product_variant, name='delete_product_variant'),
 ]

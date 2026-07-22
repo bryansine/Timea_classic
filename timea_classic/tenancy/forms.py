@@ -22,6 +22,11 @@ class MerchantProductForm(forms.ModelForm):
             'flash_sale': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+    def __init__(self, *args, tenant=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if tenant:
+            self.fields['category'].queryset = Category.objects.filter(tenant=tenant)
         
 
 class CategoryForm(forms.ModelForm):

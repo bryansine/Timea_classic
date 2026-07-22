@@ -1,83 +1,102 @@
 {% extends 'tenancy/dashboard/base_merchant.html' %}
 
 {% block content %}
-<div style="padding: 25px; max-width: 1000px; margin: 0 auto;">
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+<div style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
-            <h1 style="font-size: 1.8rem; margin: 0; color: #1a1a1a;">🎨 Variants for: {{ product.name }}</h1>
-            <p style="color: #666; margin-top: 5px;">Manage color options, custom prices, and stock per variant.</p>
+            <h1 style="font-size: 1.6rem; font-weight: 700; color: #1a202c; margin: 0;">Variants for: {{ product.name }}</h1>
+            <p style="color: #718096; margin-top: 4px; font-size: 0.9rem;">Manage color options, custom prices, and stock per variant.</p>
         </div>
-        <a href="{% url 'tenancy:merchant_products' tenant.slug %}" style="color: #4a5568; text-decoration: none; font-weight: 600;">
+        <a href="{% url 'tenancy:merchant_products' tenant.slug %}" style="text-decoration: none; color: #4a5568; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
             ← Back to Products
         </a>
     </div>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div style="background: #d4edda; color: #155724; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start;">
 
-    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 25px;">
-        
-        <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content;">
-            <h3 style="margin-top: 0; color: #2d3748; font-size: 1.1rem;">Add Variant Option</h3>
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.05rem; color: #2d3748;">Add Variant Option</h3>
+            
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #4a5568; font-size: 0.85rem;">Color / Option Name *</label>
-                    {{ form.color_name }}
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-weight: 600; font-size: 0.8rem; color: #4a5568; margin-bottom: 4px;">Color / Option Name *</label>
+                    <input type="text" name="color_name" placeholder="e.g. Red, XL, Blue" required style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.85rem; box-sizing: border-box;">
                 </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #4a5568; font-size: 0.85rem;">Variant Price (KES) *</label>
-                    {{ form.price }}
+
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-weight: 600; font-size: 0.8rem; color: #4a5568; margin-bottom: 4px;">Variant Price (KES) *</label>
+                    <input type="number" step="0.01" name="price" value="{{ product.price }}" required style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.85rem; box-sizing: border-box;">
                 </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #4a5568; font-size: 0.85rem;">Stock Quantity *</label>
-                    {{ form.stock_quantity }}
+
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-weight: 600; font-size: 0.8rem; color: #4a5568; margin-bottom: 4px;">Stock Quantity *</label>
+                    <input type="number" name="stock_quantity" value="0" required style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.85rem; box-sizing: border-box;">
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #4a5568; font-size: 0.85rem;">Variant Image</label>
-                    {{ form.image }}
+
+                <div style="margin-bottom: 18px;">
+                    <label style="display: block; font-weight: 600; font-size: 0.8rem; color: #4a5568; margin-bottom: 4px;">Variant Image</label>
+                    <input type="file" name="image" accept="image/*" style="font-size: 0.8rem;">
                 </div>
-                <button type="submit" style="width: 100%; background: #3182ce; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+
+                <button type="submit" style="width: 100%; background: #3182ce; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
                     Add Variant
                 </button>
             </form>
         </div>
 
-        <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; color: #2d3748; font-size: 1.1rem; margin-bottom: 15px;">Active Product Variants</h3>
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.05rem; color: #2d3748;">Active Product Variants</h3>
+
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; table-layout: fixed;">
                 <thead>
-                    <tr style="border-bottom: 2px solid #edf2f7; text-align: left; color: #718096;">
-                        <th style="padding: 10px;">Variant</th>
-                        <th style="padding: 10px;">Price</th>
-                        <th style="padding: 10px;">Stock</th>
+                    <tr style="border-bottom: 1px solid #e2e8f0; color: #718096; font-size: 0.8rem;">
+                        <th style="padding: 10px; width: 45%;">Variant</th>
+                        <th style="padding: 10px; width: 22%;">Price</th>
+                        <th style="padding: 10px; width: 15%;">Stock</th>
+                        <th style="padding: 10px; width: 18%; text-align: right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for variant in variants %}
-                    <tr style="border-bottom: 1px solid #edf2f7; vertical-align: middle;">
-                        <td style="padding: 12px 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
+                    <tr style="border-bottom: 1px solid #edf2f7;">
+                        <td style="padding: 12px 10px; vertical-align: middle;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
                                 {% if variant.image %}
-                                    <img src="{{ variant.image.url }}" alt="{{ variant.color_name }}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px;">
+                                    <img src="{{ variant.image.url }}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover; border: 1px solid #e2e8f0;">
+                                {% else %}
+                                    <div style="width: 38px; height: 38px; border-radius: 6px; background: #edf2f7; display: flex; align-items: center; justify-content: center; color: #a0aec0; font-size: 0.75rem;">No img</div>
                                 {% endif %}
-                                <strong style="color: #2d3748;">{{ variant.color_name }}</strong>
+                                <span style="font-weight: 600; color: #2d3748;">{{ product.name }} - {{ variant.color_name }}</span>
                             </div>
                         </td>
-                        <td style="padding: 12px 10px; font-weight: 600;">KES {{ variant.price|floatformat:2 }}</td>
-                        <td style="padding: 12px 10px; font-weight: 600; color: {% if variant.stock_quantity > 0 %}#2b6cb0{% else %}#c53030{% endif %};">
-                            {{ variant.stock_quantity }} units
+                        <td style="padding: 12px 10px; font-weight: 700; color: #2d3748; vertical-align: middle;">
+                            KES {{ variant.price }}
+                        </td>
+                        <td style="padding: 12px 10px; vertical-align: middle;">
+                            <span style="color: #3182ce; font-weight: 600;">{{ variant.stock_quantity }} units</span>
+                        </td>
+                        <td style="padding: 12px 10px; text-align: right; vertical-align: middle; white-space: nowrap;">
+                            <div style="display: inline-flex; gap: 6px;">
+                                <button onclick="editVariant('{{ variant.id }}', '{{ variant.color_name|escapejs }}', '{{ variant.price }}', '{{ variant.stock_quantity }}')" 
+                                        style="background: #3182ce; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.78rem;">
+                                    Edit
+                                </button>
+                                <form action="{% url 'tenancy:delete_product_variant' tenant.slug product.id variant.id %}" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Delete this variant?');">
+                                    {% csrf_token %}
+                                    <button type="submit" style="background: #e53e3e; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.78rem;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" style="padding: 20px; text-align: center; color: #a0aec0;">No variants added for this product yet.</td>
+                        <td colspan="4" style="padding: 24px; text-align: center; color: #a0aec0;">
+                            No variants created yet for this product.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -88,8 +107,52 @@
 
 </div>
 
-<style>
-    .form-control { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box; }
-    .form-control-file { padding: 4px 0; }
-</style>
+<div id="editVariantModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 12px; width: 420px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+        <h3 style="margin-top: 0; color: #1a202c;">Edit Variant</h3>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="variant_id" id="editVariantId">
+            
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 4px; color: #4a5568;">Color / Option Name</label>
+                <input type="text" name="color_name" id="editColorName" required style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 4px; color: #4a5568;">Price (KES)</label>
+                <input type="number" step="0.01" name="price" id="editPrice" required style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 4px; color: #4a5568;">Stock Quantity</label>
+                <input type="number" name="stock_quantity" id="editStock" required style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 4px; color: #4a5568;">Replace Image (Optional)</label>
+                <input type="file" name="image" accept="image/*" style="font-size: 0.8rem;">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button type="button" onclick="closeEditModal()" style="background: #edf2f7; color: #4a5568; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer;">Cancel</button>
+                <button type="submit" style="background: #3182ce; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer;">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function editVariant(id, colorName, price, stock) {
+        document.getElementById('editVariantId').value = id;
+        document.getElementById('editColorName').value = colorName;
+        document.getElementById('editPrice').value = price;
+        document.getElementById('editStock').value = stock;
+        document.getElementById('editVariantModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editVariantModal').style.display = 'none';
+    }
+</script>
 {% endblock %}

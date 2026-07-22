@@ -154,6 +154,18 @@ def create_order(request):
         receive_emails = request.POST.get('receive_emails') == 'on'
         order_notes = request.POST.get('order_notes')
 
+        # Determine Tenant based on Buy Now Product or Cart Items
+        order_tenant = None
+        if buy_now_product:
+            order_tenant = buy_now_product.tenant
+        elif cart:
+            selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items if item_id.isdigit()]
+            first_item = cart.items.filter(id__in=selected_cart_item_ids).first()
+            if first_item:
+                order_tenant = first_item.product.tenant if first_item.product else (
+                    first_item.variant.product.tenant if first_item.variant else None
+                )
+
         shipping_option_name = None
         shipping_option_description = None
         shipping_option_delivery_time = None
@@ -177,6 +189,7 @@ def create_order(request):
 
         with transaction.atomic():
             order = Order.objects.create(
+                tenant=order_tenant,  # 👈 Attached Tenant!
                 user=request.user,
                 shipping_address=shipping_address,
                 phone_number=phone_number,

@@ -17,6 +17,14 @@ class Order(models.Model):
         ('Pending', 'Pending'),
         ('Paid', 'Paid'),
     ]
+    
+    tenant = models.ForeignKey(
+        'tenancy.Tenant', 
+        on_delete=models.CASCADE, 
+        related_name='orders', 
+        null=True, 
+        blank=True
+    )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
