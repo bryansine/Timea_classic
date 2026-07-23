@@ -13,7 +13,6 @@ from chat.models import ChatMessage
 
 User = get_user_model()
 
-# Extract status keys dynamically from the Order model
 STATUS_CHOICES = [status[0] for status in Order.STATUS_CHOICES]
 
 @login_required
@@ -22,7 +21,6 @@ def merchant_chat_dashboard(request, tenant_slug):
     if tenant.owner != request.user:
         return HttpResponseForbidden("Access Denied.")
         
-    # Get customers who have ordered OR sent chat messages to this tenant
     customers = User.objects.filter(
         Q(orders__tenant=tenant) | Q(chat_messages__tenant=tenant)
     ).distinct().exclude(id=request.user.id)
@@ -41,7 +39,6 @@ def merchant_overview(request, tenant_slug):
     if tenant.owner != request.user:
         return HttpResponseForbidden("You do not have permission to manage this store.")
     
-    # Base QuerySet strictly filtered by the current tenant/store
     tenant_orders = Order.objects.filter(tenant=tenant)
     
     total_orders = tenant_orders.count()
@@ -72,16 +69,13 @@ def merchant_chat_room(request, tenant_slug, room_name):
         
     customer = get_object_or_404(User, username=room_name)
     
-    # 1. Only list customers who belong to THIS tenant
     customers = User.objects.filter(orders__tenant=tenant).distinct().exclude(id=request.user.id)
     
-    # 2. Only show customer orders placed at THIS store
     customer_orders = Order.objects.filter(
         user=customer, 
         tenant=tenant
     ).prefetch_related('items').order_by('-created_at')[:5]
     
-    # 3. Fetch chat history (If ChatMessage has a 'tenant' field, filter by it as well)
     if hasattr(ChatMessage, 'tenant'):
         chat_history = ChatMessage.objects.filter(room_name=room_name, tenant=tenant)
     else:
@@ -106,7 +100,6 @@ def merchant_orders(request, tenant_slug):
     status_filter = request.GET.get('status', '').strip()
     search_query = request.GET.get('q', '').strip()
 
-    # Base QuerySet strictly scoped to THIS tenant/store
     orders = Order.objects.filter(tenant=tenant).prefetch_related('items__product').order_by('-created_at')
 
     if status_filter in STATUS_CHOICES:
@@ -139,7 +132,6 @@ def update_order_status(request, tenant_slug, order_id):
         return HttpResponseForbidden("Access Denied.")
 
     if request.method == "POST":
-        # Strictly scope lookup by BOTH order_id AND tenant
         order = get_object_or_404(Order, id=order_id, tenant=tenant)
         new_status = request.POST.get('status')
 
@@ -162,7 +154,6 @@ def merchant_products(request, tenant_slug):
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '')
 
-    # Filter products and categories strictly for THIS tenant
     products = Product.objects.filter(tenant=tenant).select_related('category')
     categories = Category.objects.filter(tenant=tenant)
 
@@ -191,7 +182,6 @@ def merchant_product_create(request, tenant_slug):
         return HttpResponseForbidden("Access Denied.")
 
     if request.method == 'POST':
-        # Pass tenant=tenant here 👇
         form = MerchantProductForm(request.POST, request.FILES, tenant=tenant)
         if form.is_valid():
             product = form.save(commit=False)
@@ -202,7 +192,6 @@ def merchant_product_create(request, tenant_slug):
             messages.success(request, f"Product '{product.name}' created successfully!")
             return redirect('tenancy:merchant_products', tenant_slug=tenant.slug)
     else:
-        # Pass tenant=tenant here 👇
         form = MerchantProductForm(tenant=tenant)
 
     context = {
@@ -222,14 +211,12 @@ def merchant_product_edit(request, tenant_slug, product_id):
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
 
     if request.method == 'POST':
-        # Pass tenant=tenant here 👇
         form = MerchantProductForm(request.POST, request.FILES, instance=product, tenant=tenant)
         if form.is_valid():
             form.save()
             messages.success(request, f"Product '{product.name}' updated successfully!")
             return redirect('tenancy:merchant_products', tenant_slug=tenant.slug)
     else:
-        # Pass tenant=tenant here 👇
         form = MerchantProductForm(instance=product, tenant=tenant)
 
     context = {
@@ -246,7 +233,6 @@ def merchant_product_delete(request, tenant_slug, product_id):
     if tenant.owner != request.user:
         return HttpResponseForbidden("Access Denied.")
 
-    # Strictly scope the lookup by BOTH id and tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
     
     if request.method == 'POST':

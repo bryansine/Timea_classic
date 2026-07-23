@@ -154,7 +154,6 @@ def create_order(request):
         receive_emails = request.POST.get('receive_emails') == 'on'
         order_notes = request.POST.get('order_notes')
 
-        # Determine Tenant based on Buy Now Product or Cart Items
         order_tenant = None
         if buy_now_product:
             order_tenant = buy_now_product.tenant
@@ -189,7 +188,7 @@ def create_order(request):
 
         with transaction.atomic():
             order = Order.objects.create(
-                tenant=order_tenant,  # 👈 Attached Tenant!
+                tenant=order_tenant,
                 user=request.user,
                 shipping_address=shipping_address,
                 phone_number=phone_number,
@@ -466,7 +465,6 @@ class ProtectedOrderDashboard(APIView):
         return Response(content)
     
     
-# orders/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
