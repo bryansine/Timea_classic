@@ -46,14 +46,12 @@ STATUS_CHOICES = [status[0] for status in Order.STATUS_CHOICES]
 
 @login_required
 def merchant_chat_dashboard(request, tenant_slug):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Fetch customers who have placed orders or sent chat messages to this store
     customers = (
         User.objects.filter(
             Q(orders__tenant=tenant) | Q(chat_messages__tenant=tenant)
@@ -74,12 +72,10 @@ def merchant_chat_dashboard(request, tenant_slug):
 
 @login_required
 def merchant_overview(request, tenant_slug):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
     if error_response:
         return error_response
 
-    # 2. Store queries and stats
     tenant_orders = Order.objects.filter(tenant=tenant)
     
     total_orders = tenant_orders.count()
@@ -104,15 +100,12 @@ def merchant_overview(request, tenant_slug):
 
 @login_required
 def merchant_chat_room(request, tenant_slug, room_name):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
     if error_response:
         return error_response
 
-    # 2. Fetch target customer
     customer = get_object_or_404(User, username=room_name)
 
-    # 3. Fetch customer list (ordered or chatted with this store)
     customers = (
         User.objects.filter(
             Q(orders__tenant=tenant) | Q(chat_messages__tenant=tenant)
@@ -121,14 +114,12 @@ def merchant_chat_room(request, tenant_slug, room_name):
         .exclude(id=request.user.id)
     )
 
-    # 4. Fetch customer recent orders for this store
     customer_orders = (
         Order.objects.filter(user=customer, tenant=tenant)
         .prefetch_related('items')
         .order_by('-created_at')[:5]
     )
 
-    # 5. Fetch tenant-scoped chat history
     chat_history = ChatMessage.objects.filter(
         room_name=room_name, tenant=tenant
     )
@@ -179,14 +170,12 @@ def merchant_orders(request, tenant_slug):
 
 @login_required
 def update_order_status(request, tenant_slug, order_id):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Process order status update on POST
     if request.method == "POST":
         order = get_object_or_404(Order, id=order_id, tenant=tenant)
         new_status = request.POST.get('status')
@@ -205,12 +194,10 @@ def update_order_status(request, tenant_slug, order_id):
 
 @login_required
 def merchant_products(request, tenant_slug):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
     if error_response:
         return error_response
 
-    # 2. Filter and search logic
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '')
 
@@ -241,14 +228,12 @@ def merchant_products(request, tenant_slug):
 
 @login_required
 def merchant_product_create(request, tenant_slug):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Handle form submission and product creation
     if request.method == 'POST':
         form = MerchantProductForm(
             request.POST, request.FILES, tenant=tenant
@@ -278,17 +263,14 @@ def merchant_product_create(request, tenant_slug):
 
 @login_required
 def merchant_product_edit(request, tenant_slug, product_id):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Fetch product scoped to this tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
 
-    # 3. Handle form submission and validation
     if request.method == 'POST':
         form = MerchantProductForm(
             request.POST, request.FILES, instance=product, tenant=tenant
@@ -314,24 +296,20 @@ def merchant_product_edit(request, tenant_slug, product_id):
 
 @login_required
 def merchant_product_delete(request, tenant_slug, product_id):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Fetch product scoped to this tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
 
-    # 3. Handle deletion confirmation (POST)
     if request.method == 'POST':
         product_name = product.name
         product.delete()
         messages.success(request, f"Product '{product_name}' was deleted.")
         return redirect('tenancy:merchant_products', tenant_slug=tenant.slug)
 
-    # 4. Render confirmation page (GET)
     context = {
         'tenant': tenant,
         'product': product,
@@ -343,17 +321,14 @@ def merchant_product_delete(request, tenant_slug, product_id):
 
 @login_required
 def merchant_categories(request, tenant_slug):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Query tenant-scoped categories
     categories = Category.objects.filter(tenant=tenant).order_by('name')
 
-    # 3. Handle Category Creation and Editing
     if request.method == 'POST':
         category_id = request.POST.get('category_id')
         name = request.POST.get('name', '').strip()
@@ -392,17 +367,14 @@ def merchant_categories(request, tenant_slug):
 
 @login_required
 def delete_category(request, tenant_slug, category_id):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Fetch category scoped to this tenant
     category = get_object_or_404(Category, id=category_id, tenant=tenant)
 
-    # 3. Handle deletion on POST
     if request.method == 'POST':
         cat_name = category.name
         category.delete()
@@ -415,18 +387,15 @@ def delete_category(request, tenant_slug, category_id):
 
 @login_required
 def merchant_product_variants(request, tenant_slug, product_id):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Fetch product scoped to this tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
     variants = product.variants.all()
 
-    # 3. Handle variant creation and editing
     if request.method == 'POST':
         variant_id = request.POST.get('variant_id')
         color_name = request.POST.get('color_name', '').strip()
@@ -478,18 +447,15 @@ def merchant_product_variants(request, tenant_slug, product_id):
 
 @login_required
 def delete_product_variant(request, tenant_slug, product_id, variant_id):
-    # 1. Fetch tenant and handle inactive/permission checks via helper
     tenant, error_response = get_tenant_or_handle_inactive(
         request, tenant_slug
     )
     if error_response:
         return error_response
 
-    # 2. Fetch product and variant scoped to this tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
     variant = get_object_or_404(ProductVariant, id=variant_id, product=product)
 
-    # 3. Handle deletion on POST
     if request.method == 'POST':
         var_name = variant.color_name
         variant.delete()
