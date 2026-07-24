@@ -901,10 +901,25 @@
         </form>
     </div>
 
-
-
     <main>
         {% block content %}
+
+        {% if messages %}
+        <div class="container my-3">
+          {% for message in messages %}
+            <div id="access-denied-alert" class="alert alert-danger alert-dismissible fade show shadow-sm border-0 d-flex align-items-center justify-content-between p-3" role="alert" style="border-radius: 10px; background-color: #f8d7da; color: #842029;">
+              <div class="d-flex align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-shield-lock-fill me-2 flex-shrink-0" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99 1.628 2.129 3.63 3.197 4.394 3.318a.333.333 0 0 0 .159 0c.764-.12 2.766-1.189 4.394-3.318 1.678-2.195 3.061-5.513 2.465-9.99a1.54 1.54 0 0 0-1.044-1.263c-.658-.216-1.777-.57-2.887-.87C9.843.266 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 .5 2.915V10.5a.5.5 0 0 1-1 0V7.915A1.5 1.5 0 0 1 8 5z"/>
+                </svg>
+                <span class="fw-semibold">{{ message }}</span>
+              </div>
+              <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
         <section id="top-banners" class="banners">
             {% for banner in top_banners %}
                 <div class="banner">
@@ -1442,6 +1457,18 @@
             });
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const alertBox = document.getElementById('access-denied-alert');
+          if (alertBox) {
+            setTimeout(() => {
+              alertBox.classList.remove('show');
+              setTimeout(() => alertBox.remove(), 500);
+            }, 5000); // 5000ms = 5 seconds
+          }
+        });
+      </script>
 
 </body>
 </html>

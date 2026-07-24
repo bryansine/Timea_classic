@@ -11,34 +11,75 @@ from products.models import Product, Category, ProductVariant
 from orders.models import Order
 from chat.models import ChatMessage
 
+
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib import messages
+from .models import Tenant
+
+def get_tenant_or_handle_inactive(request, tenant_slug):
+    tenant = get_object_or_404(Tenant, slug=tenant_slug)
+
+    # 1. Check if store is suspended by admin
+    if not tenant.is_active:
+        return tenant, render(
+            request,
+            'tenancy/dashboard/store_suspended.html',
+            {'tenant': tenant},
+            status=403
+        )
+
+    # 2. Permission check: User is neither the store owner nor a superuser
+    if tenant.owner != request.user and not request.user.is_superuser:
+        messages.error(
+            request, 
+            "Access Denied: You do not have permission to access that merchant workspace."
+        )
+        # Redirect to your home view name (e.g., 'home')
+        return tenant, redirect('home')  
+
+    return tenant, None
+
+
 User = get_user_model()
 
 STATUS_CHOICES = [status[0] for status in Order.STATUS_CHOICES]
 
 @login_required
 def merchant_chat_dashboard(request, tenant_slug):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
-        
-    customers = User.objects.filter(
-        Q(orders__tenant=tenant) | Q(chat_messages__tenant=tenant)
-    ).distinct().exclude(id=request.user.id)
-    
-    context = {
-        'tenant': tenant,
-        'customers': customers,
-    }
-    return render(request, 'tenancy/dashboard/chat_dashboard.html', context)
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
+
+    # 2. Fetch customers who have placed orders or sent chat messages to this store
+    customers = (
+        User.objects.filter(
+            Q(orders__tenant=tenant) | Q(chat_messages__tenant=tenant)
+        )
+        .distinct()
+        .exclude(id=request.user.id)
+    )
+
+    return render(
+        request,
+        'tenancy/dashboard/chat_dashboard.html',
+        {
+            'tenant': tenant,
+            'customers': customers,
+        },
+    )
 
 
 @login_required
 def merchant_overview(request, tenant_slug):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("You do not have permission to manage this store.")
-    
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
+    if error_response:
+        return error_response
+
+    # 2. Store queries and stats
     tenant_orders = Order.objects.filter(tenant=tenant)
     
     total_orders = tenant_orders.count()
@@ -63,24 +104,35 @@ def merchant_overview(request, tenant_slug):
 
 @login_required
 def merchant_chat_room(request, tenant_slug, room_name):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
-        
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
+    if error_response:
+        return error_response
+
+    # 2. Fetch target customer
     customer = get_object_or_404(User, username=room_name)
-    
-    customers = User.objects.filter(orders__tenant=tenant).distinct().exclude(id=request.user.id)
-    
-    customer_orders = Order.objects.filter(
-        user=customer, 
-        tenant=tenant
-    ).prefetch_related('items').order_by('-created_at')[:5]
-    
-    if hasattr(ChatMessage, 'tenant'):
-        chat_history = ChatMessage.objects.filter(room_name=room_name, tenant=tenant)
-    else:
-        chat_history = ChatMessage.objects.filter(room_name=room_name)
-    
+
+    # 3. Fetch customer list (ordered or chatted with this store)
+    customers = (
+        User.objects.filter(
+            Q(orders__tenant=tenant) | Q(chat_messages__tenant=tenant)
+        )
+        .distinct()
+        .exclude(id=request.user.id)
+    )
+
+    # 4. Fetch customer recent orders for this store
+    customer_orders = (
+        Order.objects.filter(user=customer, tenant=tenant)
+        .prefetch_related('items')
+        .order_by('-created_at')[:5]
+    )
+
+    # 5. Fetch tenant-scoped chat history
+    chat_history = ChatMessage.objects.filter(
+        room_name=room_name, tenant=tenant
+    )
+
     context = {
         'tenant': tenant,
         'customers': customers,
@@ -93,9 +145,9 @@ def merchant_chat_room(request, tenant_slug, room_name):
 
 @login_required
 def merchant_orders(request, tenant_slug):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
+    tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
+    if error_response:
+        return error_response
 
     status_filter = request.GET.get('status', '').strip()
     search_query = request.GET.get('q', '').strip()
@@ -127,10 +179,14 @@ def merchant_orders(request, tenant_slug):
 
 @login_required
 def update_order_status(request, tenant_slug, order_id):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
 
+    # 2. Process order status update on POST
     if request.method == "POST":
         order = get_object_or_404(Order, id=order_id, tenant=tenant)
         new_status = request.POST.get('status')
@@ -138,7 +194,9 @@ def update_order_status(request, tenant_slug, order_id):
         if new_status in STATUS_CHOICES:
             order.status = new_status
             order.save()
-            messages.success(request, f"Order #{order.id} status updated to '{new_status}'.")
+            messages.success(
+                request, f"Order #{order.id} status updated to '{new_status}'."
+            )
         else:
             messages.error(request, "Invalid status choice.")
 
@@ -147,10 +205,12 @@ def update_order_status(request, tenant_slug, order_id):
 
 @login_required
 def merchant_products(request, tenant_slug):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
+    if error_response:
+        return error_response
 
+    # 2. Filter and search logic
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '')
 
@@ -158,7 +218,11 @@ def merchant_products(request, tenant_slug):
     categories = Category.objects.filter(tenant=tenant)
 
     if query:
-        products = products.filter(Q(name__icontains=query) | Q(brand__icontains=query) | Q(description__icontains=query))
+        products = products.filter(
+            Q(name__icontains=query)
+            | Q(brand__icontains=query)
+            | Q(description__icontains=query)
+        )
 
     if category_id:
         products = products.filter(category_id=category_id)
@@ -177,20 +241,30 @@ def merchant_products(request, tenant_slug):
 
 @login_required
 def merchant_product_create(request, tenant_slug):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
 
+    # 2. Handle form submission and product creation
     if request.method == 'POST':
-        form = MerchantProductForm(request.POST, request.FILES, tenant=tenant)
+        form = MerchantProductForm(
+            request.POST, request.FILES, tenant=tenant
+        )
         if form.is_valid():
             product = form.save(commit=False)
             product.tenant = tenant
             product.save()
             form.save_m2m()
-            
-            messages.success(request, f"Product '{product.name}' created successfully!")
-            return redirect('tenancy:merchant_products', tenant_slug=tenant.slug)
+
+            messages.success(
+                request, f"Product '{product.name}' created successfully!"
+            )
+            return redirect(
+                'tenancy:merchant_products', tenant_slug=tenant.slug
+            )
     else:
         form = MerchantProductForm(tenant=tenant)
 
@@ -204,18 +278,29 @@ def merchant_product_create(request, tenant_slug):
 
 @login_required
 def merchant_product_edit(request, tenant_slug, product_id):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
 
+    # 2. Fetch product scoped to this tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
 
+    # 3. Handle form submission and validation
     if request.method == 'POST':
-        form = MerchantProductForm(request.POST, request.FILES, instance=product, tenant=tenant)
+        form = MerchantProductForm(
+            request.POST, request.FILES, instance=product, tenant=tenant
+        )
         if form.is_valid():
             form.save()
-            messages.success(request, f"Product '{product.name}' updated successfully!")
-            return redirect('tenancy:merchant_products', tenant_slug=tenant.slug)
+            messages.success(
+                request, f"Product '{product.name}' updated successfully!"
+            )
+            return redirect(
+                'tenancy:merchant_products', tenant_slug=tenant.slug
+            )
     else:
         form = MerchantProductForm(instance=product, tenant=tenant)
 
@@ -229,33 +314,46 @@ def merchant_product_edit(request, tenant_slug, product_id):
 
 @login_required
 def merchant_product_delete(request, tenant_slug, product_id):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
 
+    # 2. Fetch product scoped to this tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
-    
+
+    # 3. Handle deletion confirmation (POST)
     if request.method == 'POST':
         product_name = product.name
         product.delete()
         messages.success(request, f"Product '{product_name}' was deleted.")
         return redirect('tenancy:merchant_products', tenant_slug=tenant.slug)
 
+    # 4. Render confirmation page (GET)
     context = {
         'tenant': tenant,
         'product': product,
     }
-    return render(request, 'tenancy/dashboard/product_confirm_delete.html', context)
+    return render(
+        request, 'tenancy/dashboard/product_confirm_delete.html', context
+    )
 
 
 @login_required
 def merchant_categories(request, tenant_slug):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
-    
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
+
+    # 2. Query tenant-scoped categories
     categories = Category.objects.filter(tenant=tenant).order_by('name')
 
+    # 3. Handle Category Creation and Editing
     if request.method == 'POST':
         category_id = request.POST.get('category_id')
         name = request.POST.get('name', '').strip()
@@ -263,48 +361,72 @@ def merchant_categories(request, tenant_slug):
 
         if name:
             if category_id:
-                cat = get_object_or_404(Category, id=category_id, tenant=tenant)
+                cat = get_object_or_404(
+                    Category, id=category_id, tenant=tenant
+                )
                 cat.name = name
                 cat.description = description
                 cat.save()
-                messages.success(request, f"Category '{name}' updated successfully.")
+                messages.success(
+                    request, f"Category '{name}' updated successfully."
+                )
             else:
                 Category.objects.create(
-                    tenant=tenant,
-                    name=name,
-                    description=description
+                    tenant=tenant, name=name, description=description
                 )
-                messages.success(request, f"Category '{name}' created successfully.")
-            return redirect('tenancy:merchant_categories', tenant_slug=tenant.slug)
+                messages.success(
+                    request, f"Category '{name}' created successfully."
+                )
+            return redirect(
+                'tenancy:merchant_categories', tenant_slug=tenant.slug
+            )
 
-    return render(request, 'tenancy/dashboard/categories.html', {
-        'tenant': tenant,
-        'categories': categories,
-    })
+    return render(
+        request,
+        'tenancy/dashboard/categories.html',
+        {
+            'tenant': tenant,
+            'categories': categories,
+        },
+    )
 
 @login_required
 def delete_category(request, tenant_slug, category_id):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
-    if tenant.owner != request.user:
-        return HttpResponseForbidden("Access Denied.")
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
 
+    # 2. Fetch category scoped to this tenant
     category = get_object_or_404(Category, id=category_id, tenant=tenant)
-    
+
+    # 3. Handle deletion on POST
     if request.method == 'POST':
         cat_name = category.name
         category.delete()
-        messages.success(request, f"Category '{cat_name}' deleted successfully.")
-        
-    return redirect('tenancy:merchant_categories', tenant_slug=tenant.slug)
+        messages.success(
+            request, f"Category '{cat_name}' deleted successfully."
+        )
 
+    return redirect('tenancy:merchant_categories', tenant_slug=tenant.slug)
 
 
 @login_required
 def merchant_product_variants(request, tenant_slug, product_id):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug)
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
+
+    # 2. Fetch product scoped to this tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
     variants = product.variants.all()
 
+    # 3. Handle variant creation and editing
     if request.method == 'POST':
         variant_id = request.POST.get('variant_id')
         color_name = request.POST.get('color_name', '').strip()
@@ -314,41 +436,69 @@ def merchant_product_variants(request, tenant_slug, product_id):
 
         if color_name:
             if variant_id:
-                variant = get_object_or_404(ProductVariant, id=variant_id, product=product)
+                variant = get_object_or_404(
+                    ProductVariant, id=variant_id, product=product
+                )
                 variant.color_name = color_name
                 variant.price = price
                 variant.stock_quantity = stock_quantity
                 if image:
                     variant.image = image
                 variant.save()
-                messages.success(request, f"Variant '{color_name}' updated successfully.")
+                messages.success(
+                    request, f"Variant '{color_name}' updated successfully."
+                )
             else:
                 ProductVariant.objects.create(
                     product=product,
                     color_name=color_name,
                     price=price,
                     stock_quantity=stock_quantity,
-                    image=image
+                    image=image,
                 )
-                messages.success(request, f"Variant '{color_name}' created successfully.")
-                
-            return redirect('tenancy:merchant_product_variants', tenant_slug=tenant.slug, product_id=product.id)
+                messages.success(
+                    request, f"Variant '{color_name}' created successfully."
+                )
 
-    return render(request, 'tenancy/dashboard/variants.html', {
-        'tenant': tenant,
-        'product': product,
-        'variants': variants,
-    })
+            return redirect(
+                'tenancy:merchant_product_variants',
+                tenant_slug=tenant.slug,
+                product_id=product.id,
+            )
+
+    return render(
+        request,
+        'tenancy/dashboard/variants.html',
+        {
+            'tenant': tenant,
+            'product': product,
+            'variants': variants,
+        },
+    )
 
 @login_required
 def delete_product_variant(request, tenant_slug, product_id, variant_id):
-    tenant = get_object_or_404(Tenant, slug=tenant_slug)
+    # 1. Fetch tenant and handle inactive/permission checks via helper
+    tenant, error_response = get_tenant_or_handle_inactive(
+        request, tenant_slug
+    )
+    if error_response:
+        return error_response
+
+    # 2. Fetch product and variant scoped to this tenant
     product = get_object_or_404(Product, id=product_id, tenant=tenant)
     variant = get_object_or_404(ProductVariant, id=variant_id, product=product)
 
+    # 3. Handle deletion on POST
     if request.method == 'POST':
         var_name = variant.color_name
         variant.delete()
-        messages.success(request, f"Variant '{var_name}' deleted successfully.")
+        messages.success(
+            request, f"Variant '{var_name}' deleted successfully."
+        )
 
-    return redirect('tenancy:merchant_product_variants', tenant_slug=tenant.slug, product_id=product.id)
+    return redirect(
+        'tenancy:merchant_product_variants',
+        tenant_slug=tenant.slug,
+        product_id=product.id,
+    )

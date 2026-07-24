@@ -18,6 +18,9 @@ class Category(models.Model):
     
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name_plural = "Categories"
 
 class Product(models.Model):
     tenant = models.ForeignKey('tenancy.Tenant', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
