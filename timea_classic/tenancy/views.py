@@ -34,7 +34,7 @@ def get_tenant_or_handle_inactive(request, tenant_slug):
             request, 
             "Access Denied: You do not have permission to access that merchant workspace."
         )
-        # Redirect to your home view name (e.g., 'home')
+        # Redirect to homepage
         return tenant, redirect('home')  
 
     return tenant, None
