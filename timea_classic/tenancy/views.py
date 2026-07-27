@@ -1,20 +1,15 @@
-from django.db.models import Q, Sum, F, Count
+from .models import Tenant
+from orders.models import Order
+from orders.models import Coupon
+from chat.models import ChatMessage
 from django.contrib import messages
+from django.db.models import Q, Sum, F, Count
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-
-from .models import Tenant
-from .forms import MerchantProductForm, CategoryForm, ProductVariantForm
 from products.models import Product, Category, ProductVariant
-from orders.models import Order
-from chat.models import ChatMessage
-
-
-from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib import messages
-from .models import Tenant
+from django.shortcuts import render, get_object_or_404, redirect
+from .forms import MerchantProductForm, CategoryForm, ProductVariantForm
 
 def get_tenant_or_handle_inactive(request, tenant_slug):
     tenant = get_object_or_404(Tenant, slug=tenant_slug)
@@ -468,3 +463,54 @@ def delete_product_variant(request, tenant_slug, product_id, variant_id):
         tenant_slug=tenant.slug,
         product_id=product.id,
     )
+
+@login_required
+def merchant_coupons(request, tenant_slug):
+    tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
+    if error_response:
+        return error_response
+
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip().upper()
+        discount_type = request.POST.get('discount_type')
+        discount_value = request.POST.get('discount_value')
+        min_purchase = request.POST.get('min_purchase_amount', 0.00)
+        max_uses = request.POST.get('max_uses', 100)
+        valid_to = request.POST.get('valid_to')
+
+        if Coupon.objects.filter(tenant=tenant, code=code).exists():
+            messages.error(request, f"Coupon code '{code}' already exists for this store.")
+        else:
+            Coupon.objects.create(
+                tenant=tenant,
+                code=code,
+                discount_type=discount_type,
+                discount_value=discount_value,
+                min_purchase_amount=min_purchase if min_purchase else 0.00,
+                max_uses=max_uses if max_uses else 100,
+                valid_to=valid_to,
+                is_active=True
+            )
+            messages.success(request, f"Coupon '{code}' created successfully!")
+            return redirect('tenancy:merchant_coupons', tenant_slug=tenant.slug)
+
+    coupons = Coupon.objects.filter(tenant=tenant).order_by('-id')
+    
+    return render(request, 'tenancy/dashboard/coupons.html', {
+        'tenant': tenant,
+        'coupons': coupons,
+    })
+
+@login_required
+def toggle_coupon_status(request, tenant_slug, coupon_id):
+    tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
+    if error_response:
+        return error_response
+
+    coupon = get_object_or_404(Coupon, id=coupon_id, tenant=tenant)
+    coupon.is_active = not coupon.is_active
+    coupon.save()
+
+    status_str = "activated" if coupon.is_active else "disabled"
+    messages.success(request, f"Coupon '{coupon.code}' has been {status_str}.")
+    return redirect('merchant_coupons', tenant_slug=tenant.slug)

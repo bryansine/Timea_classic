@@ -21,4 +21,7 @@ urlpatterns = [
 
     path('api/secure-dashboard/', ProtectedOrderDashboard.as_view(), name='secure_dashboard'),
     path('api/my-orders/', UserOrderListView.as_view(), name='user_orders'),
+    
+    
+    path('<slug:tenant_slug>/apply-coupon/', views.apply_coupon_ajax, name='apply_coupon_ajax'),
 ]

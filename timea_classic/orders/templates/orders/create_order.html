@@ -349,7 +349,7 @@
             
                 <label for="closest_town">Select Closest Town (Eg Thika) *</label>
                 <select id="closest_town" name="closest_town" required>
-                    <option value="">Select an option...</option>
+                    <option value="">Select an option...eey</option>
                     <option value="Nairobi" selected='Nairobi'>Nairobi</option>
                     <option value="Thika">Thika</option>
                     <option value="Mombasa">Mombasa</option>
@@ -503,6 +503,37 @@
                         {% endfor %}
                     </div>
                 {% endif %}
+
+
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                      <h6 class="fw-bold mb-3">Have a Promo Code?</h6>
+                      <div class="input-group">
+                        <input type="text" id="coupon-code-input" class="form-control text-uppercase" placeholder="Enter code">
+                        <button class="btn btn-outline-dark" type="button" id="apply-coupon-btn">Apply</button>
+                      </div>
+                      <div id="coupon-feedback" class="mt-2 small" style="display: none;"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="card border-0 shadow-sm p-3">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Subtotal</span>
+                      <span>KES <span id="cart-subtotal">{{ subtotal|default:cart.total_price }}</span></span>
+                    </div>
+                  
+                    <div id="discount-row" class="d-flex justify-content-between mb-2 text-success" style="display: none !important;">
+                      <span>Discount (<strong id="applied-coupon-code"></strong>)</span>
+                      <span>- KES <span id="discount-amount">0.00</span></span>
+                    </div>
+                  
+                    <hr class="my-2">
+                  
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                      <span>Total Payable</span>
+                      <span>KES <span id="cart-final-total">{{ subtotal|default:cart.total_price }}</span></span>
+                    </div>
+                  </div>
             
                 <button type="submit" style="background-color:#28a745; color:white; padding:10px; margin-top:10px;">
                     Place Order
@@ -510,18 +541,7 @@
             </form>
         </div>
 
-         {% comment %} <section class="banners">
-            {% for banner in banners %}
-                <div class="banner">
-                    <a href="{{ banner.url }}">
-                        <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
-                        {% if banner.content %}
-                            <p>{{ banner.content }}</p>
-                        {% endif %}
-                    </a>
-                </div>
-            {% endfor %}
-        </section>  {% endcomment %}
+
     </main>
 
     <section class="popups">
@@ -587,6 +607,67 @@
             });
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const applyBtn = document.getElementById('apply-coupon-btn');
+          const couponInput = document.getElementById('coupon-code-input');
+          const feedbackDiv = document.getElementById('coupon-feedback');
+          const discountRow = document.getElementById('discount-row');
+          const discountAmountSpan = document.getElementById('discount-amount');
+          const finalTotalSpan = document.getElementById('cart-final-total');
+          const appliedCodeStrong = document.getElementById('applied-coupon-code');
+        
+          applyBtn.addEventListener('click', function () {
+            const code = couponInput.value.trim();
+            const subtotal = parseFloat(document.getElementById('cart-subtotal').innerText.replace(/,/g, ''));
+        
+            if (!code) {
+              showFeedback('Please enter a coupon code.', 'text-danger');
+              return;
+            }
+        
+            // Prepare Form Data for POST
+            const formData = new FormData();
+            formData.append('code', code);
+            formData.append('subtotal', subtotal);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+            // Trigger AJAX Request (ADDED orders: NAMESPACE BELOW)
+            
+            fetch("{% url 'orders:apply_coupon_ajax' tenant.slug %}", {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => response.json().then(data => ({ status: response.status, body: data })))
+            .then(res => {
+              if (res.body.success) {
+                showFeedback(res.body.message, 'text-success');
+                
+                // Update UI Breakdown
+                appliedCodeStrong.innerText = res.body.code;
+                discountAmountSpan.innerText = res.body.discount_amount.toFixed(2);
+                finalTotalSpan.innerText = res.body.new_total.toFixed(2);
+                
+                // Show discount line item
+                discountRow.style.setProperty('display', 'flex', 'important');
+              } else {
+                showFeedback(res.body.message, 'text-danger');
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              showFeedback('An unexpected error occurred. Please try again.', 'text-danger');
+            });
+          });
+        
+          function showFeedback(msg, colorClass) {
+            feedbackDiv.className = `mt-2 small ${colorClass}`;
+            feedbackDiv.innerText = msg;
+            feedbackDiv.style.display = 'block';
+          }
+        });
+        </script>
 
 </body>
 </body>

@@ -1,0 +1,235 @@
+{% extends 'tenancy/dashboard/base_merchant.html' %}
+
+{% block content %}
+<style>
+  .coupon-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    background: #ffffff;
+  }
+  .table-custom th {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 14px 16px;
+    border-bottom: 2px solid #edf2f7;
+  }
+  .table-custom td {
+    padding: 16px;
+    vertical-align: middle;
+    color: #2d3748;
+    font-size: 0.9rem;
+  }
+  .code-badge {
+    background-color: #1e293b;
+    color: #38bdf8;
+    font-family: monospace;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+  .btn-create {
+    background-color: #0f172a;
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 8px 18px;
+    transition: all 0.2s ease;
+  }
+  .btn-create:hover {
+    background-color: #1e293b;
+    color: #ffffff;
+  }
+  .form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+  }
+  .modal.show-manual {
+    display: block !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(2px);
+  }
+</style>
+
+<div class="container-fluid py-4 px-4">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h3 fw-bold text-dark mb-1">Store Promotions & Coupons</h2>
+      <p class="text-muted small mb-0">Manage promotional discount codes for {{ tenant.name }}</p>
+    </div>
+    <button type="button" class="btn btn-create d-flex align-items-center gap-2" id="openCouponModalBtn" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+      <i class="bi bi-plus-circle"></i> Create New Coupon
+    </button>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="coupon-card overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-custom align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Type</th>
+            <th>Discount</th>
+            <th>Min Spend</th>
+            <th>Redemptions</th>
+            <th>Expires On</th>
+            <th>Status</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for coupon in coupons %}
+          <tr>
+            <td>
+              <span class="code-badge">{{ coupon.code }}</span>
+            </td>
+            <td>
+              <span class="text-capitalize">{{ coupon.get_discount_type_display }}</span>
+            </td>
+            <td class="fw-bold text-dark">
+              {% if coupon.discount_type == 'percentage' %}
+                {{ coupon.discount_value }}% OFF
+              {% else %}
+                KES {{ coupon.discount_value }} OFF
+              {% endif %}
+            </td>
+            <td>KES {{ coupon.min_purchase_amount }}</td>
+            <td>
+              <span class="badge bg-light text-dark border fw-normal px-2 py-1">
+                {{ coupon.used_count }} / {{ coupon.max_uses }}
+              </span>
+            </td>
+            <td class="text-muted small">
+              <i class="bi bi-clock me-1"></i>{{ coupon.valid_to|date:"M d, Y H:i" }}
+            </td>
+            <td>
+              {% if coupon.is_active %}
+                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-medium">Active</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill fw-medium">Disabled</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'tenancy:toggle_coupon_status' tenant.slug coupon.id %}" 
+                 class="btn btn-sm {% if coupon.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %} px-3" style="border-radius: 6px;">
+                {% if coupon.is_active %}Disable{% else %}Enable{% endif %}
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <div class="py-3">
+                <i class="bi bi-ticket-perforated text-muted fs-1 d-block mb-2"></i>
+                <h6 class="fw-bold text-dark mb-1">No Promo Codes Created</h6>
+                <p class="text-muted small mb-0">Click "+ Create New Coupon" above to start adding store discounts.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+        <form method="POST" action="{% url 'tenancy:merchant_coupons' tenant.slug %}">
+          {% csrf_token %}
+          
+          <div class="modal-header border-0 pb-0 pt-4 px-4">
+            <h5 class="modal-title fw-bold text-dark" id="addCouponModalLabel">Create Promo Code</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+  
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-dark small">Coupon Code</label>
+              <input type="text" name="code" class="form-control text-uppercase font-monospace" placeholder="e.g. SUMMER10" required>
+            </div>
+  
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold text-dark small">Discount Type</label>
+                <select name="discount_type" class="form-select" required>
+                  <option value="percentage">Percentage Off (%)</option>
+                  <option value="fixed">Fixed Amount (KES)</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold text-dark small">Discount Value</label>
+                <input type="number" step="0.01" name="discount_value" class="form-control" placeholder="10.00" required>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold text-dark small">Min Purchase (KES)</label>
+                <input type="number" step="0.01" name="min_purchase_amount" class="form-control" value="0.00">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold text-dark small">Max Uses Cap</label>
+                <input type="number" name="max_uses" class="form-control" value="100">
+              </div>
+            </div>
+  
+            <div class="mb-2">
+              <label class="form-label fw-semibold text-dark small">Expiration Date & Time</label>
+              <input type="datetime-local" name="valid_to" class="form-control" required>
+            </div>
+          </div>
+  
+          <div class="modal-footer border-0 pt-0 pb-4 px-4">
+            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+            <button type="submit" class="btn btn-create px-4">Save Coupon</button>
+          </div>
+  
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const triggerBtn = document.querySelector('[data-bs-target="#addCouponModal"]');
+      const modalEl = document.getElementById('addCouponModal');
+  
+      if (triggerBtn && modalEl) {
+        triggerBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          
+          if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            bsModal.show();
+          } else {
+            modalEl.classList.add('show');
+            modalEl.style.display = 'block';
+            modalEl.removeAttribute('aria-hidden');
+          }
+        });
+      }
+    });
+  </script>
+{% endblock %}

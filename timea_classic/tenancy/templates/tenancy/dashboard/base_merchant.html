@@ -4,17 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Merchant Dashboard{% endblock %} - Timea Classic</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; display: flex; height: 100vh; background: #f4f6f9; }
-        .sidebar { width: 250px; background: #1e2229; color: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar { width: 250px; background: #1e2229; color: #fff; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
         .sidebar-header { padding: 20px; text-align: center; background: #1a1d24; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #2d323e; }
         .sidebar-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
         .sidebar-menu li a { display: block; padding: 15px 20px; color: #a3afc2; text-decoration: none; transition: 0.2s; }
         .sidebar-menu li a:hover, .sidebar-menu li a.active { background: #2d323e; color: #fff; }
         .sidebar-menu i { margin-right: 10px; width: 20px; text-align: center; }
         .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .navbar { height: 60px; background: #fff; border-bottom: 1px solid #e1e6eb; display: flex; align-items: center; justify-content: flex-end; padding: 0 30px; }
+        .navbar { height: 60px; background: #fff; border-bottom: 1px solid #e1e6eb; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
         .content-body { padding: 30px; flex-grow: 1; overflow-y: auto; }
     </style>
     {% block extra_css %}{% endblock %}
@@ -24,38 +29,42 @@
     <div class="sidebar">
         <div>
             <div class="sidebar-header">
-                <i class="fas fa-store"></i> Merchant Panel
+                <i class="fa-solid fa-store me-2"></i>Merchant Panel
             </div>
-            <ul class="sidebar-menu" style="list-style: none; padding: 0; margin: 0;">
+            <ul class="sidebar-menu">
                 <li>
-                    <a href="{% url 'tenancy:merchant_overview' tenant.slug %}" class="nav-item {% if request.resolver_match.url_name == 'merchant_overview' %}active{% endif %}">
-                        <i class="fas fa-chart-line"></i> Overview
+                    <a href="{% url 'tenancy:merchant_overview' tenant.slug %}" class="{% if request.resolver_match.url_name == 'merchant_overview' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-line"></i> Overview
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'tenancy:merchant_orders' tenant.slug %}" class="nav-item {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-box"></i> Managed Orders
+                    <a href="{% url 'tenancy:merchant_orders' tenant.slug %}" class="{% if 'orders' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-box"></i> Managed Orders
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'tenancy:merchant_products' tenant.slug %}" class="nav-item {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-tags"></i> My Products
+                    <a href="{% url 'tenancy:merchant_products' tenant.slug %}" class="{% if 'products' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-tags"></i> My Products
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'tenancy:merchant_categories' tenant.slug %}" class="nav-item {% if 'categor' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-folder"></i> Categories
+                    <a href="{% url 'tenancy:merchant_coupons' tenant.slug %}" class="{% if 'coupons' in request.path %}active{% endif %}">
+                        <i class="bi bi-ticket-perforated me-2"></i> Promotions & Coupons
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'tenancy:merchant_chat_dashboard' tenant.slug %}" class="nav-item {% if 'chat' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-comments"></i> Support Live Chat
+                    <a href="{% url 'tenancy:merchant_categories' tenant.slug %}" class="{% if 'categories' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-folder"></i> Categories
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'tenancy:merchant_chat_dashboard' tenant.slug %}" class="{% if 'chat' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-comments"></i> Support Live Chat
                     </a>
                 </li>
             </ul>
         </div>
-
-        <div style="padding: 20px; background: #1a1d24; font-size: 0.85rem; text-align: center; color: #7f8c8d; border-top: 1px solid #2d3748;">
+        <div class="p-3 text-center text-muted border-top border-secondary small">
             Timea Classic SaaS v1.0
         </div>
     </div>

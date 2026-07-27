@@ -9,6 +9,7 @@ urlpatterns = [
     
     path('dashboard/<slug:tenant_slug>/products/', views.merchant_products, name='merchant_products'),
     path('dashboard/<slug:tenant_slug>/products/add/', views.merchant_product_create, name='merchant_product_create'),
+    
     path('dashboard/<slug:tenant_slug>/products/<int:product_id>/edit/', views.merchant_product_edit, name='merchant_product_edit'),
     path('dashboard/<slug:tenant_slug>/products/<int:product_id>/delete/', views.merchant_product_delete, name='merchant_product_delete'),
     
@@ -26,4 +27,7 @@ urlpatterns = [
     
     path('dashboard/<slug:tenant_slug>/products/<int:product_id>/variants/', views.merchant_product_variants, name='merchant_product_variants'),
     path('dashboard/<slug:tenant_slug>/products/<int:product_id>/variants/<int:variant_id>/delete/', views.delete_product_variant, name='delete_product_variant'),
+    
+    path('dashboard/<slug:tenant_slug>/coupons/', views.merchant_coupons, name='merchant_coupons'),
+    path('dashboard/<slug:tenant_slug>/coupons/<int:coupon_id>/toggle/', views.toggle_coupon_status, name='toggle_coupon_status'),   
 ]

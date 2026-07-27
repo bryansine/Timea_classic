@@ -1,3 +1,7 @@
+
+from django.views.decorators.http import require_POST
+from tenancy.models import Tenant
+
 import uuid
 import json
 import requests
@@ -21,6 +25,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
+from .models import Order, OrderItem, Coupon, Product, ProductVariant
+
+
+
+
 def guest_checkout_view(request):
     if request.user.is_authenticated:
         return redirect('orders:checkout')
@@ -31,6 +40,7 @@ def guest_checkout_view(request):
         return redirect('products:list')
 
     cart_items = []
+    order_tenant = None
 
     for item_key, quantity in session_cart.items():
         if item_key.startswith('product_'):
@@ -38,11 +48,14 @@ def guest_checkout_view(request):
             product = get_object_or_404(Product, id=product_id)
             price = product.discount_price if product.discount_price else product.price
             
+            if not order_tenant:
+                order_tenant = product.tenant
+
             cart_items.append({
                 'product': product,
                 'variant': None,
                 'quantity': quantity,
-                'price': price
+                'price': Decimal(str(price))
             })
             
         elif item_key.startswith('variant_'):
@@ -50,12 +63,19 @@ def guest_checkout_view(request):
             variant = get_object_or_404(ProductVariant, id=variant_id)
             price = variant.product.discount_price if variant.product.discount_price else variant.product.price
 
+            if not order_tenant:
+                order_tenant = variant.product.tenant
+
             cart_items.append({
                 'product': None,
                 'variant': variant,
                 'quantity': quantity,
-                'price': price
+                'price': Decimal(str(price))
             })
+
+    cart_subtotal = Decimal('0.00')
+    for item in cart_items:
+        cart_subtotal += item['price'] * Decimal(str(item['quantity']))
 
     if request.method == 'POST':
         form = GuestCheckoutForm(request.POST)
@@ -70,40 +90,66 @@ def guest_checkout_view(request):
                 messages.info(request, "An account with this email exists. Please sign in or use Google login.")
                 return redirect(f"{reverse('login')}?next={request.path}")
 
-            username = email.split('@')[0] + '_' + str(uuid.uuid4())[:4]
-            ghost_user, created = User.objects.get_or_create(
-                email=email,
-                defaults={
-                    'username': username,
-                    'first_name': first_name,
-                    'last_name': last_name,
-                    'is_active': True,
-                }
-            )
-            if created:
-                ghost_user.set_unusable_password()
-                ghost_user.save()
+            coupon_obj = None
+            discount_amount = Decimal('0.00')
+            session_coupon_key = f'applied_coupon_{order_tenant.id}' if order_tenant else None
+            applied_coupon_data = request.session.get(session_coupon_key) if session_coupon_key else None
 
-            order = Order.objects.create(
-                user=ghost_user,
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                phone_number=phone,
-                shipping_address=shipping_address,
-                address=shipping_address,
-                status='Pending',
-                payment_status='Pending'
-            )
+            if applied_coupon_data:
+                try:
+                    coupon_candidate = Coupon.objects.get(id=applied_coupon_data['coupon_id'], tenant=order_tenant)
+                    is_valid, _ = coupon_candidate.is_valid(cart_subtotal)
+                    if is_valid:
+                        coupon_obj = coupon_candidate
+                        discount_amount = Decimal(str(coupon_obj.calculate_discount(cart_subtotal)))
+                except Coupon.DoesNotExist:
+                    pass
 
-            for item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item['product'],
-                    variant=item['variant'], 
-                    price=item['price'],
-                    quantity=item['quantity']
+            with transaction.atomic():
+                username = email.split('@')[0] + '_' + str(uuid.uuid4())[:4]
+                ghost_user, created = User.objects.get_or_create(
+                    email=email,
+                    defaults={
+                        'username': username,
+                        'first_name': first_name,
+                        'last_name': last_name,
+                        'is_active': True,
+                    }
                 )
+                if created:
+                    ghost_user.set_unusable_password()
+                    ghost_user.save()
+
+                order = Order.objects.create(
+                    tenant=order_tenant,
+                    user=ghost_user,
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    phone_number=phone,
+                    shipping_address=shipping_address,
+                    address=shipping_address,
+                    status='Pending',
+                    payment_status='Pending',
+                    subtotal=cart_subtotal,
+                    discount_amount=discount_amount,
+                    coupon=coupon_obj
+                )
+
+                for item in cart_items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item['product'],
+                        variant=item['variant'], 
+                        price=item['price'],
+                        quantity=item['quantity']
+                    )
+
+                if coupon_obj:
+                    coupon_obj.used_count += 1
+                    coupon_obj.save()
+                    if session_coupon_key in request.session:
+                        del request.session[session_coupon_key]
 
             login(request, ghost_user, backend='django.contrib.auth.backends.ModelBackend')
             request.session['cart'] = {}
@@ -118,8 +164,13 @@ def guest_checkout_view(request):
     context = {
         'form': form,
         'cart_items': cart_items,
+        'cart_subtotal': cart_subtotal,
+        'subtotal': cart_subtotal,
+        'tenant': order_tenant,
     }
     return render(request, 'orders/guest_checkout.html', context)
+
+
 
 
 @login_required
@@ -136,6 +187,16 @@ def create_order(request):
     buy_now_product = None
     if buy_now_product_data:
         buy_now_product = get_object_or_404(Product, id=buy_now_product_data['id'])
+
+    order_tenant = None
+    if buy_now_product:
+        order_tenant = buy_now_product.tenant
+    elif cart and cart.items.exists():
+        first_item = cart.items.first()
+        if first_item:
+            order_tenant = first_item.product.tenant if first_item.product else (
+                first_item.variant.product.tenant if first_item.variant else None
+            )
 
     if request.method == 'POST':
         shipping_address = request.POST.get('shipping_address')
@@ -154,10 +215,7 @@ def create_order(request):
         receive_emails = request.POST.get('receive_emails') == 'on'
         order_notes = request.POST.get('order_notes')
 
-        order_tenant = None
-        if buy_now_product:
-            order_tenant = buy_now_product.tenant
-        elif cart:
+        if not buy_now_product and cart:
             selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items if item_id.isdigit()]
             first_item = cart.items.filter(id__in=selected_cart_item_ids).first()
             if first_item:
@@ -168,23 +226,50 @@ def create_order(request):
         shipping_option_name = None
         shipping_option_description = None
         shipping_option_delivery_time = None
-        shipping_cost = 0.00
+        shipping_cost = Decimal('0.00')
 
         if shipping_option == 'pickup':
             shipping_option_name = 'Pick up from the Warehouse'
             shipping_option_description = 'To pick up Saturday 8am-5pm'
             shipping_option_delivery_time = 'Saturday'
-            shipping_cost = 0.00
+            shipping_cost = Decimal('0.00')
         elif shipping_option == 'delivery':
             shipping_option_name = 'Our own Delivery'
             shipping_option_description = 'We will deliver to your home / office'
             shipping_option_delivery_time = 'Next Day'
-            shipping_cost = 250.00
+            shipping_cost = Decimal('250.00')
         elif shipping_option == 'courier':
             shipping_option_name = 'Outside Nairobi by Courier'
             shipping_option_description = 'Courier will deliver to your town (doorstep or pick)'
             shipping_option_delivery_time = '2-3 Days'
-            shipping_cost = 500.00
+            shipping_cost = Decimal('500.00')
+
+        subtotal = Decimal('0.00')
+        if buy_now_product:
+            subtotal = Decimal(str(buy_now_product.price))
+        elif cart:
+            selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items if item_id.isdigit()]
+            for item in cart.items.filter(id__in=selected_cart_item_ids):
+                price = Decimal(str(item.product.price if item.product else item.variant.price))
+                subtotal += price * item.quantity
+
+        coupon_obj = None
+        discount_amount = Decimal('0.00')
+        
+        session_coupon_key = f'applied_coupon_{order_tenant.id}' if order_tenant else None
+        applied_coupon_data = request.session.get(session_coupon_key) if session_coupon_key else None
+
+        if applied_coupon_data:
+            try:
+                coupon_candidate = Coupon.objects.get(id=applied_coupon_data['coupon_id'], tenant=order_tenant)
+                is_valid, _ = coupon_candidate.is_valid(subtotal)
+                if is_valid:
+                    coupon_obj = coupon_candidate
+                    discount_amount = Decimal(str(coupon_obj.calculate_discount(subtotal)))
+            except Coupon.DoesNotExist:
+                pass
+
+        total_price = max(Decimal('0.00'), (subtotal - discount_amount) + shipping_cost)
 
         with transaction.atomic():
             order = Order.objects.create(
@@ -198,6 +283,9 @@ def create_order(request):
                 shipping_option_description=shipping_option_description,
                 shipping_option_delivery_time=shipping_option_delivery_time,
                 shipping_cost=shipping_cost,
+                subtotal=subtotal,
+                discount_amount=discount_amount,
+                coupon=coupon_obj,
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
@@ -219,8 +307,7 @@ def create_order(request):
                 )
                 del request.session['buy_now_product']
             else:
-                selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items]
-
+                selected_cart_item_ids = [int(item_id) for item_id in selected_cart_items if item_id.isdigit()]
                 for item in cart.items.filter(id__in=selected_cart_item_ids):
                     price = item.product.price if item.product else item.variant.price
                     OrderItem.objects.create(
@@ -230,6 +317,12 @@ def create_order(request):
                         quantity=item.quantity,
                         price=price
                     )
+
+            if coupon_obj:
+                coupon_obj.used_count += 1
+                coupon_obj.save()
+                if session_coupon_key in request.session:
+                    del request.session[session_coupon_key]
 
         return redirect('orders:order_detail', order_id=order.id)
 
@@ -277,6 +370,7 @@ def create_order(request):
 
     return render(request, 'orders/create_order.html', {
         'cart': cart,
+        'tenant': order_tenant,
         'buy_now_product': buy_now_product,
         'popups': popups,
         'user_data': user_initial_data,
@@ -445,9 +539,7 @@ def buy_now(request, product_id):
     }
     
     if not request.user.is_authenticated:
-        login_url = reverse('login')
-        checkout_url = reverse('orders:create_order')
-        return redirect(f"{login_url}?next={checkout_url}")
+        return redirect('orders:guest_checkout')
         
     return redirect('orders:create_order')
 
@@ -472,18 +564,59 @@ from .models import Order
 from .serializers import OrderSerializer
 
 class UserOrderListView(APIView):
-    # Lock this view down so only authenticated users can call it
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # The Magic Line: Filter orders where the 'user' field matches the logged-in user!
         orders = Order.objects.filter(user=request.user)
         
-        # Serialize the filtered list of orders (many=True handles a list of records)
         serializer = OrderSerializer(orders, many=True)
         
-        # Return the serialized JSON data
         return Response({
             "username": request.user.username,
             "orders": serializer.data
         })
+        
+        
+
+
+@require_POST
+def apply_coupon_ajax(request, tenant_slug):
+    """
+    Validates promo code for the active tenant during checkout via AJAX.
+    """
+    tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
+    
+    code = request.POST.get('code', '').strip().upper()
+    cart_subtotal = float(request.POST.get('subtotal', 0.00))
+
+    if not code:
+        return JsonResponse({'success': False, 'message': 'Please enter a coupon code.'}, status=400)
+
+    try:
+        coupon = Coupon.objects.get(tenant=tenant, code__iexact=code)
+    except Coupon.DoesNotExist:
+        return JsonResponse({
+            'success': False, 
+            'message': 'Invalid promo code for this store.'
+        }, status=404)
+
+    is_valid, message = coupon.is_valid(cart_subtotal)
+    if not is_valid:
+        return JsonResponse({'success': False, 'message': message}, status=400)
+
+    discount_amount = coupon.calculate_discount(cart_subtotal)
+    new_total = max(0.0, cart_subtotal - discount_amount)
+
+    request.session[f'applied_coupon_{tenant.id}'] = {
+        'coupon_id': coupon.id,
+        'code': coupon.code,
+        'discount_amount': float(discount_amount)
+    }
+
+    return JsonResponse({
+        'success': True,
+        'message': f'Coupon "{coupon.code}" applied successfully!',
+        'code': coupon.code,
+        'discount_amount': round(discount_amount, 2),
+        'new_total': round(new_total, 2)
+    })

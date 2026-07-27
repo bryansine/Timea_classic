@@ -116,22 +116,91 @@
                 </div>
             {% endfor %}
 
-            <div class="totals-section">
-                <div class="total-row">
+            <div class="promo-code-box" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; display: block;">Have a Promo Code?</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="coupon-code-input" placeholder="Enter code" style="text-transform: uppercase; flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px;">
+                    <button type="button" id="apply-coupon-btn" style="padding: 8px 16px; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Apply</button>
+                </div>
+                <div id="coupon-feedback" style="margin-top: 6px; font-size: 0.85rem; display: none;"></div>
+            </div>
+            
+            <div class="totals-section" style="margin-top: 15px;">
+                <div class="total-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                     <span>Subtotal</span>
-                    <span>Calculated at next step</span>
+                    <span>KSh <span id="cart-subtotal">{{ subtotal|default:cart_subtotal }}</span></span>
                 </div>
-                <div class="total-row">
-                    <span>Shipping</span>
-                    <span>Calculated at next step</span>
+            
+                <div id="discount-row" class="total-row" style="display: none; justify-content: space-between; margin-bottom: 8px; color: #2e7d32; font-weight: 600;">
+                    <span>Discount (<span id="applied-coupon-code"></span>)</span>
+                    <span>- KSh <span id="discount-amount">0.00</span></span>
                 </div>
-                <div class="total-row grand-total">
-                    <span>Total Amount</span>
-                    <span>Processing...</span>
+            
+                <div class="total-row" style="display: flex; justify-content: space-between; font-weight: bold; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
+                    <span>Total Payable</span>
+                    <span>KSh <span id="cart-final-total">{{ subtotal|default:cart_subtotal }}</span></span>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const applyBtn = document.getElementById('apply-coupon-btn');
+            const couponInput = document.getElementById('coupon-code-input');
+            const feedbackDiv = document.getElementById('coupon-feedback');
+            const discountRow = document.getElementById('discount-row');
+            const discountAmountSpan = document.getElementById('discount-amount');
+            const finalTotalSpan = document.getElementById('cart-final-total');
+            const appliedCodeSpan = document.getElementById('applied-coupon-code');
+    
+            if (applyBtn) {
+                applyBtn.addEventListener('click', function () {
+                    const code = couponInput.value.trim();
+                    const subtotal = parseFloat(document.getElementById('cart-subtotal').innerText.replace(/,/g, ''));
+    
+                    if (!code) {
+                        showFeedback('Please enter a coupon code.', '#d32f2f');
+                        return;
+                    }
+    
+                    const formData = new FormData();
+                    formData.append('code', code);
+                    formData.append('subtotal', subtotal);
+                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    
+                    fetch("{% url 'orders:apply_coupon_ajax' tenant.slug %}", {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                    .then(res => {
+                        if (res.body.success) {
+                            showFeedback(res.body.message, '#2e7d32');
+                            
+                            appliedCodeSpan.innerText = res.body.code;
+                            discountAmountSpan.innerText = res.body.discount_amount.toFixed(2);
+                            finalTotalSpan.innerText = res.body.new_total.toFixed(2);
+                            
+                            discountRow.style.display = 'flex';
+                        } else {
+                            showFeedback(res.body.message, '#d32f2f');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showFeedback('An unexpected error occurred.', '#d32f2f');
+                    });
+                });
+            }
+    
+            function showFeedback(msg, color) {
+                feedbackDiv.style.color = color;
+                feedbackDiv.innerText = msg;
+                feedbackDiv.style.display = 'block';
+            }
+        });
+    </script>
 
 </body>
 </html>

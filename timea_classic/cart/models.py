@@ -2,17 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from products.models import Product, ProductVariant
 
-# class Cart(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"Cart of {self.user.username}"
-
-#     @property
-#     def total_price(self):
-#         return sum(item.total_price() for item in self.items.all())
-    
     
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -28,6 +17,7 @@ class Cart(models.Model):
     def total_price(self):
         return sum(item.total_price for item in self.items.all())
 
+
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE, default=None, db_index=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
@@ -38,8 +28,5 @@ class CartItem(models.Model):
         return f"{self.product.name if self.product else self.variant.product.name} x {self.quantity}"
     
     @property
-    def total_price(self):
-        return (self.product.price if self.product else self.variant.price) * self.quantity
-    
     def total_price(self):
         return (self.product.price if self.product else self.variant.price) * self.quantity

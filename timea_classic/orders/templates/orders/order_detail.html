@@ -182,23 +182,43 @@
 
         <div class="order-summary">
             <h3 class="text-lg font-semibold text-orange-500 mb-4">Order Summary</h3>
+            
+            <div class="summary-item">
+                <span class="summary-label">Subtotal Price</span>
+                <span class="summary-value">Ksh {{ order.subtotal }}</span>
+            </div>
+
+            {% if order.discount_amount > 0 %}
+                <div class="summary-item text-green-600">
+                    <span class="summary-label">
+                        Discount 
+                        {% if order.coupon %}
+                            <strong class="uppercase text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded ml-1">({{ order.coupon.code }})</strong>
+                        {% endif %}
+                    </span>
+                    <span class="summary-value font-semibold">- Ksh {{ order.discount_amount }}</span>
+                </div>
+            {% endif %}
+
             <div class="summary-item">
                 <span class="summary-label">Shipping Option</span>
                 <span class="summary-value">{{ order.shipping_option_name }} - {{ order.shipping_option_delivery_time }}</span>
             </div>
+
             <div class="summary-item">
                 <span class="summary-label">Shipping Cost</span>
                 <span class="summary-value">Ksh {{ order.shipping_cost }}</span>
             </div>
+
+            <hr class="my-3 border-gray-200">
+
             <div class="summary-item">
-                <span class="summary-label">Subtotal Price</span>
-                <span class="summary-value">Ksh {{ order.subtotal_price }}</span>
+                <span class="summary-label font-bold text-gray-800">Total Price</span>
+                <span class="summary-value font-bold text-lg text-gray-900">Ksh {{ order.total_price }}</span>
             </div>
-            <div class="summary-item">
-                <span class="summary-label">Total Price</span>
-                <span class="summary-value font-bold">Ksh {{ order.total_price }}</span>
-            </div>
+
             <hr class="my-4 border-gray-300">
+
             <div class="summary-item">
                 <span class="summary-label">Email</span>
                 <span class="summary-value">{{ order.email }}</span>
