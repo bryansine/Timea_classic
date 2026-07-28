@@ -68,7 +68,7 @@
       <h2 class="h3 fw-bold text-dark mb-1">Store Promotions & Coupons</h2>
       <p class="text-muted small mb-0">Manage promotional discount codes for {{ tenant.name }}</p>
     </div>
-    <button type="button" class="btn btn-create d-flex align-items-center gap-2" id="openCouponModalBtn" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+    <button type="button" class="btn btn-create d-flex align-items-center gap-2" id="openCouponModalBtn">
       <i class="bi bi-plus-circle"></i> Create New Coupon
     </button>
   </div>
@@ -153,7 +153,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel">
+<div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel" aria-hidden="true" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
         <form method="POST" action="{% url 'tenancy:merchant_coupons' tenant.slug %}">
@@ -161,7 +161,7 @@
           
           <div class="modal-header border-0 pb-0 pt-4 px-4">
             <h5 class="modal-title fw-bold text-dark" id="addCouponModalLabel">Create Promo Code</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close close-coupon-modal" aria-label="Close"></button>
           </div>
   
           <div class="modal-body p-4">
@@ -202,34 +202,58 @@
           </div>
   
           <div class="modal-footer border-0 pt-0 pb-4 px-4">
-            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+            <button type="button" class="btn btn-light px-4 close-coupon-modal" style="border-radius: 8px;">Cancel</button>
             <button type="submit" class="btn btn-create px-4">Save Coupon</button>
           </div>
   
         </form>
       </div>
     </div>
-  </div>
+</div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const triggerBtn = document.querySelector('[data-bs-target="#addCouponModal"]');
-      const modalEl = document.getElementById('addCouponModal');
-  
-      if (triggerBtn && modalEl) {
-        triggerBtn.addEventListener('click', function (e) {
-          e.preventDefault();
-          
-          if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            bsModal.show();
-          } else {
-            modalEl.classList.add('show');
-            modalEl.style.display = 'block';
-            modalEl.removeAttribute('aria-hidden');
-          }
-        });
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const openBtn = document.getElementById('openCouponModalBtn');
+    const modal = document.getElementById('addCouponModal');
+    const closeBtns = document.querySelectorAll('.close-coupon-modal');
+
+    function openModal() {
+      if (modal) {
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+      }
+    }
+
+    function closeModal() {
+      if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    if (openBtn) {
+      openBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        openModal();
+      });
+    }
+
+    closeBtns.forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeModal();
+      });
+    });
+
+    // Close when clicking on the dark backdrop outside the modal dialog box
+    window.addEventListener('click', function (e) {
+      if (e.target === modal) {
+        closeModal();
       }
     });
-  </script>
+  });
+</script>
+
 {% endblock %}

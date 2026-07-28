@@ -1,4 +1,5 @@
 from .models import Tenant
+from decimal import Decimal
 from orders.models import Order
 from orders.models import Coupon
 from chat.models import ChatMessage
@@ -78,7 +79,12 @@ def merchant_overview(request, tenant_slug):
     pending_fulfillments = tenant_orders.filter(status='Pending').count()
     
     paid_orders = tenant_orders.filter(payment_status='Paid').prefetch_related('items')
-    total_revenue = sum(order.total_price for order in paid_orders)
+    
+    # Passing Decimal('0.00') as the start value prevents type mismatches
+    total_revenue = sum(
+        (Decimal(str(order.total_price)) for order in paid_orders), 
+        Decimal('0.00')
+    )
     
     recent_orders = tenant_orders.prefetch_related('items').order_by('-created_at')[:15]
     
@@ -501,6 +507,8 @@ def merchant_coupons(request, tenant_slug):
         'coupons': coupons,
     })
 
+
+
 @login_required
 def toggle_coupon_status(request, tenant_slug, coupon_id):
     tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
@@ -513,4 +521,6 @@ def toggle_coupon_status(request, tenant_slug, coupon_id):
 
     status_str = "activated" if coupon.is_active else "disabled"
     messages.success(request, f"Coupon '{coupon.code}' has been {status_str}.")
-    return redirect('merchant_coupons', tenant_slug=tenant.slug)
+    
+    # Namespaced redirect fix:
+    return redirect('tenancy:merchant_coupons', tenant_slug=tenant.slug)

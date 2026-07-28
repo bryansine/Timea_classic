@@ -1,13 +1,10 @@
 from decimal import Decimal
 from django.db import models
+from decimal import Decimal
+from tenancy.models import Tenant 
 from django.utils import timezone
 from django.contrib.auth.models import User
 from products.models import Product, ProductVariant
-
-from django.db import models
-from django.utils import timezone
-from tenancy.models import Tenant 
-
 
 class Coupon(models.Model):
     DISCOUNT_TYPES = (
@@ -162,11 +159,17 @@ class Order(models.Model):
     def __str__(self):
         return f"Order #{self.id} - {self.status}"
 
+    # @property
+    # def total_price(self):
+    #     base_amount = self.subtotal if self.subtotal > 0 else self.subtotal_price
+    #     payable = (base_amount - self.discount_amount) + self.shipping_cost
+    #     return max(0.00, payable)
+    
     @property
     def total_price(self):
-        base_amount = self.subtotal if self.subtotal > 0 else self.subtotal_price
+        base_amount = self.subtotal if self.subtotal > Decimal('0.00') else self.subtotal_price
         payable = (base_amount - self.discount_amount) + self.shipping_cost
-        return max(0.00, payable)
+        return max(Decimal('0.00'), Decimal(str(payable)))
 
     @property
     def subtotal_price(self):
