@@ -118,12 +118,10 @@
                 dismissAlert(alert);
               });
             }
-      
             setTimeout(function () {
               dismissAlert(alert);
             }, 1000);
           });
-      
           function dismissAlert(element) {
             if (!element) return;
             element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';

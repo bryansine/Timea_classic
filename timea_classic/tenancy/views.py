@@ -522,5 +522,4 @@ def toggle_coupon_status(request, tenant_slug, coupon_id):
     status_str = "activated" if coupon.is_active else "disabled"
     messages.success(request, f"Coupon '{coupon.code}' has been {status_str}.")
     
-    # Namespaced redirect fix:
     return redirect('tenancy:merchant_coupons', tenant_slug=tenant.slug)
