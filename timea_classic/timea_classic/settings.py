@@ -183,8 +183,6 @@ DATABASES = {
     }
 }
 
-
-
 # https://docs.djangoproject.com/en/5.1/ref/settings/
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -202,7 +200,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
@@ -213,7 +210,6 @@ USE_I18N = True
 
 
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 
 # Static files 
 STATIC_URL = '/static/'
