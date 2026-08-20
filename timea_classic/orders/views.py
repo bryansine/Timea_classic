@@ -1,13 +1,10 @@
-
-from django.views.decorators.http import require_POST
-from tenancy.models import Tenant
-
 import uuid
 import json
 import requests
 from decimal import Decimal
 from django.conf import settings
 from django.urls import reverse
+from tenancy.models import Tenant
 from core.models import Promotion
 from django.utils import timezone
 from django.db import transaction
@@ -21,6 +18,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from products.models import Product, ProductVariant
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
