@@ -8,6 +8,7 @@ from tenancy.models import Tenant
 from core.models import Promotion
 from django.utils import timezone
 from django.db import transaction
+#from django.db import transaction
 from django.contrib import messages
 from django.core.cache import cache
 from .models import Order, OrderItem
