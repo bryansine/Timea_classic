@@ -6,6 +6,8 @@ from django.conf import settings
 from django.urls import reverse
 from tenancy.models import Tenant
 from core.models import Promotion
+#from core.models import Promotion
+
 from django.utils import timezone
 from django.db import transaction
 from django.contrib import messages
