@@ -2,17 +2,14 @@ import uuid
 import json
 import requests
 from decimal import Decimal
-from django.conf import settings
 from django.urls import reverse
+from django.conf import settings
 from tenancy.models import Tenant
 from core.models import Promotion
-from core.models import Promotion
-
 from django.utils import timezone
 from django.db import transaction
 from django.contrib import messages
 from django.core.cache import cache
-from .models import Order, OrderItem
 from .forms import GuestCheckoutForm
 from django.contrib.auth import login
 from cart.models import Cart, CartItem
@@ -23,12 +20,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
-
 from .models import Order, OrderItem, Coupon, Product, ProductVariant
-
-
-
+from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
 def guest_checkout_view(request):
     if request.user.is_authenticated:
@@ -197,6 +190,13 @@ def create_order(request):
             order_tenant = first_item.product.tenant if first_item.product else (
                 first_item.variant.product.tenant if first_item.variant else None
             )
+
+    # --- CALCULATE DEFAULT SUBTOTAL FOR GET REQUEST ---
+    calculated_subtotal = Decimal('0.00')
+    if buy_now_product:
+        calculated_subtotal = Decimal(str(buy_now_product.price))
+    elif cart and cart.items.exists():
+        calculated_subtotal = Decimal(str(cart.total_price))
 
     if request.method == 'POST':
         shipping_address = request.POST.get('shipping_address')
@@ -372,6 +372,7 @@ def create_order(request):
         'cart': cart,
         'tenant': order_tenant,
         'buy_now_product': buy_now_product,
+        'subtotal': calculated_subtotal,  # <-- Pass subtotal to template
         'popups': popups,
         'user_data': user_initial_data,
     })

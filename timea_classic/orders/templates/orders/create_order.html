@@ -472,72 +472,100 @@
                 {% include 'orders/shipping_options.html' %}
             
                 {% if buy_now_product %}
-                    <h3>Buying Now</h3>
-                    <div class="cart-item">
-                        <img src="{{ buy_now_product.image.url }}" alt="{{ buy_now_product.name }}">
-                        <div class="item-info">
-                            <p><strong>{{ buy_now_product.name }}</strong></p>
-                            <p>Price: Ksh {{ buy_now_product.price }}</p>
-                            <p>Quantity: 1</p>
+                <h5 class="fw-bold mb-3">Buying Now</h5>
+                <div class="card border border-success bg-light mb-3 p-3">
+                    <div class="d-flex align-items-center">
+                        {% if buy_now_product.image %}
+                            <img src="{{ buy_now_product.image.url }}" alt="{{ buy_now_product.name }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded me-3">
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold">{{ buy_now_product.name }}</h6>
+                            <small class="text-muted">Quantity: 1 &bull; Ksh {{ buy_now_product.price }}</small>
                         </div>
+                        <span class="badge bg-success rounded-circle p-2"><i class="bi bi-check-lg"></i></span>
                     </div>
-                {% else %}
-                    <h2>Cart Items</h2>
-                    <div class="cart-container">
-                        {% for item in cart.items.all %}
-                            <div class="cart-item">
-                                <img src="{% if item.variant and item.variant.image %}{{ item.variant.image.url }}{% else %}{{ item.product.image.url }}{% endif %}" alt="{{ item.product.name }}">
-                                <div class="item-info">
-                                    {% if item.product %}
-                                        <p>{{ item.product.name }} - {{ item.quantity }} x Ksh {{ item.product.price }}</p>
-                                    {% elif item.variant %}
-                                        <p>{{ item.variant.product.name }} - {{ item.variant.color_name }} - {{ item.quantity }} x Ksh {{ item.variant.price }}</p>
-                                    {% else %}
-                                        <p>Unknown Item</p>
+                </div>
+            {% else %}
+                <h5 class="fw-bold mb-3">Cart Items</h5>
+                <div class="cart-container mb-3">
+                    {% for item in cart.items.all %}
+                        <div class="card border mb-2 p-3 cart-item-card border-success bg-light" id="cart-item-card-{{ item.id }}">
+                            <div class="form-check d-flex align-items-center mb-0">
+                                <input class="form-check-input me-3 cart-item-checkbox" 
+                                       type="checkbox" 
+                                       id="cart_item_{{ item.id }}" 
+                                       name="cart_items" 
+                                       value="{{ item.id }}"
+                                       data-price="{% if item.product %}{{ item.product.price }}{% elif item.variant %}{{ item.variant.price }}{% else %}0.00{% endif %}"
+                                       data-quantity="{{ item.quantity }}"
+                                       checked>
+                                
+                                <label class="form-check-label flex-grow-1 d-flex align-items-center" style="cursor: pointer;" for="cart_item_{{ item.id }}">
+                                    {% if item.variant and item.variant.image %}
+                                        <img src="{{ item.variant.image.url }}" alt="{{ item.variant.product.name }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded me-3">
+                                    {% elif item.product and item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded me-3">
                                     {% endif %}
-                                </div>
-                                <input type="checkbox" id="cart_item_{{ item.id }}" name="cart_items" value="{{ item.id }}">
+                                    
+                                    <div>
+                                        {% if item.product %}
+                                            <div class="fw-semibold">{{ item.product.name }}</div>
+                                            <small class="text-muted">{{ item.quantity }} x Ksh {{ item.product.price }}</small>
+                                        {% elif item.variant %}
+                                            <div class="fw-semibold">{{ item.variant.product.name }} - {{ item.variant.color_name }}</div>
+                                            <small class="text-muted">{{ item.quantity }} x Ksh {{ item.variant.price }}</small>
+                                        {% else %}
+                                            <div class="fw-semibold">Unknown Item</div>
+                                            <small class="text-muted">0 x Ksh 0.00</small>
+                                        {% endif %}
+                                    </div>
+                                </label>
                             </div>
-                        {% empty %}
-                            <p>Your cart is empty.</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">Your cart is empty.</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
 
+                <!-- Promo Code Section -->
                 <div class="card border-0 shadow-sm mb-3">
-                    <div class="card-body">
-                      <h6 class="fw-bold mb-3">Have a Promo Code?</h6>
-                      <div class="input-group">
+                    <div class="card-body p-3">
+                    <label for="coupon-code-input" class="form-label fw-bold small text-muted mb-2">Have a Promo Code?</label>
+                    <div class="input-group">
                         <input type="text" id="coupon-code-input" class="form-control text-uppercase" placeholder="Enter code">
-                        <button class="btn btn-outline-dark" type="button" id="apply-coupon-btn">Apply</button>
-                      </div>
-                      <div id="coupon-feedback" class="mt-2 small" style="display: none;"></div>
+                        <button class="btn btn-success fw-bold px-3" type="button" id="apply-coupon-btn">Apply</button>
                     </div>
-                  </div>
-                  
-                  <div class="card border-0 shadow-sm p-3">
+                    <div id="coupon-feedback" class="mt-2 small" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <!-- Order Summary  -->
+                <div class="card border-0 shadow-sm p-3">
+                    <h6 class="fw-bold mb-3 border-bottom pb-2">Order Summary</h6>
+                    
                     <div class="d-flex justify-content-between mb-2">
-                      <span>Subtotal</span>
-                      <span>KES <span id="cart-subtotal">{{ subtotal|default:cart.total_price }}</span></span>
+                    <span class="text-secondary">Subtotal</span>
+                    <span class="fw-semibold">KES <span id="cart-subtotal">{{ subtotal|default:cart.total_price }}</span></span>
                     </div>
-                  
+                
                     <div id="discount-row" class="d-flex justify-content-between mb-2 text-success" style="display: none !important;">
-                      <span>Discount (<strong id="applied-coupon-code"></strong>)</span>
-                      <span>- KES <span id="discount-amount">0.00</span></span>
+                    <span>Discount (<strong id="applied-coupon-code"></strong>)</span>
+                    <span>- KES <span id="discount-amount">0.00</span></span>
                     </div>
-                  
-                    <hr class="my-2">
-                  
-                    <div class="d-flex justify-content-between fw-bold fs-5">
-                      <span>Total Payable</span>
-                      <span>KES <span id="cart-final-total">{{ subtotal|default:cart.total_price }}</span></span>
+                
+                    <hr class="my-2 text-muted">
+                
+                    <div class="d-flex justify-content-between align-items-center fw-bold fs-5 mb-3">
+                    <span>Total Payable</span>
+                    <span class="text-success">KES <span id="cart-final-total">{{ subtotal|default:cart.total_price }}</span></span>
                     </div>
-                  </div>
-            
-                <button type="submit" style="background-color:#28a745; color:white; padding:10px; margin-top:10px;">
+                
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold text-uppercase shadow-sm">
                     Place Order
-                </button>
+                    </button>
+                </div>
             </form>
         </div>
 
@@ -563,18 +591,56 @@
     </section>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const cartItems = document.querySelectorAll(".cart-item");
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.cart-item-checkbox');
+            const subtotalElem = document.getElementById('cart-subtotal');
+            const finalTotalElem = document.getElementById('cart-final-total');
+            const placeOrderBtn = document.querySelector('button[type="submit"]');
 
-            cartItems.forEach(item => {
-                item.addEventListener("click", function(event) {
-                    if (event.target.tagName !== "INPUT") {
-                        let checkbox = this.querySelector("input[type='checkbox']");
-                        checkbox.checked = !checkbox.checked; 
-                        this.classList.toggle("selected", checkbox.checked); 
+            function updateCartTotals() {
+                if (checkboxes.length > 0) {
+                    let currentSubtotal = 0;
+                    let checkedCount = 0;
+
+                    checkboxes.forEach(chk => {
+                        const card = document.getElementById(`cart-item-card-${chk.value}`);
+                        if (chk.checked) {
+                            const price = parseFloat(chk.dataset.price) || 0;
+                            const qty = parseInt(chk.dataset.quantity) || 1;
+                            currentSubtotal += price * qty;
+                            checkedCount++;
+                            
+                            if (card) {
+                                card.classList.add('border-success', 'bg-light');
+                            }
+                        } else {
+                            if (card) {
+                                card.classList.remove('border-success', 'bg-light');
+                            }
+                        }
+                    });
+
+                    const formattedTotal = currentSubtotal.toFixed(2);
+                    if (subtotalElem) subtotalElem.textContent = formattedTotal;
+                    if (finalTotalElem) finalTotalElem.textContent = formattedTotal;
+
+                    if (placeOrderBtn) {
+                        if (checkedCount === 0) {
+                            placeOrderBtn.disabled = true;
+                            placeOrderBtn.classList.add('disabled');
+                        } else {
+                            placeOrderBtn.disabled = false;
+                            placeOrderBtn.classList.remove('disabled');
+                        }
                     }
-                });
+                }
+            }
+
+            checkboxes.forEach(chk => {
+                chk.addEventListener('change', updateCartTotals);
             });
+
+            updateCartTotals();
         });
     </script>
 
@@ -627,13 +693,10 @@
               return;
             }
         
-            // Prepare Form Data for POST
             const formData = new FormData();
             formData.append('code', code);
             formData.append('subtotal', subtotal);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-        
-            // Trigger AJAX Request (ADDED orders: NAMESPACE BELOW)
             
             fetch("{% url 'orders:apply_coupon_ajax' tenant.slug %}", {
               method: 'POST',
@@ -644,12 +707,10 @@
               if (res.body.success) {
                 showFeedback(res.body.message, 'text-success');
                 
-                // Update UI Breakdown
                 appliedCodeStrong.innerText = res.body.code;
                 discountAmountSpan.innerText = res.body.discount_amount.toFixed(2);
                 finalTotalSpan.innerText = res.body.new_total.toFixed(2);
                 
-                // Show discount line item
                 discountRow.style.setProperty('display', 'flex', 'important');
               } else {
                 showFeedback(res.body.message, 'text-danger');
