@@ -7,7 +7,6 @@ app_name = 'orders'
 urlpatterns = [
     path('create/', views.create_order, name='create_order'),
     path('<int:order_id>/', views.order_detail, name='order_detail'),
-    path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
     path('create-order/', views.create_order, name='create_order_from_cart'),
     path('guest-checkout/', views.guest_checkout_view, name='guest_checkout'),
     path("buy-now/<int:product_id>/", buy_now, name="buy_now"),
@@ -21,7 +20,6 @@ urlpatterns = [
 
     path('api/secure-dashboard/', ProtectedOrderDashboard.as_view(), name='secure_dashboard'),
     path('api/my-orders/', UserOrderListView.as_view(), name='user_orders'),
-    
     
     path('<slug:tenant_slug>/apply-coupon/', views.apply_coupon_ajax, name='apply_coupon_ajax'),
 ]

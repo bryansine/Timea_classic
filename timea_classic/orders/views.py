@@ -23,9 +23,19 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Order, OrderItem, Coupon, Product, ProductVariant
 from daraja.utils import get_mpesa_access_token, generate_password, get_timestamp
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth import login, get_user_model
+from django.db import transaction
+from decimal import Decimal
+import uuid
+
+User = get_user_model()
+
 def guest_checkout_view(request):
+    # Fix 1: If user is already logged in, redirect to logged-in checkout
     if request.user.is_authenticated:
-        return redirect('orders:checkout')
+        return redirect('orders:create_order_from_cart')
 
     session_cart = request.session.get('cart', {})
     if not session_cart:
@@ -79,10 +89,6 @@ def guest_checkout_view(request):
             last_name = form.cleaned_data['last_name']
             shipping_address = form.cleaned_data['shipping_address']
 
-            if User.objects.filter(email=email, is_active=True).exists():
-                messages.info(request, "An account with this email exists. Please sign in or use Google login.")
-                return redirect(f"{reverse('login')}?next={request.path}")
-
             coupon_obj = None
             discount_amount = Decimal('0.00')
             session_coupon_key = f'applied_coupon_{order_tenant.id}' if order_tenant else None
@@ -99,23 +105,25 @@ def guest_checkout_view(request):
                     pass
 
             with transaction.atomic():
-                username = email.split('@')[0] + '_' + str(uuid.uuid4())[:4]
-                ghost_user, created = User.objects.get_or_create(
-                    email=email,
-                    defaults={
-                        'username': username,
-                        'first_name': first_name,
-                        'last_name': last_name,
-                        'is_active': True,
-                    }
-                )
-                if created:
-                    ghost_user.set_unusable_password()
-                    ghost_user.save()
+                # Fix 2: Retrieve existing user if email matches, or create a guest user
+                existing_user = User.objects.filter(email=email, is_active=True).first()
+                if existing_user:
+                    target_user = existing_user
+                else:
+                    username = email.split('@')[0] + '_' + str(uuid.uuid4())[:4]
+                    target_user = User.objects.create(
+                        email=email,
+                        username=username,
+                        first_name=first_name,
+                        last_name=last_name,
+                        is_active=True,
+                    )
+                    target_user.set_unusable_password()
+                    target_user.save()
 
                 order = Order.objects.create(
                     tenant=order_tenant,
-                    user=ghost_user,
+                    user=target_user,
                     first_name=first_name,
                     last_name=last_name,
                     email=email,
@@ -144,7 +152,8 @@ def guest_checkout_view(request):
                     if session_coupon_key in request.session:
                         del request.session[session_coupon_key]
 
-            login(request, ghost_user, backend='django.contrib.auth.backends.ModelBackend')
+            # Log in the user session so they can track the order
+            login(request, target_user, backend='django.contrib.auth.backends.ModelBackend')
             request.session['cart'] = {}
 
             if 'checkout_order_id' in request.session: del request.session['checkout_order_id']
@@ -162,7 +171,6 @@ def guest_checkout_view(request):
         'tenant': order_tenant,
     }
     return render(request, 'orders/guest_checkout.html', context)
-
 
 
 
