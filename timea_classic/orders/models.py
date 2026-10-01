@@ -1,3 +1,4 @@
+# import uuid
 from decimal import Decimal
 from django.db import models
 from decimal import Decimal
@@ -5,6 +6,8 @@ from tenancy.models import Tenant
 from django.utils import timezone
 from django.contrib.auth.models import User
 from products.models import Product, ProductVariant
+#from products.models import Product, ProductVariant
+
 
 class Coupon(models.Model):
     DISCOUNT_TYPES = (
@@ -106,7 +109,11 @@ class Order(models.Model):
         null=True, 
         blank=True
     )
-
+    #uuid
+    # tracking_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+        
+    # tracking_token = models.CharField(max_length=64, default=uuid.uuid4, editable=False, unique=False)
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
