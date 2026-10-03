@@ -1,9 +1,13 @@
 import uuid
 import json
 import requests
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+from django.core import signing
 from decimal import Decimal
 from django.urls import reverse
-from django.conf import settings
 from tenancy.models import Tenant
 from core.models import Promotion
 from django.utils import timezone
@@ -12,8 +16,10 @@ from django.contrib import messages
 from django.core.cache import cache
 from .forms import GuestCheckoutForm
 from django.contrib.auth import login
+from django.core.mail import send_mail
 from cart.models import Cart, CartItem
 from django.contrib.auth.models import User
+from .utils import send_order_confirmation_email
 from django.http import HttpResponse, JsonResponse
 from products.models import Product, ProductVariant
 from django.views.decorators.csrf import csrf_exempt
@@ -29,6 +35,7 @@ from django.contrib.auth import login, get_user_model
 from django.db import transaction
 from decimal import Decimal
 import uuid
+
 
 User = get_user_model()
 
@@ -504,35 +511,49 @@ def check_payment_status(request, order_id):
     else:
         return JsonResponse({"status": "pending", "message": "Payment is still processing."})
 
-@login_required
-def payment_success(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
 
+
+def payment_success(request, order_id):
+    # Fetch order by ID (supporting both logged-in users and guest buyers)
+    order = get_object_or_404(Order, id=order_id)
+
+    # 1. Unlock this order for the current browser session
+    request.session['unlocked_order_id'] = order.id
+    request.session.modified = True
+
+    # 2. Update status and trigger confirmation email if pending
     if order.payment_status == "Pending":
         order.payment_status = "Paid"
+        order.status = "Processing"
         order.save()
-                
+
+        # Send confirmation email containing access instructions
+        send_order_confirmation_email(order, request=request)
+
+    # 3. Clear database cart if user is authenticated
+    if request.user.is_authenticated and not order.buy_now_product:
         user_cart = Cart.objects.filter(user=request.user).order_by('-created_at').first()
-        
         if user_cart:
             order_items = order.items.all()
-            
-            product_ids_to_remove = []
-            variant_ids_to_remove = []
-           
-            for item in order_items:
-                if item.product:
-                    product_ids_to_remove.append(item.product.id)
-                if item.variant:
-                    variant_ids_to_remove.append(item.variant.id)
-            
+            product_ids_to_remove = [item.product.id for item in order_items if item.product]
+            variant_ids_to_remove = [item.variant.id for item in order_items if item.variant]
+
             user_cart.items.filter(product__id__in=product_ids_to_remove, variant__isnull=True).delete()
             user_cart.items.filter(variant__id__in=variant_ids_to_remove).delete()
-        
+
         cache_key = f"cart_{request.user.id}"
         cache.delete(cache_key)
 
+    # 4. Clear guest session cart and Buy Now keys
+    if 'cart' in request.session and not order.buy_now_product:
+        request.session['cart'] = {}
+
+    if 'buy_now_product' in request.session:
+        del request.session['buy_now_product']
+
     return render(request, 'orders/payment_success.html', {'order': order})
+
+
 
 @login_required
 def payment_failed(request):
@@ -629,3 +650,83 @@ def apply_coupon_ajax(request, tenant_slug):
         'discount_amount': round(discount_amount, 2),
         'new_total': round(new_total, 2)
     })
+    
+
+
+
+
+
+def order_receipt(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    token = request.GET.get('token')
+
+    # 1. Allow if accessed via signed token from email
+    if token:
+        try:
+            data = signing.loads(token, max_age=86400 * 30) # Valid for 30 days
+            if data.get('order_id') == order.id:
+                request.session['unlocked_order_id'] = order.id
+        except (signing.BadSignature, signing.SignatureExpired):
+            messages.error(request, "Tracking link expired or invalid. Please verify via PIN.")
+
+    # 2. Check if user is authenticated owner or session is unlocked via PIN
+    is_unlocked = request.session.get('unlocked_order_id') == order.id
+    is_owner = request.user.is_authenticated and request.user.email.lower() == order.email.lower()
+
+    if not (is_unlocked or is_owner):
+        return redirect('orders:verify_order_pin', order_id=order.id)
+
+    return render(request, 'orders/order_detail.html', {'order': order})
+
+
+
+
+def send_pin_email(order, pin):
+    """Helper function to dispatch actual PIN email."""
+    subject = f"Your Order Verification PIN - #{order.id}"
+    message = f"Hi {order.first_name},\n\nYour 6-digit verification PIN for Order #{order.id} is: {pin}\n\nUse this code to view your order receipt and tracking status."
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[order.email],
+        fail_silently=False,
+    )
+
+def verify_order_pin(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    # Automatically generate & send PIN if missing or expired
+    pin_expired = getattr(order, 'is_pin_expired', lambda: False)()
+    if not order.verification_pin or pin_expired:
+        pin = order.generate_verification_pin()
+        try:
+            send_pin_email(order, pin)
+            messages.success(request, f"Verification PIN sent to {order.email}")
+        except Exception as e:
+            messages.error(request, f"Failed to send PIN email: {e}")
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'verify_pin')
+
+        if action == 'send_pin':
+            pin = order.generate_verification_pin()
+            try:
+                send_pin_email(order, pin)
+                messages.success(request, f"A new PIN has been sent to {order.email}")
+            except Exception as e:
+                messages.error(request, f"Failed to send PIN email: {e}")
+            return redirect('orders:verify_order_pin', order_id=order.id)
+
+        elif action == 'verify_pin':
+            input_pin = request.POST.get('pin', '').strip()
+            is_valid = order.is_pin_valid(input_pin) if hasattr(order, 'is_pin_valid') else (order.verification_pin == input_pin)
+
+            if is_valid:
+                request.session['unlocked_order_id'] = order.id
+                messages.success(request, "Order unlocked successfully!")
+                return redirect('orders:order_receipt', order_id=order.id)
+            else:
+                messages.error(request, "Invalid or expired PIN code.")
+
+    return render(request, 'orders/verify_pin.html', {'order': order})

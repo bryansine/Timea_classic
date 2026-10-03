@@ -1,12 +1,14 @@
+import secrets
 # import uuid
-from decimal import Decimal
+from django.db import models
 from django.db import models
 from decimal import Decimal
+from datetime import timedelta
 from tenancy.models import Tenant 
 from django.utils import timezone
+from model_utils import FieldTracker
 from django.contrib.auth.models import User
 from products.models import Product, ProductVariant
-#from products.models import Product, ProductVariant
 
 
 class Coupon(models.Model):
@@ -89,6 +91,7 @@ class Coupon(models.Model):
         # Discount cannot exceed the subtotal
         return min(discount, subtotal)
 
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -109,12 +112,9 @@ class Order(models.Model):
         null=True, 
         blank=True
     )
-    #uuid
-    # tracking_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-        
-    # tracking_token = models.CharField(max_length=64, default=uuid.uuid4, editable=False, unique=False)
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
     mpesa_checkout_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
@@ -163,15 +163,39 @@ class Order(models.Model):
         related_name='orders'
     )
     
+    status = models.CharField(max_length=20, default='pending', choices=STATUS_CHOICES)
+    
+    # Track model field changes
+    tracker = FieldTracker(fields=['status'])
+    
+    verification_pin = models.CharField(max_length=6, blank=True, null=True)
+    pin_created_at = models.DateTimeField(blank=True, null=True)
+
+    def generate_verification_pin(self):
+        """Generates a 6-digit OTP valid for 15 minutes."""
+        pin = f"{secrets.randbelow(1000000):06d}"
+        self.verification_pin = pin
+        self.pin_created_at = timezone.now()
+        self.save(update_fields=['verification_pin', 'pin_created_at'])
+        return pin
+    
+    def is_pin_expired(self, expiry_minutes=15):
+        """Checks if the PIN has passed its expiration timeframe."""
+        if not self.pin_created_at:
+            return True
+        return timezone.now() > self.pin_created_at + timedelta(minutes=expiry_minutes)
+
+    def is_pin_valid(self, input_pin):
+        """Checks if the entered PIN matches and was generated within 15 minutes."""
+        if not self.verification_pin or self.verification_pin != str(input_pin).strip():
+            return False
+        if timezone.now() > self.pin_created_at + timedelta(minutes=15):
+            return False
+        return True
+
     def __str__(self):
         return f"Order #{self.id} - {self.status}"
 
-    # @property
-    # def total_price(self):
-    #     base_amount = self.subtotal if self.subtotal > 0 else self.subtotal_price
-    #     payable = (base_amount - self.discount_amount) + self.shipping_cost
-    #     return max(0.00, payable)
-    
     @property
     def total_price(self):
         base_amount = self.subtotal if self.subtotal > Decimal('0.00') else self.subtotal_price

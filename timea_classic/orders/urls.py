@@ -10,6 +10,9 @@ urlpatterns = [
     path('create-order/', views.create_order, name='create_order_from_cart'),
     path('guest-checkout/', views.guest_checkout_view, name='guest_checkout'),
     path("buy-now/<int:product_id>/", buy_now, name="buy_now"),
+    
+    path('receipt/<int:order_id>/', views.order_receipt, name='order_receipt'),
+    path('verify/<int:order_id>/', views.verify_order_pin, name='verify_order_pin'),
 
     path('daraja/callback/', views.mpesa_callback, name='mpesa_callback'),
     path('initiate-payment/<int:order_id>/', views.initiate_payment, name='initiate_payment'),

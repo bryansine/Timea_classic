@@ -253,25 +253,63 @@
                 <span class="summary-label">Closest Town</span>
                 <span class="summary-value">{{ order.closest_town }}</span>
             </div>
-            <div class="summary-item">
-                <span class="summary-label">Payment Status</span>
-                <span class="summary-value">{{ order.payment_status }}</span>
+
+                <!-- Payment Status -->
+        <div class="summary-item">
+            <span class="summary-label">Payment Status</span>
+            <span class="summary-value fw-bold {% if order.payment_status == 'Paid' %}text-success{% else %}text-warning{% endif %}">
+                {{ order.payment_status }}
+            </span>
+        </div>
+
+        <!-- Delivery / Order Status -->
+        <div class="summary-item">
+            <span class="summary-label">Order Status</span>
+            <span class="summary-value fw-bold text-info">
+                {{ order.get_status_display }}
+            </span>
+        </div>
+        </div>
+
+        <!-- Order Actions / Unpaid Payment Trigger -->
+        <div class="order-status my-4 text-center">
+        {% if order.payment_status == "Pending" and not order.buy_now_product %}
+            <form action="{% url 'orders:initiate_payment' order.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary w-100 py-2">Complete Payment</button>
+            </form>
+        {% endif %}
+        </div>    
+
+
+
+        <!-- Footer Navigation Actions & Account Prompt -->
+        <div class="mt-6 pt-4 border-t border-gray-200 text-center">
+            {% if is_guest_owner %}
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-blue-900 mb-1">Save your order history</h4>
+                        <p class="text-sm text-blue-700">
+                            Create an account with <strong>{{ order.email }}</strong> to access all past and future order receipts without PIN verification.
+                        </p>
+                    </div>
+                    <!-- Fixed button contrast -->
+                    <a href="{% url 'register' %}?email={{ order.email }}" class="btn bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md font-semibold ml-4 whitespace-nowrap">
+                        Create Account
+                    </a>
+                </div>
             </div>
-        </div>
+        {% endif %}
 
-        <div class="order-status">
-            {% if order.payment_status == "Pending" and not order.buy_now_product %}
-                <form action="{% url 'orders:initiate_payment' order.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Place Order & Pay</button>
-                </form>
-            {% elif order.payment_status == "Paid" %}
-                <p class="text-green-600 font-semibold">Payment Successful!</p>
-            {% endif %}
-        </div>
-
-        <div class="order-actions flex flex-col items-center gap-4">
-            <a href="{% url 'cart:view' %}" class="btn btn-secondary">Back to Cart</a>
+            <div class="flex justify-center gap-4">
+                <a href="{% url 'home' %}" class="btn btn-primary px-6 py-2 font-semibold">
+                    Continue Shopping
+                </a>
+                <button onclick="window.print()" class="btn btn-secondary px-6 py-2 font-semibold">
+                    Print Receipt
+                </button>
+            </div>
         </div>
     </div>
 </body>
