@@ -7,6 +7,8 @@ urlpatterns = [
     path('dashboard/<slug:tenant_slug>/', views.merchant_overview, name='merchant_overview'),
     path('dashboard/<slug:tenant_slug>/orders/', views.merchant_orders, name='merchant_orders'),
     
+    path('<slug:tenant_slug>/orders/<int:order_id>/update-payment/', views.update_payment_status, name='update_payment_status'),
+    
     path('dashboard/<slug:tenant_slug>/products/', views.merchant_products, name='merchant_products'),
     path('dashboard/<slug:tenant_slug>/products/add/', views.merchant_product_create, name='merchant_product_create'),
     

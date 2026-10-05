@@ -559,7 +559,7 @@ def payment_success(request, order_id):
 def payment_failed(request):
     return render(request, 'orders/payment_failed.html')
 
-
+@login_required
 def buy_now(request, product_id):
     product = get_object_or_404(Product, id=product_id)    
     request.session['buy_now_product'] = {

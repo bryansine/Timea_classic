@@ -12,6 +12,7 @@ from products.models import Product, Category, ProductVariant
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import MerchantProductForm, CategoryForm, ProductVariantForm
 
+
 def get_tenant_or_handle_inactive(request, tenant_slug):
     tenant = get_object_or_404(Tenant, slug=tenant_slug)
 
@@ -168,6 +169,30 @@ def merchant_orders(request, tenant_slug):
         'search_query': search_query,
     }
     return render(request, 'tenancy/dashboard/orders_list.html', context)
+
+
+PAYMENT_STATUS_CHOICES = ['Pending', 'Paid']
+
+@login_required
+def update_payment_status(request, tenant_slug, order_id):
+    tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
+    if error_response:
+        return error_response
+
+    if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id, tenant=tenant)
+        new_payment_status = request.POST.get('payment_status')
+
+        if new_payment_status in PAYMENT_STATUS_CHOICES:
+            order.payment_status = new_payment_status
+            order.save()
+            messages.success(request, f"Payment status for Order #{order.id} updated to {new_payment_status}.")
+        else:
+            messages.error(request, "Invalid payment status selected.")
+
+    return redirect('tenancy:merchant_orders', tenant_slug=tenant_slug)
+
+
 
 @login_required
 def update_order_status(request, tenant_slug, order_id):
