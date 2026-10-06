@@ -6,11 +6,6 @@ from django.db.models import Avg, Count
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete
 
-# class Category(models.Model):
-#     name = models.CharField(max_length=100)
-#     description = models.TextField()
-
-
 class Category(models.Model):
     tenant = models.ForeignKey('tenancy.Tenant', on_delete=models.CASCADE, related_name='categories', null=True, blank=True)
     name = models.CharField(max_length=100)

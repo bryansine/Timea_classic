@@ -16,7 +16,6 @@ from .forms import MerchantProductForm, CategoryForm, ProductVariantForm
 def get_tenant_or_handle_inactive(request, tenant_slug):
     tenant = get_object_or_404(Tenant, slug=tenant_slug)
 
-    # 1. Check if store is suspended by admin
     if not tenant.is_active:
         return tenant, render(
             request,
@@ -25,13 +24,11 @@ def get_tenant_or_handle_inactive(request, tenant_slug):
             status=403
         )
 
-    # 2. Permission check: User is neither the store owner nor a superuser
     if tenant.owner != request.user and not request.user.is_superuser:
         messages.error(
             request, 
             "Access Denied: You do not have permission to access that merchant workspace."
         )
-        # Redirect to homepage
         return tenant, redirect('home')  
 
     return tenant, None
@@ -81,7 +78,6 @@ def merchant_overview(request, tenant_slug):
     
     paid_orders = tenant_orders.filter(payment_status='Paid').prefetch_related('items')
     
-    # Passing Decimal('0.00') as the start value prevents type mismatches
     total_revenue = sum(
         (Decimal(str(order.total_price)) for order in paid_orders), 
         Decimal('0.00')

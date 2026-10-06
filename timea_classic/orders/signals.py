@@ -31,5 +31,4 @@ def send_order_status_update_email(sender, instance, created, **kwargs):
             except Exception as e:
                 print(f"[SIGNAL ERROR] Failed to send status email: {e}")
 
-        # Defers email sending until after the database commit completes
         transaction.on_commit(send)

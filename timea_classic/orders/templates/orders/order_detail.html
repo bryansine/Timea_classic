@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{% static 'core/images/favicon.ico' %}">
     <title>Order Receipt #{{ order.id }} - Timea Classic</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -15,7 +14,6 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Dedicated styles for printing clean invoices */
         @media print {
             body {
                 background: white !important;
@@ -39,14 +37,12 @@
 
     <div class="print-card max-w-2xl w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transition-all my-auto">
         
-        <!-- Header Banner -->
         <div class="bg-gradient-to-r from-orange-600 to-amber-500 p-6 md:p-8 text-white">
             <div class="flex justify-between items-start flex-wrap gap-4">
                 <div>
                     <span class="text-xs uppercase tracking-widest font-semibold text-orange-100 block mb-1">Receipt & Confirmation</span>
                     <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Order #{{ order.id }}</h1>
                 </div>
-                <!-- Dynamic Header Status Badge -->
                 <div class="no-print">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/30">
                         <span class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
@@ -58,7 +54,6 @@
 
         <div class="p-6 md:p-8 space-y-6">
 
-            <!-- Order Items Section -->
             <div>
                 <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">Items Purchased</h3>
                 <div class="space-y-3">
@@ -98,7 +93,6 @@
                 </div>
             </div>
 
-            <!-- Order Summary & Financials Card -->
             <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 space-y-3">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-2">Payment Summary</h3>
                 
@@ -132,10 +126,8 @@
                 </div>
             </div>
 
-            <!-- Shipping & Status Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 
-                <!-- Shipping Address Card -->
                 <div class="p-4 rounded-xl border border-slate-100 bg-white shadow-sm space-y-1.5">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Delivery Details</h4>
                     <p class="font-bold text-slate-900">{{ order.first_name }} {{ order.last_name }}</p>
@@ -145,12 +137,10 @@
                     <p class="text-slate-500 text-[11px]">ZIP: {{ order.zip_code }}</p>
                 </div>
 
-                <!-- Status Summary Card -->
                 <div class="p-4 rounded-xl border border-slate-100 bg-white shadow-sm space-y-3 flex flex-col justify-between">
                     <div>
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Order Statuses</h4>
                         
-                        <!-- Payment Status Pill -->
                         <div class="flex justify-between items-center py-1">
                             <span class="text-xs text-slate-600 font-medium">Payment Status</span>
                             {% if order.payment_status == 'Paid' %}
@@ -164,7 +154,6 @@
                             {% endif %}
                         </div>
 
-                        <!-- Delivery Status Pill -->
                         <div class="flex justify-between items-center py-1">
                             <span class="text-xs text-slate-600 font-medium">Order Status</span>
                             <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
@@ -173,7 +162,6 @@
                         </div>
                     </div>
 
-                    <!-- M-Pesa Trigger Button for Pending Payments -->
                     {% if order.payment_status == "Pending" and not order.buy_now_product %}
                         <form action="{% url 'orders:initiate_payment' order.id %}" method="post" class="no-print pt-2">
                             {% csrf_token %}
@@ -185,7 +173,6 @@
                 </div>
             </div>
 
-            <!-- Guest Account Promotion Banner -->
             {% if is_guest_owner %}
                 <div class="no-print p-4 rounded-xl bg-blue-50/80 border border-blue-200/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
                     <div>
@@ -200,7 +187,6 @@
                 </div>
             {% endif %}
 
-            <!-- Footer Action Buttons -->
             <div class="no-print pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-center gap-3">
                 <a href="{% url 'home' %}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition-all active:scale-95">
                     Continue Shopping

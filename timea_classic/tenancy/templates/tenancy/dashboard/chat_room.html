@@ -114,7 +114,7 @@
         
         chatLog.appendChild(msgDiv);
         chatLog.scrollTop = chatLog.scrollHeight; 
-    }; // 🟢 FIXED: Added missing closing brace and semicolon here!
+    };
 
     chatSocket.onclose = function(e) {
         console.error('Chat routing room channel closed unexpectedly');

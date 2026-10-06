@@ -1,13 +1,8 @@
-# orders/utils.py
-
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.conf import settings
 
 def send_order_confirmation_email(order, request=None):
-    """
-    Generates the order verification/receipt link and emails the order confirmation.
-    """
     receipt_path = reverse('orders:order_receipt', kwargs={'order_id': order.id})
     
     if request:

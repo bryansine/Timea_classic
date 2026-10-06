@@ -42,6 +42,7 @@
                     <th style="padding: 10px;">Payment Status</th>
                     <th style="padding: 10px;">Fulfilment</th>
                     <th style="padding: 10px;">Date</th>
+                    {% comment %} <th style="padding: 12px 10px; color: #718096; font-size: 0.85rem;">{{ order.created_at|date:"M d, Y, g:i A" }}</th> {% endcomment %}
                 </tr>
             </thead>
             <tbody>
@@ -55,7 +56,7 @@
                         </span>
                     </td>
                     <td style="padding: 12px 10px;">{{ order.status }}</td>
-                    <td style="padding: 12px 10px; color: #718096; font-size: 0.85rem;">{{ order.created_at|date:"M d, Y" }}</td>
+                    <td style="padding: 12px 10px; color: #718096; font-size: 0.85rem;">{{ order.created_at|date:"M d, Y, g:i A" }}</td>
                 </tr>
                 {% empty %}
                 <tr>

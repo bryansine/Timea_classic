@@ -1,4 +1,3 @@
-
 from urllib.parse import quote
 from django.db.models import Q
 from django.core.cache import cache

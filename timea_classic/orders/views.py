@@ -606,14 +606,8 @@ class UserOrderListView(APIView):
             "orders": serializer.data
         })
         
-        
-
-
 @require_POST
 def apply_coupon_ajax(request, tenant_slug):
-    """
-    Validates promo code for the active tenant during checkout via AJAX.
-    """
     tenant = get_object_or_404(Tenant, slug=tenant_slug, is_active=True)
     
     code = request.POST.get('code', '').strip().upper()
@@ -660,16 +654,14 @@ def order_receipt(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     token = request.GET.get('token')
 
-    # 1. Allow if accessed via signed token from email
     if token:
         try:
-            data = signing.loads(token, max_age=86400 * 30) # Valid for 30 days
+            data = signing.loads(token, max_age=86400 * 30)
             if data.get('order_id') == order.id:
                 request.session['unlocked_order_id'] = order.id
         except (signing.BadSignature, signing.SignatureExpired):
             messages.error(request, "Tracking link expired or invalid. Please verify via PIN.")
 
-    # 2. Check if user is authenticated owner or session is unlocked via PIN
     is_unlocked = request.session.get('unlocked_order_id') == order.id
     is_owner = request.user.is_authenticated and request.user.email.lower() == order.email.lower()
 
@@ -682,7 +674,6 @@ def order_receipt(request, order_id):
 
 
 def send_pin_email(order, pin):
-    """Helper function to dispatch actual PIN email."""
     subject = f"Your Order Verification PIN - #{order.id}"
     message = f"Hi {order.first_name},\n\nYour 6-digit verification PIN for Order #{order.id} is: {pin}\n\nUse this code to view your order receipt and tracking status."
     send_mail(
@@ -696,7 +687,6 @@ def send_pin_email(order, pin):
 def verify_order_pin(request, order_id):
     order = get_object_or_404(Order, id=order_id)
 
-    # Automatically generate & send PIN if missing or expired
     pin_expired = getattr(order, 'is_pin_expired', lambda: False)()
     if not order.verification_pin or pin_expired:
         pin = order.generate_verification_pin()
