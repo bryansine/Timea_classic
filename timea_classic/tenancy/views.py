@@ -1,6 +1,6 @@
 from .models import Tenant
 from decimal import Decimal
-from orders.models import Order
+from orders.models import Order, OrderItem
 from orders.models import Coupon
 from chat.models import ChatMessage
 from django.contrib import messages
@@ -9,8 +9,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from products.models import Product, Category, ProductVariant
+from django.db.models import Sum, Count, F, ExpressionWrapper, DecimalField
+from django.db.models.functions import TruncMonth, ExtractHour, Coalesce
+from django.db.models.functions import TruncMonth, ExtractHour
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import MerchantProductForm, CategoryForm, ProductVariantForm
+
 
 
 def get_tenant_or_handle_inactive(request, tenant_slug):
@@ -64,6 +68,7 @@ def merchant_chat_dashboard(request, tenant_slug):
     )
 
 
+
 @login_required
 def merchant_overview(request, tenant_slug):
     tenant, error_response = get_tenant_or_handle_inactive(request, tenant_slug)
@@ -77,12 +82,61 @@ def merchant_overview(request, tenant_slug):
     pending_fulfillments = tenant_orders.filter(status='Pending').count()
     
     paid_orders = tenant_orders.filter(payment_status='Paid').prefetch_related('items')
+    paid_orders_count = paid_orders.count()
     
+    # 1. Total Revenue Calculation
     total_revenue = sum(
-        (Decimal(str(order.total_price)) for order in paid_orders), 
-        Decimal('0.00')
+        (
+            Decimal(str(order.subtotal or 0)) + 
+            Decimal(str(order.shipping_cost or 0)) - 
+            Decimal(str(order.discount_amount or 0))
+        ) for order in paid_orders
     )
+    if not isinstance(total_revenue, Decimal):
+        total_revenue = Decimal(str(total_revenue))
     
+    # 2. Average Order Value (AOV)
+    aov = (total_revenue / paid_orders_count) if paid_orders_count > 0 else Decimal('0.00')
+
+    # 3. Monthly Revenue Trend (Chart Data)
+    order_total_expr = ExpressionWrapper(
+        Coalesce(F('subtotal'), 0.0) + Coalesce(F('shipping_cost'), 0.0) - Coalesce(F('discount_amount'), 0.0),
+        output_field=DecimalField()
+    )
+
+    monthly_sales = (
+        paid_orders.annotate(
+            month=TruncMonth('created_at'),
+            calculated_total=order_total_expr
+        )
+        .values('month')
+        .annotate(total=Sum('calculated_total'))
+        .order_by('month')
+    )
+    revenue_labels = [item['month'].strftime('%b %Y') for item in monthly_sales]
+    revenue_data = [float(item['total'] or 0) for item in monthly_sales]
+
+    # 4. Top 5 Selling Products (Chart Data)
+    top_products = (
+        OrderItem.objects.filter(order__tenant=tenant, order__payment_status='Paid')
+        .values('product__name')
+        .annotate(total_qty=Sum('quantity'))
+        .order_by('-total_qty')[:5]
+    )
+    top_product_labels = [item['product__name'] for item in top_products]
+    top_product_data = [item['total_qty'] for item in top_products]
+
+    # 5. Peak Purchasing Hours (24-Hour Distribution)
+    hourly_distribution = (
+        paid_orders.annotate(hour=ExtractHour('created_at'))
+        .values('hour')
+        .annotate(order_count=Count('id'))
+        .order_by('hour')
+    )
+    hourly_dict = {item['hour']: item['order_count'] for item in hourly_distribution}
+    peak_hours_labels = [f"{h:02d}:00" for h in range(24)]
+    peak_hours_data = [hourly_dict.get(h, 0) for h in range(24)]
+
     recent_orders = tenant_orders.prefetch_related('items').order_by('-created_at')[:15]
     
     context = {
@@ -91,6 +145,13 @@ def merchant_overview(request, tenant_slug):
         'completed_orders': completed_orders,
         'pending_fulfillments': pending_fulfillments,
         'total_revenue': total_revenue,
+        'aov': aov,
+        'revenue_labels': revenue_labels,
+        'revenue_data': revenue_data,
+        'top_product_labels': top_product_labels,
+        'top_product_data': top_product_data,
+        'peak_hours_labels': peak_hours_labels,
+        'peak_hours_data': peak_hours_data,
         'recent_orders': recent_orders,
     }
     return render(request, 'tenancy/dashboard/overview.html', context)
