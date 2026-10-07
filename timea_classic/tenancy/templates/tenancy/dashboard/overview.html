@@ -104,11 +104,10 @@
     </div>
 </div>
 
-<!-- Include Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // 1. Monthly Revenue Line Chart
+    // Monthly Revenue Line Chart
     const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
     new Chart(ctxRevenue, {
         type: 'line',
@@ -132,7 +131,7 @@
         }
     });
 
-    // 2. Top Selling Products (Horizontal Bar Chart)
+    //  Top Selling Products (Horizontal Bar Chart)
     const ctxProducts = document.getElementById('topProductsChart').getContext('2d');
     new Chart(ctxProducts, {
         type: 'bar',
@@ -148,7 +147,7 @@
             }]
         },
         options: {
-            indexAxis: 'y', // Converts chart orientation to horizontal
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: { 
