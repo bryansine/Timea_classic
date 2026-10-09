@@ -84,7 +84,6 @@ def merchant_overview(request, tenant_slug):
     paid_orders = tenant_orders.filter(payment_status='Paid').prefetch_related('items')
     paid_orders_count = paid_orders.count()
     
-    # 1. Total Revenue Calculation
     total_revenue = sum(
         (
             Decimal(str(order.subtotal or 0)) + 
@@ -95,10 +94,8 @@ def merchant_overview(request, tenant_slug):
     if not isinstance(total_revenue, Decimal):
         total_revenue = Decimal(str(total_revenue))
     
-    # 2. Average Order Value (AOV)
     aov = (total_revenue / paid_orders_count) if paid_orders_count > 0 else Decimal('0.00')
 
-    # 3. Monthly Revenue Trend (Chart Data)
     order_total_expr = ExpressionWrapper(
         Coalesce(F('subtotal'), 0.0) + Coalesce(F('shipping_cost'), 0.0) - Coalesce(F('discount_amount'), 0.0),
         output_field=DecimalField()
