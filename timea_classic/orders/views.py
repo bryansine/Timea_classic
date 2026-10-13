@@ -387,7 +387,7 @@ def create_order(request):
         'cart': cart,
         'tenant': order_tenant,
         'buy_now_product': buy_now_product,
-        'subtotal': calculated_subtotal,  # <-- Pass subtotal to template
+        'subtotal': calculated_subtotal,
         'popups': popups,
         'user_data': user_initial_data,
     })
@@ -645,10 +645,6 @@ def apply_coupon_ajax(request, tenant_slug):
         'new_total': round(new_total, 2)
     })
     
-
-
-
-
 
 def order_receipt(request, order_id):
     order = get_object_or_404(Order, id=order_id)
