@@ -12,7 +12,7 @@ class MpesaCallbackIntegrationTest(TestCase):
         """Set up standard user, order, and client data before each test."""
         self.client = Client()
         
-        # 1. Create a dummy user
+        # 1. Create a dummy user in the db
         self.user = User.objects.create_user(username="customer1", password="securepassword123")
         
         # 2. Define a mock Safaricom Checkout Request ID
